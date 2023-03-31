@@ -865,7 +865,6 @@ def main():
         do_train=training_args.do_train,
         do_eval=training_args.do_eval,
     )
-    print(f"RA: dataset = {dataset}")
 
     # DELETE LATER
     logger.info(f"Local TPUs: {jax.local_device_count()}")
