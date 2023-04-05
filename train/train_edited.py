@@ -29,13 +29,14 @@ CHANGE LATER = change when already passed the ridiculously long trials
 DELETE LATER = if situation does not go to the abyss, delete; or just not used but can be fatal if deleted
 CHECK LATER = need to be checked
 EDITED = change content
-PENDING = bookmark progress
 IDK = perhaps still needed for exp, or delete it, or modif it
 RESULT = calculation
 RA = monolog and step 0 debugging (diff from logs)
 REPORT = on WANDB report for reasons
 MISSING = not seen/typo
 DILUC = bookmark (don't judge me; I keep forgotting the last bookmark
+KAEYA = I felt like I have seen it before, but memory gone awry
+SHIRA = change later if something wen t awry
 """
 
 import io
@@ -1098,6 +1099,7 @@ def main():
 
     # Create learning rate schedule
     # EDITED: creates a learning rate for an optimizer (to be adjusted; read: experimented. Yey)
+    # hyperparameter that controls the step size at each iteration of an optimization algorithm
     def create_learning_rate_fn() -> Callable[[int], jnp.array]:
         # jnp.array = NumPy array (multi-dimensional, homogeneous array of fixed-size items; same data type)
         """Create the learning rate function."""
@@ -1148,6 +1150,7 @@ def main():
             print(f"RA: transition_steps = {transition_steps}")
             print(f"RA: decay_fn = {decay_fn}")
         elif training_args.lr_decay == "exponential":
+            # useful when the model is close to converging and requires smaller updates
             decay_fn = optax.exponential_decay(
                 init_value=training_args.learning_rate,
                 transition_steps=training_args.lr_transition_steps,
@@ -1186,23 +1189,42 @@ def main():
         # parameters from https://github.com/tensorflow/lingvo/blob/03ee9d7cd50764b0424c7c863733c91fc0b053ec/lingvo/jax/optimizers.py#L729
         print(f"Ra's here. Using distributed shampoo...")
         
-        # DILUC
+        # CHECK LATER
+        # depends on the chosen one, that is the value (and that is what I get)
         graft_type = {
+            # Stochastic Gradient Descent
             "sgd": GraftingType.SGD,
+            # Adaptive Gradient Algorithm
             "adagrad": GraftingType.ADAGRAD,
+            # Root Mean Square Propagation
             "rmsprop": GraftingType.RMSPROP,
+            # Root Mean Square Propagation with Normalization
             "rmsprop_normalized": GraftingType.RMSPROP_NORMALIZED,
+            # Square-root N scaling
             "sqrt_n": GraftingType.SQRT_N,
+            # Adaptive Gradient Algorithm with Normalization
             "adagrad_normalized": GraftingType.ADAGRAD_NORMALIZED,
+            # Adaptive Gradient Algorithm with Normalization
         }[training_args.graft_type]
+        print(f"RA: training_args.graft_type = {training_args.graft_type}")
+        print(f"RA: graft_type = {graft_type}")
+        
+        # partitioning the training across devices (one is one ;v;)
         statistics_partition_spec = (
             PartitionSpec(None, training_args.shard_shampoo_across, None)
+            # class to partition tensor (mesh, mp, dp)
             if training_args.shard_shampoo_across != "2d"
             else PartitionSpec(None, "dp", "mp")
         )
+        print(f"RA: shard_shampoo_across = {training_args.shard_shampoo_across}")
+        print(f"RA: statistics_partition_spec = {statistics_partition_spec}")
+        
+        # CHECK LATER
         opt = distributed_shampoo(
             learning_rate_fn,
+            # KAEYA
             block_size=training_args.block_size,
+            # for block-diagonal preconditioner
             beta1=training_args.beta1,
             beta2=training_args.beta2,
             diagonal_epsilon=1e-10,
@@ -1211,12 +1233,16 @@ def main():
             start_preconditioning_step=max(
                 training_args.preconditioning_compute_steps + 1, 101
             ),
+            # when and how often the preconditioner and statistics are computed during training (and the two following lines too)
             preconditioning_compute_steps=training_args.preconditioning_compute_steps,
             statistics_compute_steps=1,
             best_effort_shape_interpretation=True,
+            # allow the optimizer to handle inputs with unknown shapes
             graft_type=graft_type,
             nesterov=training_args.nesterov,
+            # Nesterov momentum
             exponent_override=0,
+            # usually 0.5
             statistics_partition_spec=statistics_partition_spec,
             preconditioner_partition_spec=PartitionSpec(
                 training_args.shard_shampoo_across, None, None
@@ -1230,17 +1256,29 @@ def main():
             num_devices_for_pjit=training_args.dp_devices,
             shard_optimizer_states=True,
             inverse_failure_threshold=0.1,
+            # if the inverse operation fails to converge within this threshold, the algorithm will fall back to a less accurate but more stable approximation
             moving_average_for_momentum=True,
+            # help smooth out fluctuations in the momentum value, which can improve convergence
             skip_preconditioning_dim_size_gt=training_args.skip_preconditioning_dim_size_gt,
+            # on dimensions that are larger than a certain size. Skipping preconditioning can reduce memory usage
             clip_by_scaled_gradient_norm=None,
+            # whether to clip the gradient by its scaled norm. Gradient clipping prevent the gradient from exploding or vanishing
             precision=jax.lax.Precision.HIGHEST,
+            # SHIRA
+            # improve accuracy with more memory and computation time
             best_effort_memory_usage_reduction=training_args.optim_quantized,
+            # reducing memory usage during optimization (bool)
         )
+        print(f"RA: preconditioning_compute_steps = {training_args.preconditioning_compute_steps}")
+        print(f"RA: opt = {opt}")
+        
         # get the real optimizer and helper functions
         update_fn = opt.update
+        print(f"RA: update_fn = {update_fn}")
 
         optimizer = {}
         opt_fn = {}
+        # DILUC
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" in k:
                 p = jax.eval_shape(
@@ -1267,7 +1305,7 @@ def main():
         # For more details about the parameters please check https://github.com/deepmind/optax/blob/ed02befef9bf81cbbf236be3d2b0e032e9ed4a40/optax/_src/alias.py#L74
         optimizer = optax.adafactor(
             learning_rate=learning_rate_fn,
-            clipping_threshold=training_args.max_grad_norm,
+           u clipping_threshold=training_args.max_grad_norm,
             weight_decay_rate=training_args.weight_decay,
         )
         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
