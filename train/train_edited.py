@@ -1068,10 +1068,9 @@ def main():
     )
     logger.info(f"  Batch size per update = {batch_size_per_step}")
     logger.info(f"  Model parameters = {num_params:,}")
-
-    # DILUC
     
-    # set up wandb run
+    # set up wandb run; DELETE LATER
+    print(f"Ra's here. Initialising WANDB metrics...")
     if jax.process_index() == 0:
         # set default x-axis as 'train/step'
         wandb.define_metric("*", step_metric="train/step")
@@ -1098,22 +1097,43 @@ def main():
         )
 
     # Create learning rate schedule
+    # EDITED: creates a learning rate for an optimizer (to be adjusted; read: experimented. Yey)
     def create_learning_rate_fn() -> Callable[[int], jnp.array]:
+        # jnp.array = NumPy array (multi-dimensional, homogeneous array of fixed-size items; same data type)
         """Create the learning rate function."""
+        print(f"Ra's here. Creating learning rate...")
+        
+        # gradually increases learning rate from init_value to training_args.learning_rate over training_args.warmup_steps; for helping model converge faster during the initial phase of training
         warmup_fn = optax.linear_schedule(
             init_value=0.0,
             end_value=training_args.learning_rate,
             transition_steps=training_args.warmup_steps + 1,  # ensure not 0
         )
+        print(f"RA: end_value = {end_value}")
+        print(f"RA: transition_steps = {transition_steps}")
+        print(f"RA: warmup_fn = {warmup_fn}")
+        
         last_boundary = training_args.warmup_steps
+        print(f"RA: last_boundary = {last_boundary}")
+        
         # offset step when resuming
+        # DELETE LATER... maaaaaybe. Let's see the GPU limit first. Or luck
+        print(f"RA: lr_offset = {training_args.lr_offset}")
         if training_args.lr_offset:
+            # appends a constant schedule of 0 before the warm-up schedule, and updates the last boundary (for resuming training from a checkpoint)
             warmup_fn = optax.join_schedules(
                 schedules=[optax.constant_schedule(0.0), warmup_fn],
                 boundaries=[training_args.lr_offset],
             )
+            print(f"RA: schedules = {schedules}")
+            print(f"RA: boundaries = {boundaries}")
+            print(f"RA: warmup_fn = {warmup_fn}")
             last_boundary += training_args.lr_offset
+            print(f"RA: last_boundary = {last_boundary}")
+            
+        print(f"RA: lr_decay = {training_args.lr_decay}")
         if training_args.lr_decay is None:
+            print(f"RA: warmup_fn = {warmup_fn}")
             return warmup_fn
         elif training_args.lr_decay == "linear":
             assert (
@@ -1124,6 +1144,9 @@ def main():
                 end_value=0,
                 transition_steps=num_train_steps - training_args.warmup_steps,
             )
+            print(f"RA: learning_rate = {training_args.learning_rate}")
+            print(f"RA: transition_steps = {transition_steps}")
+            print(f"RA: decay_fn = {decay_fn}")
         elif training_args.lr_decay == "exponential":
             decay_fn = optax.exponential_decay(
                 init_value=training_args.learning_rate,
@@ -1131,20 +1154,39 @@ def main():
                 decay_rate=training_args.lr_decay_rate,
                 staircase=training_args.lr_staircase,
             )
+            print(f"RA: learning_rate = {training_args.learning_rate}")
+            print(f"RA: transition_steps = {transition_steps}")
+            print(f"RA: decay_rate = {decay_rate}")
+            print(f"RA: staircase = {staircase}")
+            print(f"RA: decay_fn = {decay_fn}")
+            
         schedule_fn = optax.join_schedules(
             schedules=[warmup_fn, decay_fn],
             boundaries=[last_boundary],
         )
+        print(f"RA: schedules = {schedules}")
+        print(f"RA: boundaries = {boundaries}")
+        print(f"RA: schedule_fn = {schedule_fn}")
+        
         return schedule_fn
 
     learning_rate_fn = create_learning_rate_fn()
-
+    print(f"RA: learning_rate_fn = {learning_rate_fn}")
+    
     # create optimizer
+    print(f"Ra's here. Cereate optimizer...")
     trainable_params_shape = trainable_params(
         params_shape, training_args.embeddings_only
     )
+    print(f"RA: params_shape = {params_shape}")
+    print(f"RA: embeddings_only = {training_args.embeddings_only}")
+    print(f"RA: trainable_params_shape = {trainable_params_shape}")
+    
     if training_args.optim == "distributed_shampoo":
         # parameters from https://github.com/tensorflow/lingvo/blob/03ee9d7cd50764b0424c7c863733c91fc0b053ec/lingvo/jax/optimizers.py#L729
+        print(f"Ra's here. Using distributed shampoo...")
+        
+        # DILUC
         graft_type = {
             "sgd": GraftingType.SGD,
             "adagrad": GraftingType.ADAGRAD,
