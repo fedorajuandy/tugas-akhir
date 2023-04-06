@@ -1329,24 +1329,29 @@ def main():
         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
         print(f"RA: optimizer = {optimizer}")
 
-    # DILUC
     # get PartitionSpec for optimizer state
     def get_opt_state_spec_and_shape():
         # get opt_state shape without actual init
         opt_state_shape = {}
+        
+        # DILUC for explanation
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" not in k:
                 opt_state_shape[k] = jax.eval_shape(optimizer[k].init, p)
+                print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
             else:
                 opt_state_shape[k] = jax.eval_shape(jax.vmap(optimizer[k].init), p)
 
+        # most likely remove if
         if training_args.optim == "adafactor":
             # factorized state must be replicated (rank different than params)
             opt_state_spec = {k: None for k in split_params(trainable_params_shape)}
+            print(f"RA: opt_state_spec = {opt_state_spec}")
 
         elif training_args.optim in ["adam", "distributed_shampoo"]:
-
             def _opt_state_spec_per_leaf(x, spec):
+                print(f"RA: x = {x}")
+                print(f"RA: spec = {spec}")
                 if isinstance(x, FrozenDict):
                     # variables with same structure as params
                     return spec
@@ -1355,12 +1360,17 @@ def main():
                     return None
 
             split_spec = split_params(set_partitions(trainable_params_shape, False))
+            print(f"RA: split_spec = {split_spec}")
             opt_state_spec = {}
+            
+            print(f"RA: trainable_params_shape = {trainable_params_shape}")
             for k, p in split_params(trainable_params_shape).items():
                 if "scanned" in k:
                     p = jax.eval_shape(
                         lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
                     )
+                    print(f"RA: p = {p}")
+                    
                 if training_args.optim == "adam":
                     opt_state_spec[k] = jax.tree_util.tree_map(
                         partial(_opt_state_spec_per_leaf, spec=split_spec[k]),
@@ -1368,12 +1378,18 @@ def main():
                         # return None spec for empty elements
                         is_leaf=lambda x: isinstance(x, (FrozenDict, optax.EmptyState)),
                     )
+                    print(f"RA: opt_state_spec[k] = {opt_state_spec[k]}")
+                    print(f"RA: _opt_state_spec_per_leaf = {_opt_state_spec_per_leaf}")
+                    print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+                    print(f"RA: is_leaf = {is_leaf}")
                 elif training_args.optim == "distributed_shampoo":
                     opt_state_spec[k] = opt_fn[k].pspec_fn(
                         p,
                         split_spec[k],
                         statistics_partition_spec,
                     )
+                    print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+                    
                 # add dimension for scanned params
                 if "scanned" in k:
                     opt_state_spec[k] = jax.tree_util.tree_map(
@@ -1383,19 +1399,31 @@ def main():
                         opt_state_spec[k],
                         is_leaf=lambda x: isinstance(x, PartitionSpec),
                     )
+                    print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+                    print(f"RA: is_leaf = {is_leaf}")
 
         else:
             raise NotImplementedError
+            
+        print(f"RA: opt_state_spec = {opt_state_spec}")
+        print(f"RA: opt_state_shape = {opt_state_shape}")
         return freeze(opt_state_spec), freeze(opt_state_shape)
 
     opt_state_spec, opt_state_shape = get_opt_state_spec_and_shape()
+    print(f"RA: opt_state_spec = {opt_state_spec}")
+    print(f"RA: opt_state_shape = {opt_state_shape}")
 
     # create a mesh
     mesh_shape = (training_args.dp_devices, training_args.mp_devices)
+    print(f"RA: mesh_shape (dp, mp) = {mesh_shape}")
     devices = np.asarray(jax.devices()).reshape(*mesh_shape)
+    print(f"RA: devices = {devices}")
     mesh = maps.Mesh(devices, ("dp", "mp"))
+    # reshape it into a grid of the specified shape to distribute computation
+    print(f"RA: optimizer = {optimizer}")
     logger.info(f"  Mesh shape: {mesh_shape}")
 
+    # DILUC for continuation
     # define TrainState
     class TrainState(struct.PyTreeNode):
         step: int
