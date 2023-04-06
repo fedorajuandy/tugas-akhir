@@ -1185,6 +1185,7 @@ def main():
     print(f"RA: embeddings_only = {training_args.embeddings_only}")
     print(f"RA: trainable_params_shape = {trainable_params_shape}")
     
+    # REMOVE LATER; most likely only us
     if training_args.optim == "distributed_shampoo":
         # parameters from https://github.com/tensorflow/lingvo/blob/03ee9d7cd50764b0424c7c863733c91fc0b053ec/lingvo/jax/optimizers.py#L729
         print(f"Ra's here. Using distributed shampoo...")
@@ -1278,19 +1279,30 @@ def main():
 
         optimizer = {}
         opt_fn = {}
-        # DILUC
+
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" in k:
                 p = jax.eval_shape(
+                    # CHECK LATER
                     lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
+                    # extracts the first element of each value in the parameter tree
                 )
+                print(f"RA: update_fn = {update_fn}")
+                
             optimizer[k] = opt.init(p)
+            # initialize the optimizer with the trainable parameter values
+            print(f"RA: optimizer[k] = {optimizer[k]}")
+            # CHECK LATER
             opt_fn[k] = NamedTuple("opt_fn", pspec_fn=Any, shape_and_dtype_fn=Any)(
                 optimizer[k].pspec_fn, optimizer[k].shape_and_dtype_fn
             )
+            print(f"RA: opt_fn[k] = {opt_fn[k]}")
+            # CHECK LATER
             optimizer[k] = optax.GradientTransformation(optimizer[k].init_fn, update_fn)
-
+            print(f"RA: optimizer[k] = {optimizer[k]}")
+            
     elif training_args.optim == "adam":
+        # adam optimizier includes weight decay regularization
         optimizer = optax.adamw(
             learning_rate=learning_rate_fn,
             b1=training_args.beta1,
@@ -1298,18 +1310,26 @@ def main():
             eps=training_args.adam_epsilon,
             weight_decay=training_args.weight_decay,
         )
+        print(f"RA: optimizer = {optimizer}")
         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
+        # creates a dictionary where the keys are the names of the trainable parameters and the values are the optimizer object created
+        # splits the trainable parameters into separate groups based on their shapes (for applying different optimization strategies to different groups of parameters, such as applying weight decay only to the weights and not the biases)
+        print(f"RA: optimizer = {optimizer}")
 
     elif training_args.optim == "adafactor":
         # We use the default parameters here to initialize adafactor,
         # For more details about the parameters please check https://github.com/deepmind/optax/blob/ed02befef9bf81cbbf236be3d2b0e032e9ed4a40/optax/_src/alias.py#L74
         optimizer = optax.adafactor(
             learning_rate=learning_rate_fn,
-           u clipping_threshold=training_args.max_grad_norm,
+            clipping_threshold=training_args.max_grad_norm,
+            # prevent gradient becoming too large (esp with many parameters)
             weight_decay_rate=training_args.weight_decay,
         )
+        print(f"RA: optimizer = {optimizer}")
         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
+        print(f"RA: optimizer = {optimizer}")
 
+    # DILUC
     # get PartitionSpec for optimizer state
     def get_opt_state_spec_and_shape():
         # get opt_state shape without actual init
