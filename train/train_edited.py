@@ -1302,6 +1302,7 @@ def main():
             print(f"RA: optimizer[k] = {optimizer[k]}")
             
     elif training_args.optim == "adam":
+        print(f"Ra's here. Using adam...")
         # adam optimizier includes weight decay regularization
         optimizer = optax.adamw(
             learning_rate=learning_rate_fn,
@@ -1317,6 +1318,7 @@ def main():
         print(f"RA: optimizer = {optimizer}")
 
     elif training_args.optim == "adafactor":
+        print(f"Ra's here. Using adafactor...")
         # We use the default parameters here to initialize adafactor,
         # For more details about the parameters please check https://github.com/deepmind/optax/blob/ed02befef9bf81cbbf236be3d2b0e032e9ed4a40/optax/_src/alias.py#L74
         optimizer = optax.adafactor(
@@ -1331,25 +1333,31 @@ def main():
 
     # get PartitionSpec for optimizer state
     def get_opt_state_spec_and_shape():
+        print(f"Ra's here. Getting PartitionSpec...")
         # get opt_state shape without actual init
         opt_state_shape = {}
         
         # DILUC for explanation
+        print(f"Ra's here. Start looping...")
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" not in k:
                 opt_state_shape[k] = jax.eval_shape(optimizer[k].init, p)
                 print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
             else:
                 opt_state_shape[k] = jax.eval_shape(jax.vmap(optimizer[k].init), p)
-
+        print(f"Ra's here. Ends loop...")
+        
         # most likely remove if
         if training_args.optim == "adafactor":
+            print(f"Ra's here. Using adafactor...")
             # factorized state must be replicated (rank different than params)
             opt_state_spec = {k: None for k in split_params(trainable_params_shape)}
             print(f"RA: opt_state_spec = {opt_state_spec}")
 
         elif training_args.optim in ["adam", "distributed_shampoo"]:
+            print(f"Ra's here. Using distributed shampoo or adam...")
             def _opt_state_spec_per_leaf(x, spec):
+                print(f"Ra's here. _opt_state_spec_per_leaf starts...")
                 print(f"RA: x = {x}")
                 print(f"RA: spec = {spec}")
                 if isinstance(x, FrozenDict):
@@ -1359,11 +1367,13 @@ def main():
                     # other variables such as count
                     return None
 
+            print(f"Ra's here. _opt_state_spec_per_leaf ends.")
             split_spec = split_params(set_partitions(trainable_params_shape, False))
             print(f"RA: split_spec = {split_spec}")
             opt_state_spec = {}
             
             print(f"RA: trainable_params_shape = {trainable_params_shape}")
+            print(f"Ra's here. Start looping...")
             for k, p in split_params(trainable_params_shape).items():
                 if "scanned" in k:
                     p = jax.eval_shape(
@@ -1372,6 +1382,7 @@ def main():
                     print(f"RA: p = {p}")
                     
                 if training_args.optim == "adam":
+                    print(f"Ra's here. Using adam...")
                     opt_state_spec[k] = jax.tree_util.tree_map(
                         partial(_opt_state_spec_per_leaf, spec=split_spec[k]),
                         opt_state_shape[k],
@@ -1383,6 +1394,7 @@ def main():
                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
                     print(f"RA: is_leaf = {is_leaf}")
                 elif training_args.optim == "distributed_shampoo":
+                    print(f"Ra's here. Using distributed shampoo...")
                     opt_state_spec[k] = opt_fn[k].pspec_fn(
                         p,
                         split_spec[k],
@@ -1401,7 +1413,8 @@ def main():
                     )
                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
                     print(f"RA: is_leaf = {is_leaf}")
-
+                    
+            print(f"Ra's here. Loop ended.")
         else:
             raise NotImplementedError
             
@@ -1409,6 +1422,7 @@ def main():
         print(f"RA: opt_state_shape = {opt_state_shape}")
         return freeze(opt_state_spec), freeze(opt_state_shape)
 
+    print(f"Ra's here. Mesh stuff here..?")
     opt_state_spec, opt_state_shape = get_opt_state_spec_and_shape()
     print(f"RA: opt_state_spec = {opt_state_spec}")
     print(f"RA: opt_state_shape = {opt_state_shape}")
@@ -1423,7 +1437,6 @@ def main():
     print(f"RA: optimizer = {optimizer}")
     logger.info(f"  Mesh shape: {mesh_shape}")
 
-    # DILUC for continuation
     # define TrainState
     class TrainState(struct.PyTreeNode):
         step: int
@@ -1437,26 +1450,50 @@ def main():
         train_samples: int = 0  # number of samples seen
 
         def apply_gradients(self, *, grads, **kwargs):
+            print(f"Ra's here. Start applying gradients...")
+
             grads = split_params(trainable_params(grads, training_args.embeddings_only))
+            print(f"RA: grads = {grads}")
             params = split_params(
                 trainable_params(self.params, training_args.embeddings_only)
             )
+            print(f"RA: params = {params}")
             opt_state = {}
+            
             # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
+            print(f"Ra's here. Start looping...")
             for k, param in params.items():
                 update_fn = self.tx[k].update
+                print(f"RA: update_fn = {update_fn}")
                 if "scanned" in k:
                     update_fn = jax.vmap(update_fn, in_axes=(0, 0, 0), out_axes=(0, 0))
+                    print(f"RA: update_fn = {update_fn}")
                 updates, new_opt_state = update_fn(grads[k], self.opt_state[k], param)
+                print(f"RA: update_fn = {update_fn}")
+                print(f"RA: update_fn = {update_fn}")
                 params[k] = optax.apply_updates(param, updates)
+                print(f"RA: params[k] = {params[k]}")
                 opt_state[k] = new_opt_state
+                print(f"RA: opt_state[k] = {opt_state[k]}")
+            print(f"Ra's here. Loop ends.")
+            
+            print(f"Ra's here. Params stuff here.")
             params = unsplit_params(params)
+            print(f"RA: params = {params}")
             # merge with non-trainable params
             params, new_params = traverse_util.flatten_dict(
                 unfreeze(self.params)
             ), traverse_util.flatten_dict(unfreeze(params))
+            print(f"RA: params = {params}")
+            print(f"RA: new_params = {new_params}")
             params.update(new_params)
+            print(f"RA: params = {params}")
             params = freeze(traverse_util.unflatten_dict(params))
+            print(f"RA: params = {params}")
+            
+            print(f"RA: step = {self.step + 1}")
+            print(f"RA: opt_state = {freeze(opt_state)}")
+            print(f"RA: kwargs = {**kwargs}")
 
             return self.replace(
                 step=self.step + 1,
@@ -1465,6 +1502,7 @@ def main():
                 **kwargs,
             )
 
+        # DILUC
         @classmethod
         def create(cls, *, apply_fn, params, tx, **kwargs):
             opt_state = {}
