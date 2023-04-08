@@ -1955,7 +1955,8 @@ def main():
         position=0,
         disable=jax.process_index() > 0,
     )
-
+    
+    print(f"Luc")
     def run_evaluation():
         # ======================== Evaluating ==============================
         if training_args.do_eval:
@@ -2032,8 +2033,8 @@ def main():
 
             return eval_metrics
 
+    print(f"Yaya")
     def run_save_model(state, eval_metrics=None):
-        print(f"Yaya")
         if jax.process_index() == 0:
 
             start_save_time = time.perf_counter()
@@ -2130,7 +2131,8 @@ def main():
                     )
                 wandb.run.log_artifact(artifact_state)
             metrics_logger.log_time("save_model", time.perf_counter() - start_save_time)
-
+    
+    print(f"Shira")
     logger.info("  Ready to start training")
     with mesh:
         for epoch in epochs:
