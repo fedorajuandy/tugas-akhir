@@ -719,12 +719,12 @@ def split_params(data):
     
     flat = traverse_util.flatten_dict(unfreeze(data))
     # flat dictionary: nested dictionary in path... repreesntation -> seek report
-    print(f"RA: flat = {flat}")
+#     print(f"RA: flat = {flat}")
     # Kaggle: flat = {('lm_head', 'kernel'): ShapeDtypeStruct(shape=(1024, 16385), dtype=float32), ('model', 'decoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(256, 1024), dtype=float32), ('model', 'decoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(16385, 1024), dtype=float32), ('model', 'decoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_2', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(64, 1024), dtype=float32), ('model', 'encoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(50264, 1024), dtype=float32), ('model', 'encoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32)}
     # Kaggle: flat = {('lm_head', 'kernel'): ShapeDtypeStruct(shape=(1024, 16385), dtype=float32), ('model', 'decoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(256, 1024), dtype=float32), ('model', 'decoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(16385, 1024), dtype=float32), ('model', 'decoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_2', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(64, 1024), dtype=float32), ('model', 'encoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(50264, 1024), dtype=float32), ('model', 'encoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32)}
     
     split = {"standard": {}, "scanned_encoder": {}, "scanned_decoder": {}}
-    print(f"RA: split = {split}")
+#     print(f"RA: split = {split}")
     # Kaggle: split = {'standard': {}, 'scanned_encoder': {}, 'scanned_decoder': {}}
     # Kaggle: split = {'standard': {}, 'scanned_encoder': {}, 'scanned_decoder': {}}
     for k, v in flat.items():
@@ -734,7 +734,7 @@ def split_params(data):
             split["scanned_decoder"][k] = v
         else:
             split["standard"][k] = v
-    print(f"RA: split after loop = {split}")
+#     print(f"RA: split after loop = {split}")
     # Kaggle: split after loop = {'standard': {('lm_head', 'kernel'): ShapeDtypeStruct(shape=(1024, 16385), dtype=float32), ('model', 'decoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(256, 1024), dtype=float32), ('model', 'decoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(16385, 1024), dtype=float32), ('model', 'decoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(64, 1024), dtype=float32), ('model', 'encoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(50264, 1024), dtype=float32), ('model', 'encoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32)}, 'scanned_encoder': {('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32)}, 'scanned_decoder': {('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_2', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32)}}
     # Kaggle: split after loop = {'standard': {('lm_head', 'kernel'): ShapeDtypeStruct(shape=(1024, 16385), dtype=float32), ('model', 'decoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(256, 1024), dtype=float32), ('model', 'decoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(16385, 1024), dtype=float32), ('model', 'decoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'decoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'embed_positions', 'embedding'): ShapeDtypeStruct(shape=(64, 1024), dtype=float32), ('model', 'encoder', 'embed_tokens', 'embedding'): ShapeDtypeStruct(shape=(50264, 1024), dtype=float32), ('model', 'encoder', 'final_ln', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'bias'): ShapeDtypeStruct(shape=(1024,), dtype=float32), ('model', 'encoder', 'layernorm_embedding', 'scale'): ShapeDtypeStruct(shape=(1024,), dtype=float32)}, 'scanned_encoder': {('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'encoder', 'layers', 'FlaxBartEncoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32)}, 'scanned_decoder': {('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_0', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'k_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'out_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'q_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'FlaxBartAttention_1', 'v_proj', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_0', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_1', 'kernel'): ShapeDtypeStruct(shape=(12, 1024, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'Dense_2', 'kernel'): ShapeDtypeStruct(shape=(12, 2730, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'GLU_0', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 2730), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_0', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_1', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_2', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'bias'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32), ('model', 'decoder', 'layers', 'FlaxBartDecoderLayers', 'LayerNorm_3', 'scale'): ShapeDtypeStruct(shape=(12, 1024), dtype=float32)}}
     
@@ -742,7 +742,7 @@ def split_params(data):
     split = {k: v for k, v in split.items() if v}
     for k, v in split.items():
         split[k] = freeze(traverse_util.unflatten_dict(v))
-    print(f"RA: split after removing non-captions = {split}")
+#     print(f"RA: split after removing non-captions = {split}")
     # REPORT
     return split
 
@@ -754,7 +754,7 @@ def unsplit_params(data):
     for k in ["standard", "scanned_encoder", "scanned_decoder"]:
         if k in data:
             flat.update(traverse_util.flatten_dict(unfreeze(data[k])))
-    print(f"RA: flat = {flat}")
+#     print(f"RA: flat = {flat}")
             
     return freeze(traverse_util.unflatten_dict(flat))
 
@@ -765,11 +765,11 @@ def trainable_params(data, embeddings_only):
 
     if not embeddings_only:
         return data
-    print(f"RA: data = {data}")
+#     print(f"RA: data = {data}")
 
     # DELETE LATER; by I mean delete, edit the whole functionality
     data = unfreeze(data)
-    print(f"RA: frozen data = {data}")
+#     print(f"RA: frozen data = {data}")
     
     trainable = {
         "lm_head": data["lm_head"],
@@ -787,7 +787,7 @@ def trainable_params(data, embeddings_only):
             }
         },
     }
-    print(f"RA: trainable = {trainable}")
+#     print(f"RA: trainable = {trainable}")
     
     return freeze(trainable)
 
@@ -805,11 +805,11 @@ def init_embeddings(model, params):
         "model.decoder.layernorm_embedding.bias",
         "model.decoder.layernorm_embedding.scale",
     ]
-    print(f"RA: trainable_keypaths = {trainable_keypaths}")
+#     print(f"RA: trainable_keypaths = {trainable_keypaths}")
 
     # Note: using private _missing_keys
     init_keys = {tuple(k.split(".")) for k in trainable_keypaths}
-    print(f"RA: init_keys = {init_keys}")
+#     print(f"RA: init_keys = {init_keys}")
     model._missing_keys = init_keys
     
     return model.init_weights(model.key, model.input_shape, params=params)
@@ -823,7 +823,7 @@ def main():
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, TrainingArguments)
     )
-    print(f"RA: parser = {parser}")
+#     print(f"RA: parser = {parser}")
     # Kaggle: parser = HfArgumentParser(prog='train_edited.py', usage=None, description=None, formatter_class=<class 'argparse.ArgumentDefaultsHelpFormatter'>, conflict_handler='error', add_help=True)
     
     # DELETE LATER (the json part)
@@ -835,13 +835,13 @@ def main():
         )
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-    print(f"RA: model_args = {model_args}")
+#     print(f"RA: model_args = {model_args}")
     # Colab: model_args = ModelArguments(model_name_or_path=None, config_name='/kaggle/working/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
     # Kaggle: ModelArguments(model_name_or_path=None, config_name='/kaggle/working/tugas-akhir/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
-    print(f"RA: data_args = {data_args}")
+#     print(f"RA: data_args = {data_args}")
     # RA: data_args = DataTrainingArguments(text_column='caption', encoding_column='encoding', dataset_repo_or_path='/kaggle/input/celeba-hq-encoded-512/encoded_data_512', train_file=None, validation_file=None, streaming=True, use_auth_token=False, shard_by_host=False, blank_caption_prob=0.0, clip_score_column='clip_score', min_clip_score=None, max_clip_score=None, filter_column=None, filter_value=None, multi_eval_ds=False, max_train_samples=None, max_eval_samples=None, preprocessing_num_workers=None, overwrite_cache=False, seed_dataset=None)
     # Kaggle: data_args = DataTrainingArguments(text_column='caption', encoding_column='encoding', dataset_repo_or_path='/kaggle/input/celeba-hq-encoded-512/encoded_data_512', train_file=None, validation_file=None, streaming=True, use_auth_token=False, shard_by_host=False, blank_caption_prob=0.0, clip_score_column='clip_score', min_clip_score=None, max_clip_score=None, filter_column=None, filter_value=None, multi_eval_ds=False, max_train_samples=None, max_eval_samples=None, preprocessing_num_workers=None, overwrite_cache=False, seed_dataset=None)
-    print(f"RA: training_args = {training_args}")
+#     print(f"RA: training_args = {training_args}")
     # Kaggle: training_args = TrainingArguments(output_dir='/kaggle/working/tugas-akhir/train/who_are_you', overwrite_output_dir=False, do_train=True, do_eval=False, per_device_train_batch_size=1, per_device_eval_batch_size=1, gradient_accumulation_steps=1, gradient_checkpointing=False, learning_rate=5e-05, optim='distributed_shampoo', weight_decay=0.0, beta1=0.9, beta2=0.999, adam_epsilon=1e-08, max_grad_norm=1.0, block_size=1024, preconditioning_compute_steps=10, skip_preconditioning_dim_size_gt=4096, graft_type='rmsprop_normalized', nesterov=False, optim_quantized=False, shard_shampoo_across='dp', num_train_epochs=1, warmup_steps=0, lr_decay=None, lr_transition_steps=None, lr_decay_rate=None, lr_staircase=False, lr_offset=0, logging_steps=40, eval_steps=400, save_steps=4000, log_model=False, log_norm_steps=40, log_histogram_steps=False, seed_model=42, embeddings_only=False, init_embeddings=False, wandb_entity=None, wandb_project='dalle-mini', wandb_job_type='Seq2Seq', assert_TPU_available=False, use_vmap_trick=True, mp_devices=1, dp_devices=2
     
     # check arguments
@@ -913,7 +913,7 @@ def main():
         config = DalleBartConfig.from_pretrained(model_args.config_name)
     else:
         config = None
-    print(f"RA: config = {config}")
+#     print(f"RA: config = {config}")
     # REPORT
 
     # Load or create new model
@@ -937,44 +937,44 @@ def main():
             _do_init=False,
         )
         params = None
-    print(f"RA: model = {model}")
+#     print(f"RA: model = {model}")
     # Kaggle: model = <dalle_mini.model.modeling.DalleBart object at 0x7f5a19c48510>
-    print(f"RA: params = {params}")
+#     print(f"RA: params = {params}")
     # Kaggle: params = None
         
     # CHECK LATER
     for k, v in config_args.items():
         setattr(model.config, k, v)
     params_shape = model.params_shape_tree
-    print(f"RA: params_shape = {params_shape}")
+#     print(f"RA: params_shape = {params_shape}")
     # REPORT
 
     # get model metadata
     # CHECK LATER
     model_metadata = model_args.get_metadata()
-    print(f"RA: model_metadata = {model_metadata}")
+#     print(f"RA: model_metadata = {model_metadata}")
     # Kaggle: model_metadata = {}
     
     print(f"Ra's here. Processing dataset...")
     # get PartitionSpec for model params (required to be a dict)
     # break to small chunks for parallel
     param_spec = set_partitions(params_shape, model.config.use_scan)
-    print(f"RA: param_spec = {param_spec}")
+#     print(f"RA: param_spec = {param_spec}")
     # REPORT
     # set_partitions(tuple of model's paramemter, bool )
     params_shape = freeze(params_shape)
-    print(f"RA: params_shape = {params_shape}")
+#     print(f"RA: params_shape = {params_shape}")
     # REPORT
     if params is not None:
         params = freeze(params)
-        print(f"RA: params = {params}")
+#         print(f"RA: params = {params}")
         # Skip for Kaggle
 
     # Load tokenizer
     tokenizer = DalleBartTokenizer.from_pretrained(
         model_args.tokenizer_name, use_fast=True
     )
-    print(f"RA: tokenizer = {tokenizer}")
+#     print(f"RA: tokenizer = {tokenizer}")
     # Kaggle: tokenizer = DalleBartTokenizer(name_or_path='boris/dalle-mini-tokenizer', vocab_size=50265, model_max_length=1024, is_fast=True, padding_side='right', truncation_side='right', special_tokens={'bos_token': '<s>', 'eos_token': '</s>', 'unk_token': '<unk>', 'sep_token': '</s>', 'pad_token': '<pad>', 'cls_token': '<s>', 'mask_token': AddedToken("<mask>", rstrip=False, lstrip=True, single_word=False, normalized=False)})
 
     # Preprocessing the datasets.
@@ -986,12 +986,12 @@ def main():
     # Initialize our training
     dropout_rng = jax.random.PRNGKey(training_args.seed_model)
     # PRNGKey (data type) = 128 bit (2 x 64 for JAX)  seed val for PRNG (based on Threefry counter-based RNG; peseudorandom from counter val)
-    print(f"RA: dropout_rng = {dropout_rng}")
+#     print(f"RA: dropout_rng = {dropout_rng}")
     # Kaggle: dropout_rng = [ 0 42]
 
     # Store some constant
     num_epochs = training_args.num_train_epochs
-    print(f"RA: num_epochs = {num_epochs}")
+#     print(f"RA: num_epochs = {num_epochs}")
     # Kaggle: num_epochs = 1
     # batch size
     batch_size_per_node_per_grad_step = (
@@ -999,23 +999,23 @@ def main():
         * jax.local_device_count()
         // training_args.mp_devices
     )
-    print(f"RA: per_device_train_batch_size = {training_args.per_device_train_batch_size}")
+#     print(f"RA: per_device_train_batch_size = {training_args.per_device_train_batch_size}")
     # Kaggle: per_device_train_batch_size = 1
-    print(f"RA: local_device_count = {jax.local_device_count()}")
+#     print(f"RA: local_device_count = {jax.local_device_count()}")
     # Kaggle: local_device_count = 2
-    print(f"RA: mp_devices = {training_args.mp_devices}")
+#     print(f"RA: mp_devices = {training_args.mp_devices}")
     # RESULT: 1 * 1 // 1 = 1
     # Kaggle: mp_devices = 1
     batch_size_per_node = (
         batch_size_per_node_per_grad_step * training_args.gradient_accumulation_steps
     )
-    print(f"RA: batch_size_per_node_per_grad_step = {batch_size_per_node_per_grad_step}")
+#     print(f"RA: batch_size_per_node_per_grad_step = {batch_size_per_node_per_grad_step}")
     # Kaggle: batch_size_per_node_per_grad_step = 2
-    print(f"RA: gradient_accumulation_steps = {training_args.gradient_accumulation_steps}")
+#     print(f"RA: gradient_accumulation_steps = {training_args.gradient_accumulation_steps}")
     # RESULT: 1 * 1 = 1
     # Kaggle: gradient_accumulation_steps = 1
     batch_size_per_step = batch_size_per_node * jax.process_count()
-    print(f"RA: batch_size_per_step = {batch_size_per_step}")
+#     print(f"RA: batch_size_per_step = {batch_size_per_step}")
     # RESULT = 1 * 1 = 1
     # MISSING
     
@@ -1025,34 +1025,34 @@ def main():
         * jax.local_device_count()
         // training_args.mp_devices
     )
-    print(f"RA: eval_batch_size_per_node = {eval_batch_size_per_node}")
+#     print(f"RA: eval_batch_size_per_node = {eval_batch_size_per_node}")
     # Kaggle: eval_batch_size_per_node = 2
     eval_batch_size_per_step = eval_batch_size_per_node * jax.process_count()
-    print(f"RA: eval_batch_size_per_step = {eval_batch_size_per_step}")
+#     print(f"RA: eval_batch_size_per_step = {eval_batch_size_per_step}")
     # Kaggle: eval_batch_size_per_step = 2
     
     # DELETE LATER the eval part
     len_train_dataset, len_eval_dataset = dataset.length
-    print(f"RA: len_train_dataset = {len_train_dataset}")
+#     print(f"RA: len_train_dataset = {len_train_dataset}")
     # Kaggle: len_train_dataset = None
     steps_per_epoch = (
         len_train_dataset // batch_size_per_node
         if len_train_dataset is not None
         else None
     )
-    print(f"RA: batch_size_per_node {batch_size_per_node}")
+#     print(f"RA: batch_size_per_node {batch_size_per_node}")
     # The result is 2. Wut.
     # Kaggle: batch_size_per_node 2
-    print(f"RA: steps_per_epoch = {steps_per_epoch}")
+#     print(f"RA: steps_per_epoch = {steps_per_epoch}")
     # RESULT = PENDING
     # Kaggle: steps_per_epoch = None
     num_train_steps = (
         steps_per_epoch * num_epochs if steps_per_epoch is not None else None
     )
-    print(f"RA: num_train_steps = {num_train_steps}")
+#     print(f"RA: num_train_steps = {num_train_steps}")
     # Kaggle: num_train_steps = None
     num_params = model.num_params(params_shape)
-    print(f"RA: num_params = {num_params}")
+#     print(f"RA: num_params = {num_params}")
     # Kaggle: num_params = 437833712
 
     print(f"Ra's here. Start training...")
@@ -1873,6 +1873,8 @@ def main():
         out_axis_resources=(state_spec, None),
         donate_argnums=(0,),
     )
+    print(f";-;")
+    print(f"RA" p_train_step = {p_train_step})
     p_eval_step = pjit(
         eval_step,
         in_axis_resources=(state_spec, batch_spec),
