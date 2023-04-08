@@ -1111,8 +1111,8 @@ def main():
             end_value=training_args.learning_rate,
             transition_steps=training_args.warmup_steps + 1,  # ensure not 0
         )
-        print(f"RA: end_value = {end_value}")
-        print(f"RA: transition_steps = {transition_steps}")
+        print(f"RA: end_value = {training_args.learning_rate}")
+        print(f"RA: transition_steps = {training_args.warmup_steps + 1}")
         print(f"RA: warmup_fn = {warmup_fn}")
         
         last_boundary = training_args.warmup_steps
