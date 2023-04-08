@@ -1392,7 +1392,7 @@ def main():
                     print(f"RA: opt_state_spec[k] = {opt_state_spec[k]}")
                     print(f"RA: _opt_state_spec_per_leaf = {_opt_state_spec_per_leaf}")
                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
-                    print(f"RA: is_leaf = {is_leaf}")
+#                     print(f"RA: is_leaf = {is_leaf}")
                 elif training_args.optim == "distributed_shampoo":
                     print(f"Ra's here. Using distributed shampoo...")
                     opt_state_spec[k] = opt_fn[k].pspec_fn(
@@ -1412,7 +1412,7 @@ def main():
                         is_leaf=lambda x: isinstance(x, PartitionSpec),
                     )
                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
-                    print(f"RA: is_leaf = {is_leaf}")
+#                     print(f"RA: is_leaf = {is_leaf}")
                     
             print(f"Ra's here. Loop ended.")
         else:
