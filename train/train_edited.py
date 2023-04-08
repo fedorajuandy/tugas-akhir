@@ -1671,9 +1671,7 @@ def main():
             print(f"RA: logits = {logits}")
             return loss_fn(logits, labels)
 
-        print(f"Luuuc")
         grad_fn = jax.value_and_grad(compute_loss)
-        print(f"Yaya")
         
         def loss_and_grad(grad_idx, dropout_rng):
             print(f"Diluc 4")
@@ -2035,6 +2033,7 @@ def main():
             return eval_metrics
 
     def run_save_model(state, eval_metrics=None):
+        print(f"Yaya")
         if jax.process_index() == 0:
 
             start_save_time = time.perf_counter()
