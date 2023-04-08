@@ -1671,9 +1671,10 @@ def main():
             print(f"RA: logits = {logits}")
             return loss_fn(logits, labels)
 
-        print(f"Diluc 3")
+        print(f"Luuuc")
         grad_fn = jax.value_and_grad(compute_loss)
-
+        print(f"Yaya")
+        
         def loss_and_grad(grad_idx, dropout_rng):
             print(f"Diluc 4")
             # minibatch at grad_idx for gradient accumulation (None otherwise)
