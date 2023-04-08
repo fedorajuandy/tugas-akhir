@@ -1496,7 +1496,7 @@ def main():
             
             print(f"RA: step = {self.step + 1}")
             print(f"RA: opt_state = {freeze(opt_state)}")
-            print(f"RA: kwargs = {**kwargs}")
+            print(f"RA: kwargs = {kwargs}")
 
             return self.replace(
                 step=self.step + 1,
