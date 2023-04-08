@@ -1525,7 +1525,6 @@ def main():
                 **kwargs,
             )
 
-    print(f"Questioning life...")
     # define state spec
     state_spec = TrainState(
         params=param_spec,
@@ -1539,9 +1538,9 @@ def main():
         tx=optimizer,
     )
 
-    print(f"Questioning reality...")
     # init params if not available yet
     def maybe_init_params(params):
+        print(f"RA: params = {params}")
         if params is not None:
             # model params are correctly loaded
             return params
@@ -1549,7 +1548,9 @@ def main():
             # params have not been initialized yet
             return model.init_weights(model.key, model.input_shape)
 
+    print(f"Ra's here. I want a Diluc ;-;")
     with mesh:
+        print(f"Ra's here. Diluc.")
         logger.info("  Creating state")
 
         # restore metadata
@@ -1607,6 +1608,7 @@ def main():
             # remove opt_state from CPU
             del opt_state
 
+    printf(f"Diluc's here~")
     # free CPU memory
     del params, opt_state_spec, opt_state_shape
 
