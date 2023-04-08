@@ -1874,7 +1874,7 @@ def main():
         donate_argnums=(0,),
     )
     print(f";-;")
-    print(f"RA" p_train_step = {p_train_step})
+    print(f"RA p_train_step = {p_train_step}")
     p_eval_step = pjit(
         eval_step,
         in_axis_resources=(state_spec, batch_spec),
