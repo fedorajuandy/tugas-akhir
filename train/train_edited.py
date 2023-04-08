@@ -1940,7 +1940,6 @@ def main():
                         log_metrics[k] = v
                 wandb.log({**log_metrics, **self.state_dict})
 
-    print(f"Sadness upon your soul ;-;")
     # keep local copy of state
     local_state = {
         k: jax.device_get(getattr(state, k)).item()
@@ -1959,7 +1958,7 @@ def main():
         disable=jax.process_index() > 0,
     )
     
-    print(f"Luc")
+    print(f"Sadness upon your soul ;-;")
     def run_evaluation():
         # ======================== Evaluating ==============================
         if training_args.do_eval:
