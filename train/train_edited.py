@@ -1609,42 +1609,40 @@ def main():
     # free CPU memory
     del params, opt_state_spec, opt_state_shape
 
-    print(f"Diluc's here~")
     # define batch specs
     batch_spec = PartitionSpec("dp")
     grad_batch_spec = PartitionSpec(None, "dp")
 
-    print(f"Diluc the second")
     # define loss
     def loss_fn(logits, labels):
         loss = optax.softmax_cross_entropy(logits, onehot(labels, logits.shape[-1]))
         loss = loss.mean()
         return loss
 
-    print(f"Diluc the third")
     # "vmap trick" avoids a crash when mp_devices > 1 (not sure why it happens)
     # lead to better perf: see https://wandb.ai/dalle-mini/dalle-mini/reports/JAX-pmap-vs-pjit--VmlldzoxNDg1ODA2
     use_vmap_trick = training_args.use_vmap_trick
 
     # make grad_param_spec for vmap
     if use_vmap_trick:
-        print(f"Diluc the fourth")
         grad_param_spec = jax.tree_util.tree_map(
             lambda x: PartitionSpec(*("dp",) + (x if x is not None else (None,))),
             param_spec,
         )
 
-    print(f"Diluc the fifth")
     # Define gradient update step fn
     def train_step(state, batch, train_time):
+        print(f"Diluc 0")
         # get a minibatch (one gradient accumulation slice)
         def get_minibatch(batch, grad_idx):
+            print(f"Diluc 1")
             return jax.tree_util.tree_map(
                 lambda x: jax.lax.dynamic_index_in_dim(x, grad_idx, keepdims=False),
                 batch,
             )
 
         def compute_loss(params, minibatch, dropout_rng):
+            print(f"Diluc 2")
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
             logits = state.apply_fn( # KAGGLE
@@ -1656,9 +1654,11 @@ def main():
             print(f"RA: logits = {logits}")
             return loss_fn(logits, labels)
 
+        print(f"Diluc 3")
         grad_fn = jax.value_and_grad(compute_loss)
 
         def loss_and_grad(grad_idx, dropout_rng):
+            print(f"Diluc 4")
             # minibatch at grad_idx for gradient accumulation (None otherwise)
             minibatch = (
                 get_minibatch(batch, grad_idx) if grad_idx is not None else batch
@@ -1667,8 +1667,10 @@ def main():
             minibatch = with_sharding_constraint(minibatch, batch_spec)
             # only 1 single rng per grad step, let us handle larger batch size (not sure why)
             dropout_rng, _ = jax.random.split(dropout_rng)
+            print(f"Diluc 5")
 
             if use_vmap_trick:
+                print(f"Diluc 6")   
                 # "vmap trick", calculate loss and grads independently per dp_device
                 loss, grads = jax.vmap( # KAGGLE
                     grad_fn, in_axes=(None, 0, None), out_axes=(0, 0)
