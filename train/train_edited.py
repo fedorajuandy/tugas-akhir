@@ -1645,6 +1645,8 @@ def main():
             print(f"Diluc 2")
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
+            print(f"RA: minibatch = {minibatch}")
+            print(f"RA: labels = {labels}")
             logits = state.apply_fn( # KAGGLE
                 **minibatch, params=params, dropout_rng=dropout_rng, train=True # KAGGLE
             )[0]
