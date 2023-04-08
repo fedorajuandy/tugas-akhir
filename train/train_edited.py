@@ -448,7 +448,7 @@ class TrainingArguments:
         metadata={
             "help": 'The optimizer to use. Can be "distributed_shampoo" (default), "adam" or "adafactor"'
             # for learning rate and update; based on task, arch, or experiments
-            # shampoo: for distributed, based on Hessioan matrix (second order partial derivaties; those H(f) from high scholl ;-;)
+            # shampoo: for distributed, based on Hessioan matrix (second order partial derivaties; those H(f) from high scholl)
             # adam: Adaptive Moment Estimation = update weights each iteration
             # adafactor: adaptive learning (per parameter), address Adam's limitation (sensitive: wrong val = fail, biased, cannot use large scale distribution, suboptimal solution)
         },
@@ -1873,8 +1873,8 @@ def main():
         out_axis_resources=(state_spec, None),
         donate_argnums=(0,),
     )
-    print(f";-;")
     print(f"RA p_train_step = {p_train_step}")
+    # Kaggle: p_train_step = <jaxlib.xla_extension.PjitFunction object at 0x7038eeacc1d0>
     p_eval_step = pjit(
         eval_step,
         in_axis_resources=(state_spec, batch_spec),
@@ -1940,6 +1940,7 @@ def main():
                         log_metrics[k] = v
                 wandb.log({**log_metrics, **self.state_dict})
 
+    print(f"Sadness upon your soul ;-;")
     # keep local copy of state
     local_state = {
         k: jax.device_get(getattr(state, k)).item()
