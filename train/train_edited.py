@@ -2158,7 +2158,7 @@ def main():
                     epoch,
                 )
                 # train
-                print(f"Ra's here. Batching...)
+                print(f"Ra's here. Batching...")
                 for batch in tqdm(
                     train_loader,
                     desc="Training...",
