@@ -1429,12 +1429,15 @@ def main():
 
     # create a mesh
     mesh_shape = (training_args.dp_devices, training_args.mp_devices)
+    # mesh_shape (dp, mp) = (2, 1)
     print(f"RA: mesh_shape (dp, mp) = {mesh_shape}")
     devices = np.asarray(jax.devices()).reshape(*mesh_shape)
     print(f"RA: devices = {devices}")
+    # devices = [[StreamExecutorGpuDevice(id=0, process_index=0, slice_index=0)]
+    # [StreamExecutorGpuDevice(id=1, process_index=0, slice_index=0)]]
     mesh = maps.Mesh(devices, ("dp", "mp"))
     # reshape it into a grid of the specified shape to distribute computation
-    print(f"RA: optimizer = {optimizer}")
+    print(f"RA: mesh = {mesh}")
     logger.info(f"  Mesh shape: {mesh_shape}")
 
     # define TrainState
@@ -1522,6 +1525,7 @@ def main():
                 **kwargs,
             )
 
+    print(f"Questioning life...")
     # define state spec
     state_spec = TrainState(
         params=param_spec,
@@ -1535,6 +1539,7 @@ def main():
         tx=optimizer,
     )
 
+    print(f"Questioning reality...")
     # init params if not available yet
     def maybe_init_params(params):
         if params is not None:
