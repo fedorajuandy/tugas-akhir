@@ -2187,6 +2187,7 @@ def main():
                             training_args.per_device_train_batch_size,
                         )
                     )
+                    print(f"RA: bs_shape = {bs_shape}")
                     if training_args.gradient_accumulation_steps > 1:
                         # reshape data into (gradient_accumulation_steps, batch_per_node, ...)
                         # to avoid any data redistribution when sharding
@@ -2194,11 +2195,13 @@ def main():
                             training_args.gradient_accumulation_steps,
                         ) + bs_shape
 
+                    print(f"Sora")
                     # reshape batch
                     batch = jax.tree_util.tree_map(
                         lambda x: x.reshape(bs_shape + x.shape[1:]),
                         batch,
                     )
+                    print(f"Sara")
                     # freeze batch to pass safely to jax transforms
                     batch = freeze(batch)
 
