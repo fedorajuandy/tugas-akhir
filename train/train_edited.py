@@ -2134,8 +2134,11 @@ def main():
     
     print(f"Shira")
     logger.info("  Ready to start training")
+    print(f"Amber")
     with mesh:
+        print(f"YATTA")
         for epoch in epochs:
+            print(f"Ra's here. starting epoch...")
             state = state.replace(epoch=epoch)
             local_state["epoch"] = epoch
             # ======================== Training ================================
@@ -2143,6 +2146,7 @@ def main():
             metrics_logger.log({})
 
             if training_args.do_train:
+                print(f"Ra's here. Starting the actual thing...")
                 # load data - may be replicated on multiple nodes
                 node_groups = max(
                     1, training_args.mp_devices // jax.local_device_count()
@@ -2154,6 +2158,7 @@ def main():
                     epoch,
                 )
                 # train
+                print(f"Ra's here. Batching...)
                 for batch in tqdm(
                     train_loader,
                     desc="Training...",
@@ -2171,6 +2176,7 @@ def main():
 
                     # set correct shape to batch
                     # - add grad_step dim if gradient_accumulation_steps > 1
+                    print(f"Ra's here. Shaping bs...")
                     bs_shape = (
                         (batch_size_per_node_per_grad_step * node_groups,)
                         if not use_vmap_trick
