@@ -1646,10 +1646,25 @@ def main():
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
             print(f"RA: minibatch = {minibatch}")
+            # Kaggle: minibatch = FrozenDict({
+            # attention_mask: Traced<ShapedArray(int32[1,64])>with<BatchTrace(level=2/0)> with
+            #   val = Traced<ShapedArray(int32[2,1,64])>with<DynamicJaxprTrace(level=1/0)>
+            #   batch_dim = 0,
+            # decoder_input_ids: Traced<ShapedArray(float32[1,1024])>with<BatchTrace(level=2/0)> with
+            #   val = Traced<ShapedArray(float32[2,1,1024])>with<DynamicJaxprTrace(level=1/0)>
+            #   batch_dim = 0,
+            # input_ids: Traced<ShapedArray(int32[1,64])>with<BatchTrace(level=2/0)> with
+            #   val = Traced<ShapedArray(int32[2,1,64])>with<DynamicJaxprTrace(level=1/0)>
+            #   batch_dim = 0
+            # })
             print(f"RA: labels = {labels}")
+            # Kaggle: labels = Traced<ShapedArray(int32[1,1024])>with<BatchTrace(level=2/0)> with
+            # val = Traced<ShapedArray(int32[2,1,1024])>with<DynamicJaxprTrace(level=1/0)>
+            # batch_dim = 0
             logits = state.apply_fn( # KAGGLE
                 **minibatch, params=params, dropout_rng=dropout_rng, train=True # KAGGLE
             )[0]
+            print(f"RA: Kaeya, the bestest baby brother, is here~")
             print(f"RA: minibatch = {minibatch}")
             print(f"RA: params = {params}")
             print(f"RA: dropout_rng = {dropout_rng}")
