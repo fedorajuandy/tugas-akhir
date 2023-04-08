@@ -2204,9 +2204,11 @@ def main():
                     print(f"Sara")
                     # freeze batch to pass safely to jax transforms
                     batch = freeze(batch)
+                    print(f"Nobody")
 
                     # train step
                     state, train_metrics = p_train_step(state, batch, train_time) # KAGGLE
+                    print(f"HERE GOES NOTHING.")
                     print(f"RA: state = {state}")
                     print(f"RA: train_metrics = {train_metrics}")
                     print(f"RA: state = {state}")
