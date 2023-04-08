@@ -1608,7 +1608,7 @@ def main():
             # remove opt_state from CPU
             del opt_state
 
-    printf(f"Diluc's here~")
+    print(f"Diluc's here~")
     # free CPU memory
     del params, opt_state_spec, opt_state_shape
 
