@@ -903,7 +903,7 @@ def main():
         for k in ["dropout", "activation_dropout", "attention_dropout"]
         if getattr(model_args, k) is not None
     }
-    print(f"RA: config_args = {config_args}")
+#     print(f"RA: config_args = {config_args}")
     # Kaggle: config_args = {}
     
     config_args["gradient_checkpointing"] = training_args.gradient_checkpointing
@@ -1132,11 +1132,11 @@ def main():
                 schedules=[optax.constant_schedule(0.0), warmup_fn],
                 boundaries=[training_args.lr_offset],
             )
-            print(f"RA: schedules = {schedules}")
-            print(f"RA: boundaries = {boundaries}")
-            print(f"RA: warmup_fn = {warmup_fn}")
+#             print(f"RA: schedules = {schedules}")
+#             print(f"RA: boundaries = {boundaries}")
+#             print(f"RA: warmup_fn = {warmup_fn}")
             last_boundary += training_args.lr_offset
-            print(f"RA: last_boundary = {last_boundary}")
+#             print(f"RA: last_boundary = {last_boundary}")
             
 #         print(f"RA: lr_decay = {training_args.lr_decay}")
         # Kaggle: lr_decay = None
@@ -1153,9 +1153,9 @@ def main():
                 end_value=0,
                 transition_steps=num_train_steps - training_args.warmup_steps,
             )
-            print(f"RA: learning_rate = {training_args.learning_rate}")
-            print(f"RA: transition_steps = {transition_steps}")
-            print(f"RA: decay_fn = {decay_fn}")
+#             print(f"RA: learning_rate = {training_args.learning_rate}")
+#             print(f"RA: transition_steps = {transition_steps}")
+#             print(f"RA: decay_fn = {decay_fn}")
         elif training_args.lr_decay == "exponential":
             # useful when the model is close to converging and requires smaller updates
             decay_fn = optax.exponential_decay(
@@ -1164,19 +1164,19 @@ def main():
                 decay_rate=training_args.lr_decay_rate,
                 staircase=training_args.lr_staircase,
             )
-            print(f"RA: learning_rate = {training_args.learning_rate}")
-            print(f"RA: transition_steps = {transition_steps}")
-            print(f"RA: decay_rate = {decay_rate}")
-            print(f"RA: staircase = {staircase}")
-            print(f"RA: decay_fn = {decay_fn}")
+#             print(f"RA: learning_rate = {training_args.learning_rate}")
+#             print(f"RA: transition_steps = {transition_steps}")
+#             print(f"RA: decay_rate = {decay_rate}")
+#             print(f"RA: staircase = {staircase}")
+#             print(f"RA: decay_fn = {decay_fn}")
             
         schedule_fn = optax.join_schedules(
             schedules=[warmup_fn, decay_fn],
             boundaries=[last_boundary],
         )
-        print(f"RA: schedules = {schedules}")
-        print(f"RA: boundaries = {boundaries}")
-        print(f"RA: schedule_fn = {schedule_fn}")
+#         print(f"RA: schedules = {schedules}")
+#         print(f"RA: boundaries = {boundaries}")
+#         print(f"RA: schedule_fn = {schedule_fn}")
         
         return schedule_fn
 
@@ -1215,8 +1215,8 @@ def main():
             "adagrad_normalized": GraftingType.ADAGRAD_NORMALIZED,
             # Adaptive Gradient Algorithm with Normalization
         }[training_args.graft_type]
-        print(f"RA: training_args.graft_type = {training_args.graft_type}")
-        print(f"RA: graft_type = {graft_type}")
+#         print(f"RA: training_args.graft_type = {training_args.graft_type}")
+#         print(f"RA: graft_type = {graft_type}")
         
         # partitioning the training across devices (one is one ;v;)
         statistics_partition_spec = (
@@ -1225,8 +1225,8 @@ def main():
             if training_args.shard_shampoo_across != "2d"
             else PartitionSpec(None, "dp", "mp")
         )
-        print(f"RA: shard_shampoo_across = {training_args.shard_shampoo_across}")
-        print(f"RA: statistics_partition_spec = {statistics_partition_spec}")
+#         print(f"RA: shard_shampoo_across = {training_args.shard_shampoo_across}")
+#         print(f"RA: statistics_partition_spec = {statistics_partition_spec}")
         
         # CHECK LATER
         opt = distributed_shampoo(
@@ -1278,12 +1278,12 @@ def main():
             best_effort_memory_usage_reduction=training_args.optim_quantized,
             # reducing memory usage during optimization (bool)
         )
-        print(f"RA: preconditioning_compute_steps = {training_args.preconditioning_compute_steps}")
-        print(f"RA: opt = {opt}")
+#         print(f"RA: preconditioning_compute_steps = {training_args.preconditioning_compute_steps}")
+#         print(f"RA: opt = {opt}")
         
         # get the real optimizer and helper functions
         update_fn = opt.update
-        print(f"RA: update_fn = {update_fn}")
+#         print(f"RA: update_fn = {update_fn}")
 
         optimizer = {}
         opt_fn = {}
@@ -1295,19 +1295,19 @@ def main():
                     lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
                     # extracts the first element of each value in the parameter tree
                 )
-                print(f"RA: update_fn = {update_fn}")
+#                 print(f"RA: update_fn = {update_fn}")
                 
             optimizer[k] = opt.init(p)
             # initialize the optimizer with the trainable parameter values
-            print(f"RA: optimizer[k] = {optimizer[k]}")
+#             print(f"RA: optimizer[k] = {optimizer[k]}")
             # CHECK LATER
             opt_fn[k] = NamedTuple("opt_fn", pspec_fn=Any, shape_and_dtype_fn=Any)(
                 optimizer[k].pspec_fn, optimizer[k].shape_and_dtype_fn
             )
-            print(f"RA: opt_fn[k] = {opt_fn[k]}")
+#             print(f"RA: opt_fn[k] = {opt_fn[k]}")
             # CHECK LATER
             optimizer[k] = optax.GradientTransformation(optimizer[k].init_fn, update_fn)
-            print(f"RA: optimizer[k] = {optimizer[k]}")
+#             print(f"RA: optimizer[k] = {optimizer[k]}")
             
     elif training_args.optim == "adam":
         print(f"Ra's here. Using adam...")
@@ -1319,11 +1319,11 @@ def main():
             eps=training_args.adam_epsilon,
             weight_decay=training_args.weight_decay,
         )
-        print(f"RA: optimizer = {optimizer}")
+#         print(f"RA: optimizer = {optimizer}")
         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
         # creates a dictionary where the keys are the names of the trainable parameters and the values are the optimizer object created
         # splits the trainable parameters into separate groups based on their shapes (for applying different optimization strategies to different groups of parameters, such as applying weight decay only to the weights and not the biases)
-        print(f"RA: optimizer = {optimizer}")
+#         print(f"RA: optimizer = {optimizer}")
 
     elif training_args.optim == "adafactor":
         print(f"Ra's here. Using adafactor...")
@@ -1335,9 +1335,9 @@ def main():
             # prevent gradient becoming too large (esp with many parameters)
             weight_decay_rate=training_args.weight_decay,
         )
-        print(f"RA: optimizer = {optimizer}")
+#         print(f"RA: optimizer = {optimizer}")
         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
-        print(f"RA: optimizer = {optimizer}")
+#         print(f"RA: optimizer = {optimizer}")
 
     # get PartitionSpec for optimizer state
     def get_opt_state_spec_and_shape():
@@ -1350,7 +1350,7 @@ def main():
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" not in k:
                 opt_state_shape[k] = jax.eval_shape(optimizer[k].init, p)
-                print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+#                 print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
             else:
                 opt_state_shape[k] = jax.eval_shape(jax.vmap(optimizer[k].init), p)
         print(f"Ra's here. Ends loop...")
@@ -1360,14 +1360,14 @@ def main():
             print(f"Ra's here. Using adafactor...")
             # factorized state must be replicated (rank different than params)
             opt_state_spec = {k: None for k in split_params(trainable_params_shape)}
-            print(f"RA: opt_state_spec = {opt_state_spec}")
+#             print(f"RA: opt_state_spec = {opt_state_spec}")
 
         elif training_args.optim in ["adam", "distributed_shampoo"]:
             print(f"Ra's here. Using distributed shampoo or adam...")
             def _opt_state_spec_per_leaf(x, spec):
                 print(f"Ra's here. _opt_state_spec_per_leaf starts...")
-                print(f"RA: x = {x}")
-                print(f"RA: spec = {spec}")
+#                 print(f"RA: x = {x}")
+#                 print(f"RA: spec = {spec}")
                 if isinstance(x, FrozenDict):
                     # variables with same structure as params
                     return spec
@@ -1377,17 +1377,17 @@ def main():
 
             print(f"Ra's here. _opt_state_spec_per_leaf ends.")
             split_spec = split_params(set_partitions(trainable_params_shape, False))
-            print(f"RA: split_spec = {split_spec}")
+#             print(f"RA: split_spec = {split_spec}")
             opt_state_spec = {}
             
-            print(f"RA: trainable_params_shape = {trainable_params_shape}")
+#             print(f"RA: trainable_params_shape = {trainable_params_shape}")
             print(f"Ra's here. Start looping...")
             for k, p in split_params(trainable_params_shape).items():
                 if "scanned" in k:
                     p = jax.eval_shape(
                         lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
                     )
-                    print(f"RA: p = {p}")
+#                     print(f"RA: p = {p}")
                     
                 if training_args.optim == "adam":
                     print(f"Ra's here. Using adam...")
@@ -1445,7 +1445,7 @@ def main():
     # [StreamExecutorGpuDevice(id=1, process_index=0, slice_index=0)]]
 #     mesh = maps.Mesh(devices, ("dp", "mp"))
     # reshape it into a grid of the specified shape to distribute computation
-    print(f"RA: mesh = {mesh}")
+#     print(f"RA: mesh = {mesh}")
     logger.info(f"  Mesh shape: {mesh_shape}")
 
     # define TrainState
@@ -1475,36 +1475,36 @@ def main():
             print(f"Ra's here. Start looping...")
             for k, param in params.items():
                 update_fn = self.tx[k].update
-                print(f"RA: update_fn = {update_fn}")
+#                 print(f"RA: update_fn = {update_fn}")
                 if "scanned" in k:
                     update_fn = jax.vmap(update_fn, in_axes=(0, 0, 0), out_axes=(0, 0))
-                    print(f"RA: update_fn = {update_fn}")
+#                     print(f"RA: update_fn = {update_fn}")
                 updates, new_opt_state = update_fn(grads[k], self.opt_state[k], param)
-                print(f"RA: update_fn = {update_fn}")
-                print(f"RA: update_fn = {update_fn}")
+#                 print(f"RA: update_fn = {update_fn}")
+#                 print(f"RA: update_fn = {update_fn}")
                 params[k] = optax.apply_updates(param, updates)
-                print(f"RA: params[k] = {params[k]}")
+#                 print(f"RA: params[k] = {params[k]}")
                 opt_state[k] = new_opt_state
-                print(f"RA: opt_state[k] = {opt_state[k]}")
+#                 print(f"RA: opt_state[k] = {opt_state[k]}")
             print(f"Ra's here. Loop ends.")
             
             print(f"Ra's here. Params stuff here.")
             params = unsplit_params(params)
-            print(f"RA: params = {params}")
+#             print(f"RA: params = {params}")
             # merge with non-trainable params
             params, new_params = traverse_util.flatten_dict(
                 unfreeze(self.params)
             ), traverse_util.flatten_dict(unfreeze(params))
-            print(f"RA: params = {params}")
-            print(f"RA: new_params = {new_params}")
+#             print(f"RA: params = {params}")
+#             print(f"RA: new_params = {new_params}")
             params.update(new_params)
-            print(f"RA: params = {params}")
+#             print(f"RA: params = {params}")
             params = freeze(traverse_util.unflatten_dict(params))
-            print(f"RA: params = {params}")
+#             print(f"RA: params = {params}")
             
-            print(f"RA: step = {self.step + 1}")
-            print(f"RA: opt_state = {freeze(opt_state)}")
-            print(f"RA: kwargs = {kwargs}")
+#             print(f"RA: step = {self.step + 1}")
+#             print(f"RA: opt_state = {freeze(opt_state)}")
+#             print(f"RA: kwargs = {kwargs}")
 
             return self.replace(
                 step=self.step + 1,
@@ -1548,7 +1548,7 @@ def main():
 
     # init params if not available yet
     def maybe_init_params(params):
-        print(f"RA: params = {params}")
+#         print(f"RA: params = {params}")
         if params is not None:
             # model params are correctly loaded
             return params
@@ -1653,7 +1653,7 @@ def main():
             print(f"Diluc 2")
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
-            print(f"RA: minibatch = {minibatch}")
+#             print(f"RA: minibatch = {minibatch}")
             # Kaggle: minibatch = FrozenDict({
             # attention_mask: Traced<ShapedArray(int32[1,64])>with<BatchTrace(level=2/0)> with
             #   val = Traced<ShapedArray(int32[2,1,64])>with<DynamicJaxprTrace(level=1/0)>
@@ -1665,18 +1665,18 @@ def main():
             #   val = Traced<ShapedArray(int32[2,1,64])>with<DynamicJaxprTrace(level=1/0)>
             #   batch_dim = 0
             # })
-            print(f"RA: labels = {labels}")
+#             print(f"RA: labels = {labels}")
             # Kaggle: labels = Traced<ShapedArray(int32[1,1024])>with<BatchTrace(level=2/0)> with
             # val = Traced<ShapedArray(int32[2,1,1024])>with<DynamicJaxprTrace(level=1/0)>
             # batch_dim = 0
             logits = state.apply_fn( # KAGGLE
                 **minibatch, params=params, dropout_rng=dropout_rng, train=True # KAGGLE
             )[0]
-            print(f"RA: Kaeya, the bestest baby brother, is here~")
-            print(f"RA: minibatch = {minibatch}")
-            print(f"RA: params = {params}")
-            print(f"RA: dropout_rng = {dropout_rng}")
-            print(f"RA: logits = {logits}")
+            print(f"Kaeya, the bestest baby brother, is here~")
+#             print(f"RA: minibatch = {minibatch}")
+#             print(f"RA: params = {params}")
+#             print(f"RA: dropout_rng = {dropout_rng}")
+#             print(f"RA: logits = {logits}")
             return loss_fn(logits, labels)
 
         grad_fn = jax.value_and_grad(compute_loss)
@@ -1699,9 +1699,9 @@ def main():
                 loss, grads = jax.vmap( # KAGGLE
                     grad_fn, in_axes=(None, 0, None), out_axes=(0, 0)
                 )(state.params, minibatch, dropout_rng) # KAGGLE
-                print(f"RA: loss = {loss}")
-                print(f"RA: grads = {grads}")
-                print(f"RA: grad_fn = {grad_fn}")
+#                 print(f"RA: loss = {loss}")
+#                 print(f"RA: grads = {grads}")
+#                 print(f"RA: grad_fn = {grad_fn}")
                 # ensure they are sharded correctly
                 loss = with_sharding_constraint(loss, batch_spec)
                 grads = with_sharding_constraint(grads, grad_param_spec)
@@ -1720,10 +1720,10 @@ def main():
 
         if training_args.gradient_accumulation_steps == 1:
             loss, grads, dropout_rng = loss_and_grad(None, state.dropout_rng) # KAGGLE
-            print(f"RA: loss = {loss}")
-            print(f"RA: grads = {grads}")
-            print(f"RA: dropout_rng = {dropout_rng}")
-            print(f"RA: state.dropout_rng = {state.dropout_rng}")
+#             print(f"RA: loss = {loss}")
+#             print(f"RA: grads = {grads}")
+#             print(f"RA: dropout_rng = {dropout_rng}")
+#             print(f"RA: state.dropout_rng = {state.dropout_rng}")
         else:
             # create initial state for cumul_minibatch_step loop
             init_minibatch_step = (
@@ -1738,10 +1738,10 @@ def main():
             def cumul_minibatch_step(grad_idx, cumul_loss_grad_dropout):
                 cumul_loss, cumul_grads, dropout_rng = cumul_loss_grad_dropout
                 loss, grads, dropout_rng = loss_and_grad(grad_idx, dropout_rng) # KAGGLE
-                print(f"RA: loss = {loss}")
-                print(f"RA: grads = {grads}")
-                print(f"RA: dropout_rng = {dropout_rng}")
-                print(f"RA: grad_idx = {grad_idx}")
+#                 print(f"RA: loss = {loss}")
+#                 print(f"RA: grads = {grads}")
+#                 print(f"RA: dropout_rng = {dropout_rng}")
+#                 print(f"RA: grad_idx = {grad_idx}")
                 cumul_loss, cumul_grads = jax.tree_util.tree_map(
                     jnp.add, (cumul_loss, cumul_grads), (loss, grads)
                 )
@@ -1755,11 +1755,11 @@ def main():
                 cumul_minibatch_step,
                 init_minibatch_step, # KAGGLE
             )
-            print(f"RA: loss = {loss}")
-            print(f"RA: grads = {grads}")
-            print(f"RA: dropout_rng = {dropout_rng}")
-            print(f"RA: cumul_minibatch_step = {cumul_minibatch_step}")
-            print(f"RA: init_minibatch_step = {init_minibatch_step}")
+#             print(f"RA: loss = {loss}")
+#             print(f"RA: grads = {grads}")
+#             print(f"RA: dropout_rng = {dropout_rng}")
+#             print(f"RA: cumul_minibatch_step = {cumul_minibatch_step}")
+#             print(f"RA: init_minibatch_step = {init_minibatch_step}")
             grads = with_sharding_constraint(grads, param_spec)
             # sum -> mean
             loss, grads = jax.tree_util.tree_map(
