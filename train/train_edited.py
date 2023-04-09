@@ -1437,13 +1437,13 @@ def main():
 
     # create a mesh
     mesh_shape = (training_args.dp_devices, training_args.mp_devices)
-    # mesh_shape (dp, mp) = (2, 1)
 #     print(f"RA: mesh_shape (dp, mp) = {mesh_shape}")
+    # Kaggle: mesh_shape (dp, mp) = (2, 1)
     devices = np.asarray(jax.devices()).reshape(*mesh_shape)
 #     print(f"RA: devices = {devices}")
     # devices = [[StreamExecutorGpuDevice(id=0, process_index=0, slice_index=0)]
     # [StreamExecutorGpuDevice(id=1, process_index=0, slice_index=0)]]
-#     mesh = maps.Mesh(devices, ("dp", "mp"))
+    mesh = maps.Mesh(devices, ("dp", "mp"))
     # reshape it into a grid of the specified shape to distribute computation
 #     print(f"RA: mesh = {mesh}")
     logger.info(f"  Mesh shape: {mesh_shape}")
