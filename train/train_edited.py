@@ -1111,16 +1111,21 @@ def main():
             end_value=training_args.learning_rate,
             transition_steps=training_args.warmup_steps + 1,  # ensure not 0
         )
-        print(f"RA: end_value = {training_args.learning_rate}")
-        print(f"RA: transition_steps = {training_args.warmup_steps + 1}")
-        print(f"RA: warmup_fn = {warmup_fn}")
+#         print(f"RA: end_value = {training_args.learning_rate}")
+        # Kaggle: end_value = 5e-05
+#         print(f"RA: transition_steps = {training_args.warmup_steps + 1}")
+        # Kaggle: transition_steps = 1
+#         print(f"RA: warmup_fn = {warmup_fn}")
+        # Kaggle: warmup_fn = <function polynomial_schedule.<locals>.schedule at 0x754647245320>
         
         last_boundary = training_args.warmup_steps
-        print(f"RA: last_boundary = {last_boundary}")
+#         print(f"RA: last_boundary = {last_boundary}")
+        # Kaggle: last_boundary = 0
         
         # offset step when resuming
         # DELETE LATER... maaaaaybe. Let's see the GPU limit first. Or luck
-        print(f"RA: lr_offset = {training_args.lr_offset}")
+#         print(f"RA: lr_offset = {training_args.lr_offset}")
+        # Kaggle: lr_offset = 0
         if training_args.lr_offset:
             # appends a constant schedule of 0 before the warm-up schedule, and updates the last boundary (for resuming training from a checkpoint)
             warmup_fn = optax.join_schedules(
@@ -1133,9 +1138,11 @@ def main():
             last_boundary += training_args.lr_offset
             print(f"RA: last_boundary = {last_boundary}")
             
-        print(f"RA: lr_decay = {training_args.lr_decay}")
+#         print(f"RA: lr_decay = {training_args.lr_decay}")
+        # Kaggle: lr_decay = None
         if training_args.lr_decay is None:
-            print(f"RA: warmup_fn = {warmup_fn}")
+#             print(f"RA: warmup_fn = {warmup_fn}")
+            # Kaggle: warmup_fn = <function polynomial_schedule.<locals>.schedule at 0x754647245320>
             return warmup_fn
         elif training_args.lr_decay == "linear":
             assert (
@@ -1174,16 +1181,17 @@ def main():
         return schedule_fn
 
     learning_rate_fn = create_learning_rate_fn()
-    print(f"RA: learning_rate_fn = {learning_rate_fn}")
+#     print(f"RA: learning_rate_fn = {learning_rate_fn}")
+    # Kaggle: learning_rate_fn = <function polynomial_schedule.<locals>.schedule at 0x754647245320>
     
     # create optimizer
     print(f"Ra's here. Cereate optimizer...")
     trainable_params_shape = trainable_params(
         params_shape, training_args.embeddings_only
     )
-    print(f"RA: params_shape = {params_shape}")
-    print(f"RA: embeddings_only = {training_args.embeddings_only}")
-    print(f"RA: trainable_params_shape = {trainable_params_shape}")
+#     print(f"RA: params_shape = {params_shape}")
+#     print(f"RA: embeddings_only = {training_args.embeddings_only}")
+#     print(f"RA: trainable_params_shape = {trainable_params_shape}")
     
     # REMOVE LATER; most likely only us
     if training_args.optim == "distributed_shampoo":
@@ -1389,9 +1397,9 @@ def main():
                         # return None spec for empty elements
                         is_leaf=lambda x: isinstance(x, (FrozenDict, optax.EmptyState)),
                     )
-                    print(f"RA: opt_state_spec[k] = {opt_state_spec[k]}")
-                    print(f"RA: _opt_state_spec_per_leaf = {_opt_state_spec_per_leaf}")
-                    print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+#                     print(f"RA: opt_state_spec[k] = {opt_state_spec[k]}")
+#                     print(f"RA: _opt_state_spec_per_leaf = {_opt_state_spec_per_leaf}")
+#                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
 #                     print(f"RA: is_leaf = {is_leaf}")
                 elif training_args.optim == "distributed_shampoo":
                     print(f"Ra's here. Using distributed shampoo...")
@@ -1400,7 +1408,7 @@ def main():
                         split_spec[k],
                         statistics_partition_spec,
                     )
-                    print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+#                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
                     
                 # add dimension for scanned params
                 if "scanned" in k:
@@ -1411,31 +1419,31 @@ def main():
                         opt_state_spec[k],
                         is_leaf=lambda x: isinstance(x, PartitionSpec),
                     )
-                    print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+#                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
 #                     print(f"RA: is_leaf = {is_leaf}")
                     
             print(f"Ra's here. Loop ended.")
         else:
             raise NotImplementedError
             
-        print(f"RA: opt_state_spec = {opt_state_spec}")
-        print(f"RA: opt_state_shape = {opt_state_shape}")
+#         print(f"RA: opt_state_spec = {opt_state_spec}")
+#         print(f"RA: opt_state_shape = {opt_state_shape}")
         return freeze(opt_state_spec), freeze(opt_state_shape)
 
     print(f"Ra's here. Mesh stuff here..?")
     opt_state_spec, opt_state_shape = get_opt_state_spec_and_shape()
-    print(f"RA: opt_state_spec = {opt_state_spec}")
-    print(f"RA: opt_state_shape = {opt_state_shape}")
+#     print(f"RA: opt_state_spec = {opt_state_spec}")
+#     print(f"RA: opt_state_shape = {opt_state_shape}")
 
     # create a mesh
     mesh_shape = (training_args.dp_devices, training_args.mp_devices)
     # mesh_shape (dp, mp) = (2, 1)
-    print(f"RA: mesh_shape (dp, mp) = {mesh_shape}")
+#     print(f"RA: mesh_shape (dp, mp) = {mesh_shape}")
     devices = np.asarray(jax.devices()).reshape(*mesh_shape)
-    print(f"RA: devices = {devices}")
+#     print(f"RA: devices = {devices}")
     # devices = [[StreamExecutorGpuDevice(id=0, process_index=0, slice_index=0)]
     # [StreamExecutorGpuDevice(id=1, process_index=0, slice_index=0)]]
-    mesh = maps.Mesh(devices, ("dp", "mp"))
+#     mesh = maps.Mesh(devices, ("dp", "mp"))
     # reshape it into a grid of the specified shape to distribute computation
     print(f"RA: mesh = {mesh}")
     logger.info(f"  Mesh shape: {mesh_shape}")
@@ -1456,11 +1464,11 @@ def main():
             print(f"Ra's here. Start applying gradients...")
 
             grads = split_params(trainable_params(grads, training_args.embeddings_only))
-            print(f"RA: grads = {grads}")
+#             print(f"RA: grads = {grads}")
             params = split_params(
                 trainable_params(self.params, training_args.embeddings_only)
             )
-            print(f"RA: params = {params}")
+#             print(f"RA: params = {params}")
             opt_state = {}
             
             # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
