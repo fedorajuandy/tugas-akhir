@@ -1640,17 +1640,14 @@ def main():
 
     # Define gradient update step fn
     def train_step(state, batch, train_time):
-        print(f"Diluc 0")
         # get a minibatch (one gradient accumulation slice)
         def get_minibatch(batch, grad_idx):
-            print(f"Diluc 1")
             return jax.tree_util.tree_map(
                 lambda x: jax.lax.dynamic_index_in_dim(x, grad_idx, keepdims=False),
                 batch,
             )
 
         def compute_loss(params, minibatch, dropout_rng):
-            print(f"Diluc 2")
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
 #             print(f"RA: minibatch = {minibatch}")
@@ -1682,7 +1679,6 @@ def main():
         grad_fn = jax.value_and_grad(compute_loss)
         
         def loss_and_grad(grad_idx, dropout_rng):
-            print(f"Diluc 4")
             # minibatch at grad_idx for gradient accumulation (None otherwise)
             minibatch = (
                 get_minibatch(batch, grad_idx) if grad_idx is not None else batch
@@ -1691,10 +1687,8 @@ def main():
             minibatch = with_sharding_constraint(minibatch, batch_spec)
             # only 1 single rng per grad step, let us handle larger batch size (not sure why)
             dropout_rng, _ = jax.random.split(dropout_rng)
-            print(f"Diluc 5")
 
             if use_vmap_trick:
-                print(f"Diluc 6")   
                 # "vmap trick", calculate loss and grads independently per dp_device
                 loss, grads = jax.vmap( # KAGGLE
                     grad_fn, in_axes=(None, 0, None), out_axes=(0, 0)
@@ -2142,11 +2136,8 @@ def main():
                 wandb.run.log_artifact(artifact_state)
             metrics_logger.log_time("save_model", time.perf_counter() - start_save_time)
     
-    print(f"Shira")
     logger.info("  Ready to start training")
-    print(f"Amber")
     with mesh:
-        print(f"YATTA")
         for epoch in epochs:
             print(f"Ra's here. starting epoch...")
             state = state.replace(epoch=epoch)
