@@ -1,4 +1,4 @@
-""" Script to send requests to backend server """
+""" Module to send requests to backend server """
 import base64
 from io import BytesIO
 import requests
