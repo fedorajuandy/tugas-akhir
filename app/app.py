@@ -114,9 +114,8 @@ with block:
     smiling = gr.Checkbox(
         label = "Smiling",
     )
-    hair_style = gr.Radio(
-        ["straight", "wavy"],
-        label="Hair color"
+    wavy_hair = gr.Checkbox(
+        label = "Wavy hair",
     )
     wearing_earrings = gr.Checkbox(
         label = "Wearing earrings",
@@ -125,7 +124,7 @@ with block:
         label = "Wearing hat",
     )
     wearing_lipstick = gr.Checkbox(
-        label = "Wearing lipstict",
+        label = "Wearing lipstick",
     )
     wearing_necklace = gr.Checkbox(
         label = "Wearing necklace",
@@ -133,9 +132,8 @@ with block:
     wearing_necktie = gr.Checkbox(
         label = "Wearing necktie",
     )
-    age = gr.Radio(
-        ["old", "young"],
-        label="Age"
+    young = gr.Checkbox(
+        label = "Young",
     )
 
     btn = gr.Button("Run")
@@ -143,9 +141,13 @@ with block:
     gallery = gr.Gallery(
         label = "Result image",
     ).style(
-        grid = [3],
+        columns = [3],
         height = "auto"
     )
+
+    import itertools
+    iter = itertools.permutations(["Alice", "Bob", "Carol"])
+    list(iter)
 
     text = f"{gender} has {five_o_clock_shadow}"
 
