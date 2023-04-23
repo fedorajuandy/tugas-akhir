@@ -17,21 +17,36 @@ pinned: true
 
 A simple application to generate image with the limitation of the algorithm, dataset, hardware specification, time, brain capacity, sanity, and some *troublesome* outside variables.
 
+I try (keyword: try) to train a model from scratch using human faces only and see if it is... enough to generate a human-like creature as close as possible.
+
+![UI](TODO.png)
+
+<!-- TODO -->
+
 ### Changes
 
-- Only built with Gradio; no Streamlit or Docker
-- The dataset, instead of using webdataset, is limited to <!-- TODO -->
-- No hyperparameter
+- Built with Gradio with limited selection instead of free words for... optimisation
+- The dataset is limited to CelebA-HQ
 
 ### Dependencies
 
-`pip install wandb`
-
-> For training analysis
-
-`pip install gradio`
-
-> For UI
+python >=3.7
+gradio v.
+transformers
+einops
+unidecode
+ftfy
+emoji
+pillow
+jax
+flax
+wandb
+tqdm
+optax
+braceexpand
+datasets[streaming]
+black[jupyter]
+isort
 
 ---
 
