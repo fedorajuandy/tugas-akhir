@@ -1,52 +1,61 @@
 ---
-title: SleepIsAMyth
-emoji: 🥱
+title: FaceGenerator
+emoji: 😄
 colorFrom: indigo
 colorTo: gray
 sdk: gradio
 sdk_version: 3.17.0
 app_file: app.py
-pinned: true
+pinned: false
 ---
 
-# Sleep Is a Myth
+# Face Generator
 
 ## Description
 
 ### About
 
-A simple application to generate image with the limitation of the algorithm, dataset, hardware specification, time, brain capacity, sanity, and some *troublesome* outside variables.
+A simple application to generate human face images with the limitation of the algorithm, dataset, hardware specification, and other outside variables.
 
-I try (keyword: try) to train a model from scratch using human faces only and see if it is... enough to generate a human-like creature as close as possible.
+![UI](/img/ui.png)
 
-![UI](TODO.png)
+1. "Text prompt" textbox ,to enter text description of desired image
+2. "Gender" radio button, to choose desired gender
+3. "Attributes" checkboxes, to choose whether to include certain attributes or not
+4. "RUN" button (or keyboard ENTER button), to confirm input
+5. Result placeholder, the place for generated image
 
-<!-- TODO -->
+### Notes
 
-### Changes
-
-- Built with Gradio with limited selection instead of free words for... optimisation
+- Loading and saving models are configured for training from scratch only
+- Loading and saving models are configured to my own use; change them to your suitable one
+- Optimisation only using Distributed Shampoo
 - The dataset is limited to CelebA-HQ
 
 ### Dependencies
 
-python >=3.7
-gradio v.
-transformers
-einops
-unidecode
-ftfy
-emoji
-pillow
-jax
-flax
-wandb
-tqdm
-optax
-braceexpand
-datasets[streaming]
-black[jupyter]
-isort
+Main:
+
+- python >=3.7
+- gradio
+- transformers
+- einops
+- unidecode
+- ftfy
+- emoji
+- pillow
+- jax
+- flax
+- tqdm
+- optax
+- braceexpand
+- datasets[streaming]
+- black[jupyter]
+- isort
+
+Additionals:
+
+- wandb
 
 ---
 
@@ -54,61 +63,59 @@ isort
 
 ### How to use
 
-<!-- TODO -->
-
-### Explanation
-
-<!-- TODO -->
-
----
-
-## Design
-
-### Name
-
-<!-- TODO -->
-
-### Logo
-
-<!-- TODO -->
-
-### Color
-
-<!-- TODO -->
-
----
-
-## Database
-
-![Class diagram](TODO.png)
-
-<!-- TODO -->
+Users input either free-form text in the textbox or choose one or several attribute options in the form of radio buttons and checkboxes then press the RUN or ENTER button to confirm them. Then the user waits until the desired image is generated and shown in the previously empty placeholder.
 
 ---
 
 ## Files Structure
 
-<!-- TODO -->
+- app
 
----
+Web application files.
 
-## Project setup
+- encode
 
-### Dependencies requirements
+Notebook for encoding dataset including the output history.
 
-<!-- TODO -->
+- img
 
-### Usage
+Additional images for README files or other purposes.
 
-<!-- TODO -->
+- old_results
+
+Old notebooks or other files for tracking missing issues. Or other things.
+
+- train
+
+Files for main training.
+
+  - config
+
+  Configuration file.
+
+  - dalle_mini
+
+  The model based on.
+
+  - scalable_shampoo
+
+  The optimiser files from [Google Research](https://github.com/google-research/google-research/tree/master/scalable_shampoo)
+
+  - train.py
+
+  The main training script,
+
+  - train.ipynb
+
+  The notebook for running training script and setting up used workplace; configure it to your own uses or just immediately run the training script. This is just for convinient uses in case of failures.
+
+- README.md
+
+This file; which is the explanations.
 
 ---
 
 ## References
-
-### UI/UX
-
-- [NAME](TODO)
 
 ### Papers
 
@@ -123,23 +130,6 @@ isort
   link={[]()}
 }
 ```
-
-### Tools Used
-
-- Visual Studio Code v1.74.2.0
-- <!-- TODO -->
-- [Figma](https://www.figma.com/)
-- [Adobe Creative Cloud Express](https://express.adobe.com/express-apps/logo-maker/)
-
-### Images
-
-- Logo Image
-
-NAME
-By		: Someone
-Source	: Uploaded? Or sth
-License	: CC BY
-Link    : [NAME](TODO)
 
 ### Datasets
 
@@ -182,7 +172,7 @@ Link    : [NAME](TODO)
 }
 ```
 
-### Algorithms, Codes, and Libraries
+### Codes, and Libraries
 
 ```text
 @misc{Dayma_DALL·E_Mini_2021,
@@ -205,6 +195,19 @@ Link    : [NAME](TODO)
 }
 ```
 
+### Others
+
+- [Gradio documentation](https://gradio.app/docs)
+
 ### Helping Hands
 
 https://www.youtube.com/@TheAIEpiphany
+
+---
+
+## Tools Used
+
+- [Google Colab](https://colab.research.google.com/)
+- [Paperspace Gradient](https://www.paperspace.com/gradient)
+- [Kaggle](https://www.kaggle.com/)
+- [Figma](https://www.figma.com/)
