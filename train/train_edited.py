@@ -1501,7 +1501,7 @@ def main():
 #             print(f"RA: params = {params}")
             params = freeze(traverse_util.unflatten_dict(params))
 #             print(f"RA: params = {params}")
-            
+
 #             print(f"RA: step = {self.step + 1}")
 #             print(f"RA: opt_state = {freeze(opt_state)}")
 #             print(f"RA: kwargs = {kwargs}")
