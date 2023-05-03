@@ -167,6 +167,16 @@ with block:
     iter = itertools.permutations(["Alice", "Bob", "Carol"])
     list(iter)
 
+    def print_value(value):
+        values = {
+            125: "It is 125",
+            100: "It is 100",
+            75: "It is 75",
+            50: "It is 50",
+            25: "It is 25"
+        }
+        print(values.get(value))
+
     text = f"{gender} has {five_o_clock_shadow}"
 
     text.submit(infer, inputs=text, outputs=gallery)
