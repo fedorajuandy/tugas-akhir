@@ -195,6 +195,17 @@ This file; which is the explanations.
 }
 ```
 
+```text
+@misc{esser2020taming,
+  title={Taming Transformers for High-Resolution Image Synthesis}, 
+  author={Patrick Esser and Robin Rombach and Björn Ommer},
+  year={2020},
+  eprint={2012.09841},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV}
+}
+```
+
 ### Others
 
 - [Gradio documentation](https://gradio.app/docs)
