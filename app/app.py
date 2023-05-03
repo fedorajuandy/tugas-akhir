@@ -25,7 +25,8 @@ with block:
 
     # text = gr.Textbox(
     #     label = "Text prompt",
-    #     max_lines = 1
+    #     max_lines = 1,
+    #     max_length = 255
     # )
     with gr.Row():
         with gr.Column(scale=1):
