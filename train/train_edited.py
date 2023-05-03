@@ -503,7 +503,7 @@ class TrainingArguments:
         # improves convergence
     )
     optim_quantized: bool = field(
-        default=False,
+        default=True,
         metadata={
             "help": "Whether to quantize optimizer (only supported with Distributed Shampoo)."
             # shard optimizer across devices
@@ -1272,7 +1272,7 @@ def main():
             # on dimensions that are larger than a certain size. Skipping preconditioning can reduce memory usage
             clip_by_scaled_gradient_norm=None,
             # whether to clip the gradient by its scaled norm. Gradient clipping prevent the gradient from exploding or vanishing
-            precision=jax.lax.Precision.HIGHEST,
+            precision=jax.lax.Precision.LOWEST,
             # SHIRA
             # improve accuracy with more memory and computation time
             best_effort_memory_usage_reduction=training_args.optim_quantized,
