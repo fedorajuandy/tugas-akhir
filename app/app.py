@@ -19,16 +19,20 @@ with block:
     gr.Markdown("<h1><center>Face Generator</center></h1>")
 
     # Text input only
-    # with gr.Group():
-        # with gr.Box():
-            # with gr.Row().style(mobile_collapse=False, equal_height=True):
+    # with gr.Row().style(mobile_collapse=False, equal_height=True):
+    #     text = gr.Textbox(
+    #         label = "Text prompt",
+    #         max_lines = 1,
+    #         max_length = 255
+    #     )
 
-    # text = gr.Textbox(
-    #     label = "Text prompt",
-    #     max_lines = 1,
-    #     max_length = 255
-    # )
-    with gr.Row():
+    # With options
+    gender = gr.Radio(
+        ["Female", "Male"],
+        label="Gender"
+    )
+
+    with gr.Row().style(mobile_collapse=False, equal_height=True):
         with gr.Column(scale=1):
             five_o_clock_shadow = gr.Checkbox(
                 label = "5 o'clock shadow",
@@ -36,17 +40,17 @@ with block:
             arched_eyebrows = gr.Checkbox(
                 label = "Arched eyebrows",
             )
-            bushy_eyebrows = gr.Checkbox(
-                label = "Bushy eyebrows",
-            )
             attractive = gr.Checkbox(
                 label = "Attractive",
             )
             bags_under_eyes = gr.Checkbox(
                 label = "Bags under eyes",
             )
-            backend_urlbangs = gr.Checkbox(
-                label = "Backend urlbangs",
+            bald = gr.Checkbox(
+                label = "Bald",
+            )
+            bangs = gr.Checkbox(
+                label = "Bangs",
             )
             big_lips = gr.Checkbox(
                 label = "Big lips",
@@ -54,13 +58,22 @@ with block:
             big_nose = gr.Checkbox(
                 label = "Big nose",
             )
-            hair_color = gr.Radio(
-                ["black", "blond", "brown", "gray"],
-                label="Hair color"
+            black_hair = gr.Checkbox(
+                label = "Black hair",
+            )
+            blond_hair = gr.Checkbox(
+                label = "Blond hair",
             )
             blurry = gr.Checkbox(
                 label = "Blurry",
             )
+            brown_hair = gr.Checkbox(
+                label = "Brown hair",
+            )
+            bushy_eyebrows = gr.Checkbox(
+                label = "Bushy eyebrows",
+            )
+        with gr.Column(scale=1):
             cubby = gr.Checkbox(
                 label = "Cubby",
             )
@@ -73,15 +86,14 @@ with block:
             goatee = gr.Checkbox(
                 label = "Goatee",
             )
+            gray_hair = gr.Checkbox(
+                label = "Gray hair",
+            )
             heavy_makeup = gr.Checkbox(
                 label = "Heavy makeup",
             )
             high_cheekbones = gr.Checkbox(
                 label = "High cheekbones",
-            )
-            gender = gr.Radio(
-                ["female", "male"],
-                label="Gender"
             )
             mouth_slightly_open = gr.Checkbox(
                 label = "Mouth slightly open",
@@ -92,7 +104,6 @@ with block:
             narrow_eyes = gr.Checkbox(
                 label = "Narrow eyes",
             )
-        with gr.Column(scale=1):
             no_beard = gr.Checkbox(
                 label = "Beard",
             )
@@ -102,6 +113,7 @@ with block:
             pale_skin = gr.Checkbox(
                 label = "Pale skin",
             )
+        with gr.Column(scale=1):
             pointy_nose = gr.Checkbox(
                 label = "Pointy nose",
             )
@@ -116,6 +128,9 @@ with block:
             )
             smiling = gr.Checkbox(
                 label = "Smiling",
+            )
+            straight_hair = gr.Checkbox(
+                label = "Straight hair",
             )
             wavy_hair = gr.Checkbox(
                 label = "Wavy hair",

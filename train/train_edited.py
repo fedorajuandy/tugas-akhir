@@ -622,7 +622,7 @@ class TrainingArguments:
     )
 
     # DELETE LATER
-    assert_TPU_available: bool = field(
+    assert_tpu_available: bool = field(
         default=False,
         metadata={"help": "Verify that TPU is not in use."},
     )
@@ -643,7 +643,7 @@ class TrainingArguments:
 
     def __post_init__(self):
         # DELETE LATER
-        if self.assert_TPU_available:
+        if self.assert_tpu_available:
             assert (
                 jax.local_device_count() == 1
             ), "TPUs in use, please check running processes"
