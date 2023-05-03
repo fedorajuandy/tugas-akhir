@@ -645,15 +645,15 @@ class TrainingArguments:
         # DELETE LATER
         if self.assert_TPU_available:
             assert (
-                jax.local_device_count() == 8
+                jax.local_device_count() == 1
             ), "TPUs in use, please check running processes"
-            
+
         # DELETE LATER
         if self.output_dir.startswith("gs://"):
             assert (
                 storage is not None
             ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
-            
+
         assert self.optim in [
             "distributed_shampoo",
             "adam",
@@ -1192,12 +1192,12 @@ def main():
 #     print(f"RA: params_shape = {params_shape}")
 #     print(f"RA: embeddings_only = {training_args.embeddings_only}")
 #     print(f"RA: trainable_params_shape = {trainable_params_shape}")
-    
+
     # REMOVE LATER; most likely only us
     if training_args.optim == "distributed_shampoo":
         # parameters from https://github.com/tensorflow/lingvo/blob/03ee9d7cd50764b0424c7c863733c91fc0b053ec/lingvo/jax/optimizers.py#L729
         print(f"Ra's here. Using distributed shampoo...")
-        
+
         # CHECK LATER
         # depends on the chosen one, that is the value (and that is what I get)
         graft_type = {
