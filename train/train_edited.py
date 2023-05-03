@@ -1272,7 +1272,7 @@ def main():
             # on dimensions that are larger than a certain size. Skipping preconditioning can reduce memory usage
             clip_by_scaled_gradient_norm=None,
             # whether to clip the gradient by its scaled norm. Gradient clipping prevent the gradient from exploding or vanishing
-            precision=jax.lax.Precision.DEFAULT,
+            precision=jax.lax.Precision.HIGH,
             # SHIRA
             # improve accuracy with more memory and computation time
             best_effort_memory_usage_reduction=training_args.optim_quantized,
