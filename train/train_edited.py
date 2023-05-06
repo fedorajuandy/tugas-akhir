@@ -645,7 +645,7 @@ class TrainingArguments:
         # DELETE LATER
         if self.assert_tpu_available:
             assert (
-                jax.local_device_count() == 1
+                jax.local_device_count() == 8
             ), "TPUs in use, please check running processes"
 
         # DELETE LATER
