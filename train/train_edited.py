@@ -835,13 +835,13 @@ def main():
         )
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-#     print(f"RA: model_args = {model_args}")
+    print(f"RA: model_args = {model_args}")
     # Colab: model_args = ModelArguments(model_name_or_path=None, config_name='/kaggle/working/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
     # Kaggle: ModelArguments(model_name_or_path=None, config_name='/kaggle/working/tugas-akhir/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
-#     print(f"RA: data_args = {data_args}")
+    print(f"RA: data_args = {data_args}")
     # RA: data_args = DataTrainingArguments(text_column='caption', encoding_column='encoding', dataset_repo_or_path='/kaggle/input/celeba-hq-encoded-512/encoded_data_512', train_file=None, validation_file=None, streaming=True, use_auth_token=False, shard_by_host=False, blank_caption_prob=0.0, clip_score_column='clip_score', min_clip_score=None, max_clip_score=None, filter_column=None, filter_value=None, multi_eval_ds=False, max_train_samples=None, max_eval_samples=None, preprocessing_num_workers=None, overwrite_cache=False, seed_dataset=None)
     # Kaggle: data_args = DataTrainingArguments(text_column='caption', encoding_column='encoding', dataset_repo_or_path='/kaggle/input/celeba-hq-encoded-512/encoded_data_512', train_file=None, validation_file=None, streaming=True, use_auth_token=False, shard_by_host=False, blank_caption_prob=0.0, clip_score_column='clip_score', min_clip_score=None, max_clip_score=None, filter_column=None, filter_value=None, multi_eval_ds=False, max_train_samples=None, max_eval_samples=None, preprocessing_num_workers=None, overwrite_cache=False, seed_dataset=None)
-#     print(f"RA: training_args = {training_args}")
+    print(f"RA: training_args = {training_args}")
     # Kaggle: training_args = TrainingArguments(output_dir='/kaggle/working/tugas-akhir/train/who_are_you', overwrite_output_dir=False, do_train=True, do_eval=False, per_device_train_batch_size=1, per_device_eval_batch_size=1, gradient_accumulation_steps=1, gradient_checkpointing=False, learning_rate=5e-05, optim='distributed_shampoo', weight_decay=0.0, beta1=0.9, beta2=0.999, adam_epsilon=1e-08, max_grad_norm=1.0, block_size=1024, preconditioning_compute_steps=10, skip_preconditioning_dim_size_gt=4096, graft_type='rmsprop_normalized', nesterov=False, optim_quantized=False, shard_shampoo_across='dp', num_train_epochs=1, warmup_steps=0, lr_decay=None, lr_transition_steps=None, lr_decay_rate=None, lr_staircase=False, lr_offset=0, logging_steps=40, eval_steps=400, save_steps=4000, log_model=False, log_norm_steps=40, log_histogram_steps=False, seed_model=42, embeddings_only=False, init_embeddings=False, wandb_entity=None, wandb_project='dalle-mini', wandb_job_type='Seq2Seq', assert_TPU_available=False, use_vmap_trick=True, mp_devices=1, dp_devices=2
 
     # check arguments
