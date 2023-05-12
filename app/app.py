@@ -1,10 +1,11 @@
 """ Module for web UI """
 import os
-import gradio as gr
+import gradio
+from dataclasses import dataclass, field
 from backend import get_images_from_backend
 
 
-block = gr.Blocks(css=".container { max-width: 800px; margin: auto; }")
+block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")
 backend_url = os.environ["BACKEND_SERVER"] + "/generate"
 
 
@@ -14,175 +15,142 @@ def infer(prompt):
     return response["images"]
 
 
+@dataclass
+class Checkboxes:
+    """
+    Return value from each checkboxes.
+    """
+
+    label: str = field(
+        default = None,
+        metadata = {"help": "The shown label in app."},
+    )
+    checkbox: gradio.Checkbox = field(
+        default = None,
+        metadata = {"help": "A Gradio checkbox."}
+    )
+
+    def __init__(self, label):
+        self.label = label
+        assert (
+            self.label is not None
+        ), "Label's name needs to be specified."
+
+        self.checkbox = gradio.Checkbox(
+            label = self.label
+        )
+
+@dataclass
+class AdVerb(Checkboxes):
+    """
+    Checkboxes with adverb or verb attributes.
+    """
+
+    def get_text(self):
+        """
+        Function to return part of input text.
+        """
+        if self.checkbox.value:
+            return f"is {self.label.lower()}"
+        else:
+            return ""
+
+@dataclass
+class Other(Checkboxes):
+    """
+    Checkboxes with other attributes besides verbs and adverbs.
+    """
+    def get_text(self):
+        """
+        Function to return part of final text.
+        """
+        if self.checkbox.value:
+            return f"has {self.label.lower()}"
+        else:
+            return ""
+
+
 # UI
 with block:
-    gr.Markdown("<h1><center>Face Generator</center></h1>")
+    gradio.Markdown("<h1><center>Face Generator</center></h1>")
 
     # Text input only
-    # with gr.Row().style(mobile_collapse=False, equal_height=True):
-    #     text = gr.Textbox(
+    # with gradio.Row().style(mobile_collapse=False, equal_height=True):
+    #     text = gradio.Textbox(
     #         label = "Text prompt",
     #         max_lines = 1,
     #         max_length = 255
     #     )
 
     # With options
-    gender = gr.Radio(
+    gender = gradio.Radio(
         ["Female", "Male"],
         label="Gender"
     )
 
-    with gr.Row().style(mobile_collapse=False, equal_height=True):
-        with gr.Column(scale=1):
-            five_o_clock_shadow = gr.Checkbox(
-                label = "5 o'clock shadow",
-            )
-            arched_eyebrows = gr.Checkbox(
-                label = "Arched eyebrows",
-            )
-            attractive = gr.Checkbox(
-                label = "Attractive",
-            )
-            bags_under_eyes = gr.Checkbox(
-                label = "Bags under eyes",
-            )
-            bald = gr.Checkbox(
-                label = "Bald",
-            )
-            bangs = gr.Checkbox(
-                label = "Bangs",
-            )
-            big_lips = gr.Checkbox(
-                label = "Big lips",
-            )
-            big_nose = gr.Checkbox(
-                label = "Big nose",
-            )
-            black_hair = gr.Checkbox(
-                label = "Black hair",
-            )
-            blond_hair = gr.Checkbox(
-                label = "Blond hair",
-            )
-            blurry = gr.Checkbox(
-                label = "Blurry",
-            )
-            brown_hair = gr.Checkbox(
-                label = "Brown hair",
-            )
-            bushy_eyebrows = gr.Checkbox(
-                label = "Bushy eyebrows",
-            )
-        with gr.Column(scale=1):
-            cubby = gr.Checkbox(
-                label = "Cubby",
-            )
-            double_chin = gr.Checkbox(
-                label = "Double chin",
-            )
-            eyeblasses = gr.Checkbox(
-                label = "Eyeblasses",
-            )
-            goatee = gr.Checkbox(
-                label = "Goatee",
-            )
-            gray_hair = gr.Checkbox(
-                label = "Gray hair",
-            )
-            heavy_makeup = gr.Checkbox(
-                label = "Heavy makeup",
-            )
-            high_cheekbones = gr.Checkbox(
-                label = "High cheekbones",
-            )
-            mouth_slightly_open = gr.Checkbox(
-                label = "Mouth slightly open",
-            )
-            mustache = gr.Checkbox(
-                label = "Mustache",
-            )
-            narrow_eyes = gr.Checkbox(
-                label = "Narrow eyes",
-            )
-            no_beard = gr.Checkbox(
-                label = "Beard",
-            )
-            oval_face = gr.Checkbox(
-                label = "Oval face",
-            )
-            pale_skin = gr.Checkbox(
-                label = "Pale skin",
-            )
-        with gr.Column(scale=1):
-            pointy_nose = gr.Checkbox(
-                label = "Pointy nose",
-            )
-            receding_hairline = gr.Checkbox(
-                label = "Receding hairline",
-            )
-            rosy_cheeks = gr.Checkbox(
-                label = "Rosy cheeks",
-            )
-            sideburns = gr.Checkbox(
-                label = "Sideburns",
-            )
-            smiling = gr.Checkbox(
-                label = "Smiling",
-            )
-            straight_hair = gr.Checkbox(
-                label = "Straight hair",
-            )
-            wavy_hair = gr.Checkbox(
-                label = "Wavy hair",
-            )
-            wearing_earrings = gr.Checkbox(
-                label = "Wearing earrings",
-            )
-            wearing_hat = gr.Checkbox(
-                label = "Wearing hat",
-            )
-            wearing_lipstick = gr.Checkbox(
-                label = "Wearing lipstick",
-            )
-            wearing_necklace = gr.Checkbox(
-                label = "Wearing necklace",
-            )
-            wearing_necktie = gr.Checkbox(
-                label = "Wearing necktie",
-            )
-            young = gr.Checkbox(
-                label = "Young",
-            )
+    with gradio.Row().style(equal_height=True):
+        with gradio.Column(scale=1):
+            five_o_clock_shadow = Other("5 o'clock shadow")
+            arched_eyebrows = Other("Arched eyebrows")
+            attractive = AdVerb("Attractive")
+            bags_under_eyes = Other("Bags under eyes")
+            bald = AdVerb("Bald")
+            bangs = Other("Bangs")
+            big_lips = Other("Big lips")
+            big_nose = Other("Big nose")
+            black_hair = Other("Black hair")
+            blond_hair = Other("Blond hair")
+            blurry = AdVerb("Blurry")
+            brown_hair = Other("Brown hair")
+            bushy_eyebrows = Other("Bushy eyebrows")
+        with gradio.Column(scale=1):
+            cubby = AdVerb("Cubby")
+            double_chin = Other("Double chin")
+            eyeglasses = Other("Eyeglasses")
+            goatee = Other("Goatee")
+            gray_hair = Other("Gray hair")
+            heavy_makeup = Other("Heavy makeup")
+            high_cheekbones = Other("High cheekbones")
+            mouth_slightly_open = Other("Mouth slightly open")
+            mustache = Other("Mustache")
+            narrow_eyes = Other("Narrow eyes")
+            no_beard = Other("No beard")
+            oval_face = Other("Oval face")
+            pale_skin = Other("Pale skin")
+        with gradio.Column(scale=1):
+            pointy_nose = Other("Pointy nose")
+            receding_hairline = Other("Receding hairline")
+            rosy_cheeks = Other("Rosy cheeks")
+            sideburns = Other("Sideburns")
+            smiling = AdVerb("Smiling")
+            straight_hair = Other("Straight hair")
+            wavy_hair = Other("Wavy hair")
+            wearing_earrings = AdVerb("Wearing earrings")
+            wearing_hat = AdVerb("Wearing hat")
+            wearing_lipstick = AdVerb("Wearing lipstick")
+            wearing_necklace = AdVerb("Wearing necklace")
+            wearing_necktie = AdVerb("Wearing necktie")
+            young = AdVerb("Young")
 
-    btn = gr.Button("Run")
+    btn = gradio.Button("Run")
 
-    gallery = gr.Gallery(
+    gallery = gradio.Gallery(
         label = "Result image",
     ).style(
         columns = [3],
         height = "auto"
     )
 
-    import itertools
-    iter = itertools.permutations(["Alice", "Bob", "Carol"])
-    list(iter)
+    PERSON = "woman"
+    if gender.value == "male":
+        PERSON = "man"
 
-    def print_value(value):
-        values = {
-            125: "It is 125",
-            100: "It is 100",
-            75: "It is 75",
-            50: "It is 50",
-            25: "It is 25"
-        }
-        print(values.get(value))
-
-    text = f"{gender} has {five_o_clock_shadow}"
+    text = f"""This {PERSON} {five_o_clock_shadow.get_text()}."""
 
     text.submit(infer, inputs=text, outputs=gallery)
     btn.click(infer, inputs=text, outputs=gallery)
 
-    gr.Markdown("<p style='text-align: center'>© Fedora Yoshe Juandy</p>")
+    gradio.Markdown("<p style='text-align: center'>© Fedora Yoshe Juandy</p>")
 
 
 block.launch(enable_queue=False)
