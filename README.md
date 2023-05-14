@@ -1,3 +1,5 @@
+<!-- Project's detailed explanation -->
+
 ---
 title: FaceGenerator
 emoji: 😄
@@ -15,7 +17,7 @@ pinned: false
 
 ### About
 
-A simple application to generate human face images with the limitation of the algorithm, dataset, hardware specification, and other outside variables.
+A simple application to generate human face images with the limitation of the algorithm, dataset, hardware specification, chosen limited configuration, and other various variables.
 
 ![UI](/img/ui.png)
 
@@ -27,35 +29,8 @@ A simple application to generate human face images with the limitation of the al
 
 ### Notes
 
-- Loading and saving models are configured for training from scratch only
-- Loading and saving models are configured to my own use; change them to your suitable one
 - Optimisation only using Distributed Shampoo
 - The dataset is limited to CelebA-HQ
-
-### Dependencies
-
-Main:
-
-- python >=3.7
-- gradio
-- transformers
-- einops
-- unidecode
-- ftfy
-- emoji
-- pillow
-- jax
-- flax
-- tqdm
-- optax
-- braceexpand
-- datasets[streaming]
-- black[jupyter]
-- isort
-
-Additionals:
-
-- wandb
 
 ---
 
@@ -67,61 +42,13 @@ Users input either free-form text in the textbox or choose one or several attrib
 
 ---
 
-## Files Structure
-
-- app
-
-Web application files.
-
-- encode
-
-Notebook for encoding dataset including the output history.
-
-- img
-
-Additional images for README files or other purposes.
-
-- old_results
-
-Old notebooks or other files for tracking missing issues. Or other things.
-
-- train
-
-Files for main training.
-
-  - config
-
-  Configuration file.
-
-  - dalle_mini
-
-  The model based on.
-
-  - scalable_shampoo
-
-  The optimiser files from [Google Research](https://github.com/google-research/google-research/tree/master/scalable_shampoo)
-
-  - train.py
-
-  The main training script,
-
-  - train.ipynb
-
-  The notebook for running training script and setting up used workplace; configure it to your own uses or just immediately run the training script. This is just for convinient uses in case of failures.
-
-- README.md
-
-This file; which is the explanations.
-
----
-
 ## References
 
 ### Papers
 
 ```text
 @misc{
-  title={Zero-Shot Text-to-Image Generation}, 
+  title={Zero-Shot Text-to-Image Generation},
   author={Aditya Ramesh and Mikhail Pavlov and Gabriel Goh and Scott Gray and Chelsea Voss and Alec Radford and Mark Chen and Ilya Sutskever},
   year={2021},
   eprint={2102.12092},
@@ -210,15 +137,18 @@ This file; which is the explanations.
 
 - [Gradio documentation](https://gradio.app/docs)
 
-### Helping Hands
+### Papers' explanation
 
-https://www.youtube.com/@TheAIEpiphany
+- 
 
 ---
 
 ## Tools Used
 
+- [Amazon SageMaker Studio Lab](https://studiolab.sagemaker.aws/)
 - [Google Colab](https://colab.research.google.com/)
 - [Paperspace Gradient](https://www.paperspace.com/gradient)
 - [Kaggle](https://www.kaggle.com/)
 - [Figma](https://www.figma.com/)
+- [Visual Studio Code Space in GitHub](https://github.com/)
+- [Weights & Biases](https://wandb.ai/home)

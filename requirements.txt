@@ -1,0 +1,19 @@
+# Python package requirements
+# Use "pip install -r requrements.txt"
+
+black[jupyter]
+braceexpand
+datasets[streaming]
+einops
+emoji
+flax
+ftfy
+gradio
+isort
+jax
+opta
+pillow
+transformers
+tqdm
+unidecode
+wandb
