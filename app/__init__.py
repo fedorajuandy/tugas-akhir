@@ -1,3 +1,3 @@
-""" App initialisation for generating class diagram """
+""" app initialisation for generating class diagram """
 from .app import *
 from .backend import *
