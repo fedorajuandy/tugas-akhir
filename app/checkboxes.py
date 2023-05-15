@@ -33,9 +33,9 @@ class Checkboxes:
             onchange=checkbox_value
         )
 
-        def checkbox_value(value):
-            val = value
-            return value
+    def checkbox_value(value):
+        val = value
+        return value
 
 @dataclass
 class AdVerb(Checkboxes):
