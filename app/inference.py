@@ -47,8 +47,6 @@ class Inference:
         VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
         VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
 
-        login_wandb()
-
         # load models
         model, params = DalleBart.from_pretrained(
             MODEL, revision=MODEL_COMMIT_ID, dtype=jnp.float32, _do_init=False
