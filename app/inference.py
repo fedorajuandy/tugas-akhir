@@ -14,7 +14,7 @@ from tqdm.notebook import trange
 import wandb
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-from .helpers import login_wandb
+from .helpers import store_images
 
 
 @dataclass
@@ -25,7 +25,7 @@ class Inference:
         default = None,
         metadata = {"help": "Text inputed by user."},
     )
-    imgs: array = field(
+    imgs: bytearray = field(
         default = None,
         metadata = {"help": "Generated images."}
     )
@@ -34,10 +34,10 @@ class Inference:
         self.text_prompt = text_prompt
         assert (
             self.text_prompt is not None
-        ), "NOthing is inputed."
+        ), "Nothing is inputed."
 
 
-    def generate_image():
+    def generate_image(text_prompt):
         """ Take text prompt and return generated image """
         # Model to generate image tokens
         MODEL = "fedorajuandy/dalle-mini/model-st6x232l:v26"
@@ -125,11 +125,12 @@ class Inference:
                 images.append(img)
                 # display(img)
                 # print()
+                store_images()
 
         return images
 
 
-    def score_images(imgs)
+    def score_images(imgs, text_prompt):
         """ Take generated images, score them, and return highest scored one """
         # CLIP
         CLIP_REPO = "openai/clip-vit-base-patch32"

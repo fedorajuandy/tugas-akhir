@@ -14,12 +14,14 @@ def login_wandb():
             wandb_auth_key = wak.readline()
 
     elif(os.path.exists("/kaggle")):
+        from kaggle_secrets import UserSecretsClient
         os.environ["WANDB_NOTEBOOK_NAME"] = "/kaggle/working/tugas-akhir/app/inference_pipelineain.ipynb"
         wandb_auth_key = user_secrets.get_secret("wandb")
 
     wandb.login(key=wandb_auth_key)
 
-def store_images(images, logits)
+
+def store_images(text_prompt, images, logits, n_predictions):
     """ For personal use and testing """
     project = 'dalle-mini-images'
     run = wandb.init(project=project)

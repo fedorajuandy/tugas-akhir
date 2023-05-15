@@ -2,18 +2,12 @@
 import os
 from dataclasses import dataclass, field
 import gradio
-from .backend import get_images_from_backend
 from .inference import *
+from .helpers import *
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")
-backend_url = os.environ["BACKEND_SERVER"] + "/generate"
-
-
-def infer(prompt):
-    """ Send request, generate image, get image """
-    response = get_images_from_backend(prompt, backend_url)
-    return response["images"]
+login_wandb()
 
 
 @dataclass
@@ -149,9 +143,10 @@ with block:
         PRONOUN = "He"
 
     text = f"""This {PERSON} {five_o_clock_shadow.get_text()}, {arched_eyebrows.get_text()}, {attractive.get_text()}, {bags_under_eyes.get_text()}, {bald.get_text()}, {bangs.get_text()}, {big_lips.get_text()}, {big_nose.get_text()}, {black_hair.get_text()}, {blond_hair.get_text()}, {blurry.get_text()}, {brown_hair.get_text()}, {bushy_eyebrows.get_text()}, {cubby.get_text()}, {double_chin.get_text()}, {eyeglasses.get_text()}, {goatee.get_text()}, {gray_hair.get_text()}, {heavy_makeup.get_text()}, {high_cheekbones.get_text()}, {mouth_slightly_open.get_text()}, {mustache.get_text()}, {narrow_eyes.get_text()}, {no_beard.get_text()}, {oval_face.get_text()}, {pale_skin.get_text()}, {pointy_nose.get_text()}, {receding_hairline.get_text()}, {rosy_cheeks.get_text()}, {sideburns.get_text()}, {smiling.get_text()}, {straight_hair.get_text()}, {wavy_hair.get_text()}, {wearing_earrings.get_text()}, {wearing_hat.get_text()}, {wearing_lipstick.get_text()}, {wearing_necklace.get_text()}, {wearing_necktie.get_text()}, {young.get_text()}."""
+    generate_image = Inference(text)
 
-    text.submit(infer, inputs=text, outputs=gallery)
-    btn.click(infer, inputs=text, outputs=gallery)
+    text.submit(generate_image.score_images, inputs=text, outputs=gallery)
+    btn.click(generate_image.score_images, inputs=text, outputs=gallery)
 
     gradio.Markdown("<p style='text-align: center'>© Fedora Yoshe Juandy</p>")
 
