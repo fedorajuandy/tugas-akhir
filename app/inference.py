@@ -146,10 +146,7 @@ def generate_image(text_prompt):
             imgs.append(images[idx * p + i])
             # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
         # print()
+
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
 
-    json = imgs[0].json()
-    images = Image.open(BytesIO(base64.b64decode(img)))
-    display(imgs[0])
-    print(images)
-    return {"images": images, "version": version}
+    return imgs[0]
