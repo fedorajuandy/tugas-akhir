@@ -104,7 +104,6 @@ def generate_image(text_prompt):
             images.append(img)
             # display(img)
             # print()
-            store_images(text_prompt, images, logits, N_PREDICTIONS)
 
     # CLIP
     CLIP_REPO = "openai/clip-vit-base-patch32"
@@ -144,5 +143,7 @@ def generate_image(text_prompt):
             imgs.add(images[idx * p + i])
             # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
         # print()
+    
+    store_images(text_prompt, images, logits, N_PREDICTIONS)
 
     return imgs[0]
