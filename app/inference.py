@@ -52,7 +52,6 @@ def generate_image(text_prompt):
             params=params,
             top_k=top_k,
             top_p=top_p,
-            TEMPERATURE=TEMPERATURE,
             condition_scale=condition_scale,
         )
 
