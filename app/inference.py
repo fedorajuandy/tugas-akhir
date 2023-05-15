@@ -140,7 +140,7 @@ def generate_image(text_prompt):
     imgs = []
     for i, prompt in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
-            imgs.add(images[idx * p + i])
+            imgs.append(images[idx * p + i])
             # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
         # print()
     
