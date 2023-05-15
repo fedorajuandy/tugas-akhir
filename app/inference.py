@@ -149,4 +149,4 @@ def generate_image(text_prompt):
     
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
 
-    return imgs[0].open(BytesIO(base64.b64decode(img)))
+    return imgs
