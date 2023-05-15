@@ -18,6 +18,9 @@ def login_wandb():
         os.environ["WANDB_NOTEBOOK_NAME"] = "/kaggle/working/tugas-akhir/app/inference_pipelineain.ipynb"
         wandb_auth_key = user_secrets.get_secret("wandb")
 
+    else:
+        wandb_auth_key = "743ef48ba9077fb2d47e1e87e70b9478e9e07393"
+
     wandb.login(key=wandb_auth_key)
 
 
