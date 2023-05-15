@@ -14,7 +14,7 @@ from tqdm.notebook import trange
 import wandb
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-from .helpers import store_images
+from helpers import *
 
 
 @dataclass
@@ -127,11 +127,6 @@ class Inference:
                 # print()
                 store_images()
 
-        return images
-
-
-    def score_images(imgs, text_prompt):
-        """ Take generated images, score them, and return highest scored one """
         # CLIP
         CLIP_REPO = "openai/clip-vit-base-patch32"
         CLIP_COMMIT_ID = None
@@ -164,12 +159,11 @@ class Inference:
         p = len(text_prompt)
         logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
 
+        imgs = []
         for i, prompt in enumerate(text_prompt):
             for idx in logits[i].argsort()[::-1]:
-                display(images[idx * p + i])
+                imgs.add(images[idx * p + i])
                 print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
             # print()
 
-        highest_scored = ""
-
-        return highest_scored
+        return imgs[0]
