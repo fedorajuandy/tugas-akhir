@@ -34,6 +34,8 @@ def store_images(text_prompt, images, logits, n_predictions):
     gen_table = wandb.Table(columns=columns)
 
     # Add data to the table
+
+    
     for i, prompt in enumerate(text_prompt):
         # if CLIP score exists
         if logits is not None:
