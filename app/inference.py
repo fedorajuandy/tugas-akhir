@@ -149,4 +149,8 @@ def generate_image(text_prompt):
     
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
 
-    return imgs
+    json = imgs[0].json()
+    images = json["images"]
+    images = [Image.open(BytesIO(base64.b64decode(img))) for img in images]
+    version = json.get("version", "unknown")
+    return {"images": images, "version": version}
