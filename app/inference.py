@@ -15,6 +15,9 @@ import wandb
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
 from helpers import *
+import base64
+from io import BytesIO
+from PIL import Image
 
 
 def generate_image(text_prompt):
@@ -146,4 +149,4 @@ def generate_image(text_prompt):
     
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
 
-    return imgs[0]
+    return imgs[0].open(BytesIO(base64.b64decode(img)))
