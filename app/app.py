@@ -93,4 +93,4 @@ with block:
     gradio.Markdown("<p style='text-align: center'>© Fedora Yoshe Juandy</p>")
 
 
-block.launch(enable_queue=False)
+block.launch(enable_queue=False, share=True)
