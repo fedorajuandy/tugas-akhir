@@ -125,7 +125,7 @@ def generate_image(text_prompt):
     # Get scores
     clip_inputs = clip_processor(
         text=texts * jax.device_count(),
-        images=imgs,
+        images=images,
         return_tensors="np",
         padding="max_length",
         max_length=77,
