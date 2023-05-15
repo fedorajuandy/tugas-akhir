@@ -19,7 +19,7 @@ def login_wandb():
         wandb_auth_key = user_secrets.get_secret("wandb")
 
     else:
-        wandb_auth_key = "743ef48ba9077fb2d47e1e87e70b9478e9e07393"
+        wandb_auth_key = "wak"
 
     wandb.login(key=wandb_auth_key)
 
