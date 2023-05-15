@@ -7,7 +7,6 @@ from checkboxes import *
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")
-login_wandb()
 
 
 # UI
