@@ -9,7 +9,7 @@ def store_images(text_prompt, images, logits, n_predictions):
     run = wandb.init(project=project)
 
     # Initialise an empty table
-    columns = ["captions"] + [f"image_{i+1}" for i in range(n_predictions)]
+    columns = ["captions"] + ["image"]
     gen_table = wandb.Table(columns=columns)
 
     # Add data to the table
