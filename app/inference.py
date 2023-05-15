@@ -67,7 +67,9 @@ def generate_image(text_prompt):
 
     processor = DalleBartProcessor.from_pretrained(MODEL, revision=MODEL_COMMIT_ID)
 
-    tokenized_prompts = processor(text_prompt)
+    texts = []
+    texts.append(text_prompt)
+    tokenized_prompts = processor(texts)
     # replicate prompts to each device
     tokenized_prompt = replicate(tokenized_prompts)
 
@@ -124,7 +126,7 @@ def generate_image(text_prompt):
 
     # Get scores
     clip_inputs = clip_processor(
-        text=text_prompt * jax.device_count(),
+        text=texts * jax.device_count(),
         images=imgs,
         return_tensors="np",
         padding="max_length",
@@ -134,11 +136,11 @@ def generate_image(text_prompt):
     logits = p_clip(shard(clip_inputs), clip_params)
 
     # Organize scores
-    p = len(text_prompt)
+    p = len(texts)
     logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
 
     imgs = []
-    for i, prompt in enumerate(text_prompt):
+    for i, prompt in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
             imgs.add(images[idx * p + i])
             print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
