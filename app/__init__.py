@@ -2,3 +2,4 @@
 from .app import *
 from .inference import *
 from .helpers import *
+from .checkboxes import *
