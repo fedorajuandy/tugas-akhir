@@ -3,6 +3,7 @@ import os
 from dataclasses import dataclass, field
 import gradio
 from .backend import get_images_from_backend
+from .inference import *
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")
