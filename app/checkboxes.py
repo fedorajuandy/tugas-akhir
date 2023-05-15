@@ -16,10 +16,6 @@ class Checkboxes:
         default = None,
         metadata = {"help": "A Gradio checkbox."}
     )
-    val: bool = field(
-        default = False,
-        metadata = {"help": "Whether it is checked."}
-    )
 
     def __init__(self, label):
         self.label = label
@@ -30,39 +26,36 @@ class Checkboxes:
 
         self.checkbox = gradio.Checkbox(
             label = self.label,
-            onchange=checkbox_value
         )
 
-    def checkbox_value(value):
-        val = value
-        return value
 
 @dataclass
 class AdVerb(Checkboxes):
     """ Checkboxes with adverb or verb attributes. """
 
-    def __init__(self, label):
-        super().__init__(label)
-
     def get_text(self):
         """
         Function to return part of input text.
         """
-        if self.checkbox_value():
+        if self.checkbox:
             return f"is {self.label.lower()}"
         else:
             return ""
+
+    def __init__(self, label):
+        super().__init__(label)
+
 
 @dataclass
 class Other(Checkboxes):
     """ Checkboxes with other attributes besides verbs and adverbs. """
 
-    def __init__(self, label):
-        super().__init__(label)
-
     def get_text(self):
         """ Function to return part of final text. """
-        if self.checkbox_value():
+        if self.checkbox:
             return f"has {self.label.lower()}"
         else:
             return ""
+
+    def __init__(self, label):
+        super().__init__(label)
