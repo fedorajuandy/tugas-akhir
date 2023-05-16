@@ -150,4 +150,4 @@ def generate_image(text_prompt):
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
     # imgs[0].save('output.jpg')
 
-    return imgs
+    return imgs[0]
