@@ -12,6 +12,8 @@ import numpy as np
 from PIL import Image
 from tqdm.notebook import trange
 import wandb
+import torch
+import torchvision.transforms as transforms
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
 from helpers import *
@@ -150,4 +152,7 @@ def generate_image(text_prompt):
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
     # imgs[0].save('output.jpg')
 
-    return imgs[0]
+
+    result = transforms.ToPILImage()(torch.from_numpy(imgs[0]).permute(2, 0, 1))
+
+    return result
