@@ -148,5 +148,6 @@ def generate_image(text_prompt):
         # print()
 
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
+    # imgs[0].save('output.jpg')
 
-    return imgs[0]
+    return imgs
