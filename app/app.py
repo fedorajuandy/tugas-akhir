@@ -23,7 +23,6 @@ with block:
         text = gradio.Textbox(
             label = "Text prompt",
             max_lines = 1,
-            max_length = 255
         )
 
     # With options

@@ -153,6 +153,6 @@ def generate_image(text_prompt):
     # imgs[0].save('output.jpg')
 
 
-    result = transforms.ToPILImage()(torch.from_numpy(imgs[0]).permute(2, 0, 1))
+    # result = transforms.ToPILImage()(torch.from_numpy(imgs[0]).permute(2, 0, 1))
 
-    return result
+    return imgs[0]
