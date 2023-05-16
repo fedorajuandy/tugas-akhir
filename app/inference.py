@@ -11,8 +11,6 @@ from vqgan_jax.modeling_flax_vqgan import VQModel
 import numpy as np
 from PIL import Image
 from tqdm.notebook import trange
-import wandb
-import torch
 import torchvision.transforms as transforms
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
@@ -24,6 +22,7 @@ from PIL import Image
 
 def generate_image(text_prompt):
     """ Take text prompt and return generated image """
+    
     # Model to generate image tokens
     MODEL = "fedorajuandy/dalle-mini/model-st6x232l:v26"
     MODEL_COMMIT_ID = None
