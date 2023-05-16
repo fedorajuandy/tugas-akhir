@@ -151,8 +151,9 @@ def generate_image(text_prompt):
 
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
     # imgs[0].save('output.jpg')
-
+    result = []
+    result.append(imgs[0])
 
     # result = transforms.ToPILImage()(torch.from_numpy(imgs[0]).permute(2, 0, 1))
 
-    return imgs
+    return result
