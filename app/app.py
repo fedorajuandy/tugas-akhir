@@ -1,7 +1,7 @@
 """ Module for web UI """
 import gradio
 from .inference import generate_image
-# from checkboxes import *
+# from .checkboxes import *
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")

@@ -14,7 +14,7 @@ from tqdm.notebook import trange
 import torchvision.transforms as transforms
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-from helpers import *
+# from .helpers import *
 import base64
 from io import BytesIO
 from PIL import Image
