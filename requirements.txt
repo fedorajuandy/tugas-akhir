@@ -3,6 +3,7 @@
 
 black[jupyter]
 braceexpand
+dalle-mini
 datasets[streaming]
 einops
 emoji

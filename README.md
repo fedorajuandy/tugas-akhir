@@ -1,5 +1,3 @@
-<!-- Project's detailed explanation -->
-
 ---
 title: FaceGenerator
 emoji: 😄
