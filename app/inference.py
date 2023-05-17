@@ -102,8 +102,6 @@ def generate_image(text_prompt):
         for decoded_img in decoded_images:
             img = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
             images.append(img)
-            # display(img)
-            # print()
 
     # CLIP
     CLIP_REPO = "openai/clip-vit-base-patch32"
@@ -138,7 +136,7 @@ def generate_image(text_prompt):
     logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
 
     imgs = []
-    for i in enumerate(texts):
+    for i, p in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
             imgs.append(images[idx * p + i])
             print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
