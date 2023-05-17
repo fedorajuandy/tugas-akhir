@@ -142,7 +142,7 @@ def generate_image(text_prompt):
         for idx in logits[i].argsort()[::-1]:
             imgs.append(images[idx * p + i])
             print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
-        print()
+            print(imgs[i])
 
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
     # imgs[0].save('output.jpg')
