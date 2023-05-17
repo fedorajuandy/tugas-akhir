@@ -2,7 +2,6 @@
 
 from pathlib import Path
 from functools import partial
-# import os.path
 import jax
 from flax.jax_utils import replicate
 from flax.training.common_utils import shard
@@ -63,24 +62,9 @@ def encode_dataset(dataloader, output_dir, save_frequency):
     all_captions = []
     all_encoding = []
     n_file = 0
-    # nfile = 0
-    # file_exists = os.path.exists(f"{output_dir}/{nfile}.parquet")
 
-    for idx, () in enumerate(tqdm(dataloader)):
+    for idx, (images, captions) in enumerate(tqdm(dataloader)):
         images = images.numpy()
-        # n_image = len(images)
-
-        # if n_image != len(images):
-        #     print(f"Different sizes {n_image} vs {len(images)}")
-        #     images = images[:n_image]
-        #     captions = captions[:n_image]
-        #     n_file += 1
-        #     file_exists = os.path.exists(f"{output_dir}/{nfile}.parquet")
-
-        # if not captions or file_exists:
-        #     print("No images/captions in batch...")
-        #     continue
-
         images = shard(images)
         encoded = p_encode(images, vqgan_params)
         encoded = encoded.reshape(-1, encoded.shape[-1])
