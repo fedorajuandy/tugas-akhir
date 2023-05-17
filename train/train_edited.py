@@ -76,7 +76,7 @@ import flax
 import jax
 import jax.numpy as jnp
 # Numberical computing library for GPU and TPU (like numpy; working with arrays said accelerators... does accelerator's vector actually functions just to manipulate the vector's speed? How does one's brain even calculate that on spot-)
-import jaxlib
+import jaxlib # pylint: disable=import-error
 # Low-level utilities (basic software tools for computing and numerical analysis; for efficiency and speed; building blocks for complex algorithms) for jax (rng, matrix stuff, algebra)
 import numpy as np
 # computing for CPU
@@ -86,7 +86,7 @@ import transformers
 # pre-trained for NLP, fine-tune, and dataset evaluation
 import wandb
 # ML tracking (logging, visualisation, sharing)
-from datasets import Dataset # pylint: disable=import-error
+from datasets import Dataset
 # for iterating dataset; accessing examples
 from flax import core, struct, traverse_util
 # core: define and manipulate NN model

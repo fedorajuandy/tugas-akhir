@@ -73,11 +73,12 @@ def generate_image(text_prompt):
     tokenized_prompt = replicate(tokenized_prompts)
 
     # number of predictions
-    N_PREDICTIONS = 4
+    N_PREDICTIONS = 8
 
     # generetion parameters
     GEN_TOP_K = None
     GEN_TOP_P = None
+    TEMPERATURE = None
     COND_SCALE = 10.0
 
     # generate images
@@ -90,6 +91,7 @@ def generate_image(text_prompt):
             params,
             GEN_TOP_K,
             GEN_TOP_P,
+            TEMPERATURE,
             COND_SCALE,
         )
         # remove BOS token
