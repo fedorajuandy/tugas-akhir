@@ -17,6 +17,7 @@ from transformers import CLIPProcessor, FlaxCLIPModel
 
 def generate_image(text_prompt):
     """ Take text prompt and return generated image """
+    # pylint: disable=invalid-name
 
     # Model to generate image tokens
     MODEL = "fedorajuandy/dalle-mini/model-st6x232l:v26"
@@ -140,8 +141,8 @@ def generate_image(text_prompt):
     for i, prompt in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
             imgs.append(images[idx * p + i])
-            # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
-        # print()
+            print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
+        print()
 
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
     # imgs[0].save('output.jpg')
