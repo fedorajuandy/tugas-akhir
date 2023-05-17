@@ -141,14 +141,11 @@ def generate_image(text_prompt):
     for i, prompt in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
             imgs.append(images[idx * p + i])
-            print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
-            print(imgs[i])
+            # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
 
     # store_images(text_prompt, images, logits, N_PREDICTIONS)
-    # imgs[0].save('output.jpg')
     result = []
     result.append(imgs[0])
 
-    # result = transforms.ToPILImage()(torch.from_numpy(imgs[0]).permute(2, 0, 1))
 
     return result
