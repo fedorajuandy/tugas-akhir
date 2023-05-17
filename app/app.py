@@ -1,22 +1,15 @@
 """ Module for web UI """
-import os
 import gradio
 from inference import *
-from helpers import *
-from checkboxes import *
+# from checkboxes import *
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")
 
 
-def infer(prompt):
-    response = generate_image(prompt)
-    return response["images"]
-
-
 # UI
 with block:
-    gradio.Markdown("<h1><center>Face Generator</center></h1>")
+    gradio.Markdown("<h1><center>Image Generator</center></h1>")
 
     # Text input only
     with gradio.Row().style(equal_height=True):
@@ -94,8 +87,7 @@ with block:
 
     btn.click(fn=generate_image, inputs=text, outputs=gallery)
 
-    gradio.Markdown("<p style='text-align: center'>© Fedora Yoshe Juandy</p>")
+    gradio.Markdown("<p style='text-align: center'>2019130032 - Fedora Yoshe Juandy</p>")
 
 
 block.queue().launch(share=True)
-
