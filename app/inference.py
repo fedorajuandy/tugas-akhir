@@ -12,7 +12,7 @@ from PIL import Image
 from tqdm.notebook import trange
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-# from .helpers import *
+# from helpers import *
 
 
 def generate_image(text_prompt):
@@ -77,7 +77,6 @@ def generate_image(text_prompt):
     # generetion parameters
     gen_top_k = None
     gen_top_p = None
-    temperature = None
     cond_scale = 10.0
 
     # generate images

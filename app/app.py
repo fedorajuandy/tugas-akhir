@@ -1,6 +1,6 @@
 """ Module for web UI """
 import gradio
-from .inference import generate_image
+from inference import generate_image
 # from .checkboxes import *
 
 

@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 import gradio
 
+
 @dataclass
 class Checkboxes:
     """ Return value from each checkboxes. """
