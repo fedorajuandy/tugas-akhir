@@ -43,7 +43,7 @@ def generate_image(text_prompt):
     # functions are parallelised to each device
     @partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
     def p_generate(
-        tokenized_prompt, key, params, top_k, top_p, TEMPERATURE, condition_scale
+        tokenized_prompt, key, params, top_k, top_p, condition_scale
     ):
         """ Model inference """
         return model.generate(
@@ -78,7 +78,6 @@ def generate_image(text_prompt):
     # generetion parameters
     GEN_TOP_K = None
     GEN_TOP_P = None
-    TEMPERATURE = None
     COND_SCALE = 10.0
 
     # generate images
@@ -91,7 +90,6 @@ def generate_image(text_prompt):
             params,
             GEN_TOP_K,
             GEN_TOP_P,
-            TEMPERATURE,
             COND_SCALE,
         )
         # remove BOS token
@@ -136,7 +134,7 @@ def generate_image(text_prompt):
     logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
 
     imgs = []
-    for i in enumerate(texts):
+    for i, text in enumerate(texts): # pylint: disable=unused-variable
         for idx in logits[i].argsort()[::-1]:
             imgs.append(images[idx * p + i])
             print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")

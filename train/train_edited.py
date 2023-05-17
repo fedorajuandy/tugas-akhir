@@ -213,6 +213,7 @@ class ModelArguments:
 
     # PRE-TRAINED MODEL [DELETE LATER]
     def get_metadata(self):
+        """ Get artifact's metadata or empty dict """
         if self.model_name_or_path is not None and ":" in self.model_name_or_path:
             if jax.process_index() == 0:
                 artifact = wandb.run.use_artifact(self.model_name_or_path)
