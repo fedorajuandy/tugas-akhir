@@ -73,7 +73,7 @@ def generate_image(text_prompt):
     tokenized_prompt = replicate(tokenized_prompts)
 
     # number of predictions
-    N_PREDICTIONS = 8
+    N_PREDICTIONS = 4
 
     # generetion parameters
     GEN_TOP_K = None

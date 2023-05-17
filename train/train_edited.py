@@ -86,7 +86,7 @@ import transformers
 # pre-trained for NLP, fine-tune, and dataset evaluation
 import wandb
 # ML tracking (logging, visualisation, sharing)
-from datasets import Dataset
+from datasets import Dataset # pylint: disable=import-error
 # for iterating dataset; accessing examples
 from flax import core, struct, traverse_util
 # core: define and manipulate NN model
