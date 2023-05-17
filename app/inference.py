@@ -12,27 +12,27 @@ from PIL import Image
 from tqdm.notebook import trange
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-# from helpers import *  # pylint: disable=import-error
+# from .helpers import *
 
 
 def generate_image(text_prompt):
     """ Take text prompt and return generated image """
 
     # Model to generate image tokens
-    model = "fedorajuandy/dalle-mini/model-st6x232l:v26"
-    model_commit_id = None
+    MODEL = "fedorajuandy/dalle-mini/model-st6x232l:v26"
+    MODEL_COMMIT_ID = None
 
     # VQGAN to decode image tokens
-    vqgan_repo = "dalle-mini/vqgan_imagenet_f16_16384"
-    vqgan_commit_id = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
+    VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
+    VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
 
     # load models
     model, params = DalleBart.from_pretrained(
-        model, revision=model_commit_id, dtype=jnp.float32, _do_init=False
+        MODEL, revision=MODEL_COMMIT_ID, dtype=jnp.float32, _do_init=False
     )
 
     vqgan, vqgan_params = VQModel.from_pretrained(
-        vqgan_repo, revision=vqgan_commit_id, _do_init=False
+        VQGAN_REPO, revision=VQGAN_COMMIT_ID, _do_init=False
     )
 
     # replicate parameters to each device
@@ -42,7 +42,7 @@ def generate_image(text_prompt):
     # functions are parallelised to each device
     @partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
     def p_generate(
-        tokenized_prompt, key, params, top_k, top_p, condition_scale
+        tokenized_prompt, key, params, top_k, top_p, TEMPERATURE, condition_scale
     ):
         """ Model inference """
         return model.generate(
@@ -63,7 +63,7 @@ def generate_image(text_prompt):
     seed = random.randint(0, 2**32 - 1)
     key = jax.random.PRNGKey(seed)
 
-    processor = DalleBartProcessor.from_pretrained(model, revision=model_commit_id)
+    processor = DalleBartProcessor.from_pretrained(MODEL, revision=MODEL_COMMIT_ID)
 
     texts = []
     texts.append(text_prompt)
@@ -72,24 +72,26 @@ def generate_image(text_prompt):
     tokenized_prompt = replicate(tokenized_prompts)
 
     # number of predictions
-    n_predictions = 8
+    N_PREDICTIONS = 8
 
     # generetion parameters
-    gen_top_k = None
-    gen_top_p = None
-    cond_scale = 10.0
+    GEN_TOP_K = None
+    GEN_TOP_P = None
+    TEMPERATURE = None
+    COND_SCALE = 10.0
 
     # generate images
     images = []
-    for i in trange(max(n_predictions // jax.device_count(), 1)):
+    for i in trange(max(N_PREDICTIONS // jax.device_count(), 1)):
         key, subkey = jax.random.split(key)
         encoded_images = p_generate(
             tokenized_prompt,
             shard_prng_key(subkey),
             params,
-            gen_top_k,
-            gen_top_p,
-            cond_scale,
+            GEN_TOP_K,
+            GEN_TOP_P,
+            TEMPERATURE,
+            COND_SCALE,
         )
         # remove BOS token
         encoded_images = encoded_images.sequences[..., 1:]
@@ -99,16 +101,18 @@ def generate_image(text_prompt):
         for decoded_img in decoded_images:
             img = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
             images.append(img)
+            # display(img)
+            # print()
 
     # CLIP
-    clip_repo = "openai/clip-vit-base-patch32"
-    clip_commit_id = None
+    CLIP_REPO = "openai/clip-vit-base-patch32"
+    CLIP_COMMIT_ID = None
 
     # Load model
     clip, clip_params = FlaxCLIPModel.from_pretrained(
-        clip_repo, revision=clip_commit_id, dtype=jnp.float16, _do_init=False
+        CLIP_REPO, revision=CLIP_COMMIT_ID, dtype=jnp.float16, _do_init=False
     )
-    clip_processor = CLIPProcessor.from_pretrained(clip_repo, revision=clip_commit_id)
+    clip_processor = CLIPProcessor.from_pretrained(CLIP_REPO, revision=CLIP_COMMIT_ID)
     clip_params = replicate(clip_params)
 
     # Score images
@@ -129,17 +133,21 @@ def generate_image(text_prompt):
     logits = p_clip(shard(clip_inputs), clip_params)
 
     # Organize scores
-    prompt_num = len(texts)
-    logits = np.asarray([logits[:, i::prompt_num, i] for i in range(prompt_num)]).squeeze()
+    p = len(texts)
+    logits = np.asarray([logits[:, i::p, i] for i in range(p)]).squeeze()
 
     imgs = []
-    for i in enumerate(texts):
+    for i, prompt in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
-            imgs.append(images[idx * prompt_num + i])
-            print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
-        print()
+            imgs.append(images[idx * p + i])
+            # print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
+        # print()
 
+    # store_images(text_prompt, images, logits, N_PREDICTIONS)
+    # imgs[0].save('output.jpg')
     result = []
     result.append(imgs[0])
+
+    # result = transforms.ToPILImage()(torch.from_numpy(imgs[0]).permute(2, 0, 1))
 
     return result
