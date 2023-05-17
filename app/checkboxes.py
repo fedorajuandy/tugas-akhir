@@ -1,8 +1,7 @@
 """ Gradio customised checkboxes """
 
-import gradio
 from dataclasses import dataclass, field
-
+import gradio
 
 @dataclass
 class Checkboxes:
@@ -42,9 +41,6 @@ class AdVerb(Checkboxes):
         else:
             return ""
 
-    def __init__(self, label):
-        super().__init__(label)
-
 
 @dataclass
 class Other(Checkboxes):
@@ -56,6 +52,3 @@ class Other(Checkboxes):
             return f"has {self.label.lower()}"
         else:
             return ""
-
-    def __init__(self, label):
-        super().__init__(label)

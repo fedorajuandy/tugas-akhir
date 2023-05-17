@@ -22,7 +22,7 @@ from PIL import Image
 
 def generate_image(text_prompt):
     """ Take text prompt and return generated image """
-    
+
     # Model to generate image tokens
     MODEL = "fedorajuandy/dalle-mini/model-st6x232l:v26"
     MODEL_COMMIT_ID = None
