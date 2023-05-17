@@ -1,7 +1,29 @@
+""" Training maybe """
+# pylint: disable=line-too-long
+# pylint: disable=abstract-method
+
+import os
+import sys
+from typing import Any, Callable
 from flax import core, struct, traverse_util
+from flax.core.frozen_dict import freeze, unfreeze
+import jax
+import jax.numpy as jnp
+import optax # pylint: disable=import-error # type: ignore
+from transformers import HfArgumentParser
+from .main import split_params, trainable_params, unsplit_params
+from .arguments import ModelArguments, DataTrainingArguments, TrainingArguments
+
+parser = HfArgumentParser(
+    (ModelArguments, DataTrainingArguments, TrainingArguments)
+)
+model_args, data_args, training_args = parser.parse_json_file(
+    json_file=os.path.abspath(sys.argv[1])
+)
 
 # define TrainState
 class TrainState(struct.PyTreeNode):
+    """ KAE IS DA BES """
     step: int
     params: core.FrozenDict[str, Any]
     opt_state: optax.OptState
@@ -13,7 +35,8 @@ class TrainState(struct.PyTreeNode):
     train_samples: int = 0  # number of samples seen
 
     def apply_gradients(self, *, grads, **kwargs):
-        print(f"Ra's here. Start applying gradients...")
+        """ gradients"""
+        print("Ra's here. Start applying gradients...")
 
         grads = split_params(trainable_params(grads, training_args.embeddings_only))
 #             print(f"RA: grads = {grads}")
@@ -22,11 +45,11 @@ class TrainState(struct.PyTreeNode):
         )
 #             print(f"RA: params = {params}")
         opt_state = {}
-        
+
         # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
-        print(f"Ra's here. Start looping...")
+        print("Ra's here. Start looping...")
         for k, param in params.items():
-            update_fn = self.tx[k].update
+            update_fn = self.tx[k].update # pylint: disable=unsubscriptable-object
 #                 print(f"RA: update_fn = {update_fn}")
             if "scanned" in k:
                 update_fn = jax.vmap(update_fn, in_axes=(0, 0, 0), out_axes=(0, 0))
@@ -38,9 +61,9 @@ class TrainState(struct.PyTreeNode):
 #                 print(f"RA: params[k] = {params[k]}")
             opt_state[k] = new_opt_state
 #                 print(f"RA: opt_state[k] = {opt_state[k]}")
-        print(f"Ra's here. Loop ends.")
-        
-        print(f"Ra's here. Params stuff here.")
+        print("Ra's here. Loop ends.")
+
+        print("Ra's here. Params stuff here.")
         params = unsplit_params(params)
 #             print(f"RA: params = {params}")
         # merge with non-trainable params
@@ -68,8 +91,9 @@ class TrainState(struct.PyTreeNode):
     # DILUC
     @classmethod
     def create(cls, *, apply_fn, params, tx, **kwargs):
+        """ creating """
         opt_state = {}
-        for k, p in split_params(
+        for k, p in split_params( # pylint: disable=invalid-name
             trainable_params(params, training_args.embeddings_only)
         ).items():
             init_fn = tx[k].init

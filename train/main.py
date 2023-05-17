@@ -64,7 +64,7 @@ from functools import partial
 # create a new function with some of the arguments of an existing function "pre-filled" (using same fuction with some same arg)
 from pathlib import Path
 # provides an object-oriented interface to working with file paths and file systems in a platform-independent way (windows, linux, wutevar does not matter)
-from typing import Any, Callable, NamedTuple, Optional
+from typing import Any, Callable, NamedTuple
 # hints for Python code to provide additional information about the types of variables and functions (ex: def some_func(a: int, b: int) -> int)
 # Any: any types
 # Callable: another function (operation: Callable[[int, int], int])

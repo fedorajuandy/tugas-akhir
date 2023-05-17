@@ -1,5 +1,24 @@
-# define metrics logger
+""" Logging """
+# pylint: disable=line-too-long
+
+import os
+import sys
+import time
+import jax
+import wandb
+from flax.core.frozen_dict import unfreeze
+from transformers import HfArgumentParser
+from .arguments import ModelArguments, DataTrainingArguments, TrainingArguments
+
+parser = HfArgumentParser(
+    (ModelArguments, DataTrainingArguments, TrainingArguments)
+)
+model_args, data_args, training_args = parser.parse_json_file(
+    json_file=os.path.abspath(sys.argv[1])
+)
+
 class MetricsLogger:
+    """ For WANDB """
     def __init__(self, step):
         # keep state
         self.state_dict = {}
@@ -11,7 +30,7 @@ class MetricsLogger:
     def update_state_metrics(self, state):
         """Update internal state metrics (logged at each call to be used as x-axis)"""
         self.state_dict = {
-            f'train/{k.split("_")[-1]}': state[k]
+            f'train/{k.rsplit("_", maxsplit=1)[-1]}': state[k]
             for k in ["step", "epoch", "train_time", "train_samples"]
         }
         # timing metrics
@@ -28,24 +47,26 @@ class MetricsLogger:
             self.log_time("train_per_log", delta_time, offset=False)
 
     def log_time(self, key, duration, offset=True):
+        """ time """
         if jax.process_index() == 0:
             wandb.log({f"time/{key}": duration, **self.state_dict})
         if offset:
             self.offset_time += duration
 
     def log(self, metrics, prefix=None):
+        """ metrics """
         if jax.process_index() == 0:
             log_metrics = {}
-            for k, v in metrics.items():
+            for k, v in metrics.items(): # pylint: disable=invalid-name
                 if "_norm" in k:
                     if self.step % training_args.log_norm_steps == 0:
                         log_metrics[f"{k}/"] = unfreeze(v)
                 elif "_hist" in k:
                     if self.step % training_args.log_histogram_steps == 0:
-                        v = jax.tree_util.tree_map(
+                        v = jax.tree_util.tree_map( # pylint: disable=invalid-name
                             lambda x: jax.device_get(x), unfreeze(v)
                         )
-                        v = jax.tree_util.tree_map(
+                        v = jax.tree_util.tree_map( # pylint: disable=invalid-name
                             lambda x: wandb.Histogram(np_histogram=x),
                             v,
                             is_leaf=lambda x: isinstance(x, tuple),
