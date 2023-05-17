@@ -129,7 +129,7 @@ from dalle_mini.model import (
     set_partitions,
     # divide input image to be processed (the part of 'codebook', I supposed)
 )
-from arguments import DataTrainingArguments, ModelArguments, TrainingArguments
+from .arguments import DataTrainingArguments, ModelArguments, TrainingArguments
 from .train_state import TrainState
 
 # DELETE LATER

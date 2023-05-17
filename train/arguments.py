@@ -2,7 +2,12 @@
 # pylint: disable=line-too-long
 
 from dataclasses import dataclass, field
+import tempfile
+import os
+from pathlib import Path
 from typing import Optional
+import jax
+import wandb
 
 
 @dataclass
@@ -108,18 +113,6 @@ class ModelArguments:
                 else:
                     artifact_dir = artifact.download(tmp_dir)
                     self.restore_state = str(Path(artifact_dir) / "opt_state.msgpack")
-
-            # DELETE LATER
-            if self.restore_state.startswith("gs://"):
-                bucket_path = Path(self.restore_state[5:]) / "opt_state.msgpack"
-                bucket, blob_name = str(bucket_path).split("/", 1)
-                assert (
-                    storage is not None
-                ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
-                client = storage.Client()
-                bucket = client.bucket(bucket)
-                blob = bucket.blob(blob_name)
-                return blob.download_as_bytes()
 
             with Path(self.restore_state).open("rb") as f:
                 return f.read()
@@ -516,12 +509,6 @@ class TrainingArguments:
                 jax.local_device_count() == 8
             ), "TPUs in use, please check running processes"
 
-        # DELETE LATER
-        if self.output_dir.startswith("gs://"):
-            assert (
-                storage is not None
-            ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
-
         assert self.optim in [
             "distributed_shampoo",
             "adam",
@@ -572,7 +559,7 @@ class TrainingArguments:
 
         assert (
             self.mp_devices > 0
-        ), f"Number of devices for model parallelism must be > 0"
+        ), "Number of devices for model parallelism must be > 0"
 
         assert (
             jax.device_count() % self.mp_devices == 0
