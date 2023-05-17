@@ -1,7 +1,7 @@
 """ Module for web UI """
 import gradio
-from inference import generate_image
-# from .checkboxes import *
+from inference import generate_image # pylint: disable=import-error
+# from .checkboxes import *  # pylint: disable=import-error
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")

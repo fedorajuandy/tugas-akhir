@@ -12,7 +12,7 @@ from PIL import Image
 from tqdm.notebook import trange
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-# from helpers import *
+# from helpers import *  # pylint: disable=import-error
 
 
 def generate_image(text_prompt):
