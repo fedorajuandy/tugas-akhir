@@ -169,6 +169,12 @@ class TrainingArguments:
             "help": "Whether to run training."
         },
     )
+    do_eval: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to run eval on the validation set."
+        }
+    )
     per_device_train_batch_size: int = field(
         default=1,
         metadata={
