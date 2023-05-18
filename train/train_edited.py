@@ -245,16 +245,16 @@ class ModelArguments:
                     self.restore_state = str(Path(artifact_dir) / "opt_state.msgpack")
 
             # DELETE LATER
-            if self.restore_state.startswith("gs://"):
-                bucket_path = Path(self.restore_state[5:]) / "opt_state.msgpack"
-                bucket, blob_name = str(bucket_path).split("/", 1)
-                assert (
-                    storage is not None
-                ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
-                client = storage.Client()
-                bucket = client.bucket(bucket)
-                blob = bucket.blob(blob_name)
-                return blob.download_as_bytes()
+            # if self.restore_state.startswith("gs://"):
+            #     bucket_path = Path(self.restore_state[5:]) / "opt_state.msgpack"
+            #     bucket, blob_name = str(bucket_path).split("/", 1)
+            #     assert (
+            #         storage is not None
+            #     ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
+            #     client = storage.Client()
+            #     bucket = client.bucket(bucket)
+            #     blob = bucket.blob(blob_name)
+            #     return blob.download_as_bytes()
 
             with Path(self.restore_state).open("rb") as f:
                 return f.read()
@@ -652,10 +652,10 @@ class TrainingArguments:
             ), "TPUs in use, please check running processes"
 
         # DELETE LATER
-        if self.output_dir.startswith("gs://"):
-            assert (
-                storage is not None
-            ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
+        # if self.output_dir.startswith("gs://"):
+        #     assert (
+        #         storage is not None
+        #     ), 'Could not find google.storage. Install with "pip install google-cloud-storage"'
 
         assert self.optim in [
             "distributed_shampoo",
@@ -885,7 +885,7 @@ def main():
         **asdict(data_args),
         # unpack dict (the dataset)
         do_train=training_args.do_train,
-        # do_eval=training_args.do_eval,
+        do_eval=training_args.do_eval,
     )
 
     # DELETE LATER
@@ -1481,7 +1481,7 @@ def main():
             # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
             print(f"Ra's here. Start looping...")
             for k, param in params.items():
-                update_fn = self.tx[k].update
+                update_fn = self.tx[k].update # pylint: disable=unsubscriptable-object
 #                 print(f"RA: update_fn = {update_fn}")
                 if "scanned" in k:
                     update_fn = jax.vmap(update_fn, in_axes=(0, 0, 0), out_axes=(0, 0))
@@ -2068,14 +2068,14 @@ def main():
             tokenizer.save_pretrained(output_dir)
 
             # copy to bucket
-            if use_bucket:
-                client = storage.Client()
-                bucket = client.bucket(bucket)
-                for filename in Path(output_dir).glob("*"):
-                    blob_name = str(Path(dir_path) / "model" / filename.name)
-                    blob = bucket.blob(blob_name)
-                    blob.upload_from_filename(str(filename))
-                tmp_dir.cleanup()
+            # if use_bucket:
+            #     client = storage.Client()
+            #     bucket = client.bucket(bucket)
+            #     for filename in Path(output_dir).glob("*"):
+            #         blob_name = str(Path(dir_path) / "model" / filename.name)
+            #         blob = bucket.blob(blob_name)
+            #         blob.upload_from_filename(str(filename))
+            #     tmp_dir.cleanup()
 
             # save state
             opt_state = jax.device_get(state.opt_state)
