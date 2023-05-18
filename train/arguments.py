@@ -12,76 +12,67 @@ import wandb
 
 @dataclass
 class ModelArguments:
-    """
-    Arguments pertaining to which model/config/tokenizer we are going to fine-tune, or train from scratch.
-    """
+    """ Train from zero or from checkpoint """
 
-    # CONFIG STUFF
     model_name_or_path: Optional[str] = field(
         default=None,
         metadata={
-            "help": "The model checkpoint for weights initialization. "
-            "Don't set if you want to train a model from scratch. "
-            "W&B artifact references are supported in addition to the sources supported by `PreTrainedModel`."
+            "help": "Model checkpoint for weights initialization."
         },
     )
     config_name: Optional[str] = field(
         default=None,
         metadata={
-            "help": "Pretrained config name or path if not the same as model_name_or_path"
+            "help": "Pretrained config name or path."
         },
     )
     tokenizer_name: Optional[str] = field(
         default=None,
         metadata={
-            "help": "Pretrained tokenizer name or path if not the same as model_name_or_path"
+            "help": "Pretrained tokenizer name or path."
         },
     )
     dtype: Optional[str] = field(
         default="float32",
         metadata={
-            "help": "Floating-point format in which the computations will be performed (not the model weights). Choose one of `[float32, float16, bfloat16]`."
-            # How much memory will be used (common -> less memory but sacrifices precision -> middle of the two)
+            "help": "Computations format."
         },
     )
     restore_state: Optional[bool] = field(
         default=False,
         metadata={
-            "help": "Restore optimizer and training state. Can be True (will retrieve associated wandb artifact), a local directory or a Google bucket path."
-            # save optimiser and training state or not (not = train from scratch)
+            "help": "Restore optimizer and training state."
         },
     )
     dropout: Optional[float] = field(
         default=None,
-        metadata={"help": "Dropout rate. Overwrites config."},
-        # Prevent overfitting (too complex, memorise rather than understand #human'shere) -> more on Kaggle ML lesson
+        metadata={"help": "Rate to prevent overfitting by neuron's output. Overwrites config."},
     )
     activation_dropout: Optional[float] = field(
         default=None,
-        metadata={"help": "Activation dropout rate. Overwrites config."},
-        # layer's output (not neuron), prevent overfitting
+        metadata={"help": "Rate to prevent overfitting by layer's output. Overwrites config."},
     )
     attention_dropout: Optional[float] = field(
         default=None,
-        metadata={"help": "Attention dropout rate. Overwrites config."},
-        # attention mechanicsm in transformers (relation between tokens in seq to learn contextual representation), prevent overfitting
+        metadata={"help": "Rate to prevent overfitting by transformers. Overwrites config."},
     )
 
-    # TOKENIZER
+
     def __post_init__(self):
         if self.tokenizer_name is None:
             self.tokenizer_name = self.model_name_or_path
             assert (
                 self.tokenizer_name is not None
-            ), "Tokenizer name or model name/path needs to be specified"
+            ), "tokenizer_name or model_name_or_path needs to be specified."
         if self.restore_state:
             assert self.model_name_or_path is not None and (
                 "/model-" in self.model_name_or_path
-            ), "Restoring state only available with W&B artifact reference"
+            ), "model_name_or_path with W&B artifact is needed."
 
-    # PRE-TRAINED MODEL [DELETE LATER]
+
     def get_metadata(self):
         """ Get artifact's metadata or empty dict """
+
         if self.model_name_or_path is not None and ":" in self.model_name_or_path:
             if jax.process_index() == 0:
                 artifact = wandb.run.use_artifact(self.model_name_or_path)
@@ -91,90 +82,76 @@ class ModelArguments:
         else:
             return dict()
 
-    # PROB DELETE LATER TOO
+
     def get_opt_state(self):
         """ get state """
 
-        # immediately deleted after execution
-        with tempfile.TemporaryDirectory() as tmp_dir:  # avoid multiple artifact copies
+        with tempfile.TemporaryDirectory() as tmp_dir:
             if self.restore_state is True:
-                # wandb artifact
                 state_artifact = self.model_name_or_path.replace(
                     "/model-", "/state-", 1
                 )
-                # if first jax process
+
                 if jax.process_index() == 0:
                     artifact = wandb.run.use_artifact(state_artifact)
                 else:
                     artifact = wandb.Api().artifact(state_artifact)
-                if artifact.metadata.get("bucket_path"):
-                    # we will read directly file contents
-                    self.restore_state = artifact.metadata["bucket_path"]
-                else:
-                    artifact_dir = artifact.download(tmp_dir)
-                    self.restore_state = str(Path(artifact_dir) / "opt_state.msgpack")
 
-            with Path(self.restore_state).open("rb") as f:
-                return f.read()
-                # return optimiser state from those args in binary (bytes)
+                artifact_dir = artifact.download(tmp_dir)
+                self.restore_state = str(Path(artifact_dir) / "opt_state.msgpack")
+
+            with Path(self.restore_state).open("rb") as file:
+                return file.read()
 
 
 @dataclass
 class DataTrainingArguments:
-    """
-    Arguments pertaining to what data we are going to input our model for training and eval.
-    """
+    """ Data's detail for training and evaluation """
 
     text_column: Optional[str] = field(
         default="caption",
         metadata={
-            "help": "The name of the column in the datasets containing the full texts (for summarization)."
+            "help": "Dataset's column name for caption."
         },
     )
     encoding_column: Optional[str] = field(
         default="encoding",
         metadata={
-            "help": "The name of the column in the datasets containing the image encodings."
+            "help": "Dataset's column name for image encoding."
         },
     )
     dataset_repo_or_path: str = field(
         default=None,
-        metadata={"help": "The dataset repository containing encoded files."},
+        metadata={"help": "Dataset's location."},
     )
-    # CHECK LATER
-    train_file: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "The input training data file (glob & braceexpand acceptable)."
-        },
-    )
-    validation_file: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "An optional input evaluation data file (glob & braceexpand acceptable)."
-        },
-    )
-    # data loading should not be a bottleneck so we use "streaming" mode by default
+    # train_file: Optional[str] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "The input training data file (glob & braceexpand acceptable)."
+    #     },
+    # )
+    # validation_file: Optional[str] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "An optional input evaluation data file (glob & braceexpand acceptable)."
+    #     },
+    # )
     streaming: Optional[bool] = field(
         default=True,
-        metadata={"help": "Whether to stream the dataset."},
-        # read and processed in small chunks incrementally; slowly into memory
+        metadata={"help": "Whether to stream the dataset to prevent bottleneck."},
     )
-    # DELETE LATER
-    use_auth_token: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "Whether to use the authentication token for private datasets."
-        },
-    )
-    shard_by_host: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "Whether to shard data files by host in multi-host environments."
-            # spread data into multiple devices; ah, yes, good ol teamwork that does not exist between humans- (distribution and synchronisation)
-        },
-    )
-    # DELETE LATER (?) using managed dataset
+    # use_auth_token: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to use the authentication token for private datasets."
+    #     },
+    # )
+    # shard_by_host: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to shard data files by host in multi-host environments."
+    #     },
+    # )
     blank_caption_prob: Optional[float] = field(
         default=0.0,
         metadata={
@@ -203,46 +180,40 @@ class DataTrainingArguments:
         default=None,
         metadata={"help": "Class value to be kept during filtering."},
     )
-    # DELETE LATER
-    multi_eval_ds: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "Whether to look for multiple validation datasets (local support only)."
-        },
-    )
-    # DELETE LATER
-    max_train_samples: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "For debugging purposes or quicker training, truncate the number of training examples."
-        },
-    )
-    # DELETE LATER
-    max_eval_samples: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "For debugging purposes or quicker training, truncate the number of evaluation examples."
-        },
-    )
-    # DELETE LATER
-    preprocessing_num_workers: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "The number of processes to use for the preprocessing. Not used in streaming mode."
-        },
-    )
-    # DELETE LATER
-    overwrite_cache: bool = field(
-        default=False,
-        metadata={
-            "help": "Overwrite the cached training and evaluation sets. Not used in streaming mode."
-        },
-    )
-    # default seed of None ensures we don't repeat the same items if script was interrupted during an epoch
+    # multi_eval_ds: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to look for multiple validation datasets (local support only)."
+    #     },
+    # )
+    # max_train_samples: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "For debugging purposes or quicker training, truncate the number of training examples."
+    #     },
+    # )
+    # max_eval_samples: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "For debugging purposes or quicker training, truncate the number of evaluation examples."
+    #     },
+    # )
+    # preprocessing_num_workers: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "The number of processes to use for the preprocessing. Not used in streaming mode."
+    #     },
+    # )
+    # overwrite_cache: bool = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Overwrite the cached training and evaluation sets. Not used in streaming mode."
+    #     },
+    # )
     seed_dataset: int = field(
         default=None,
         metadata={
-            "help": "Random seed for the dataset that will be set at the beginning of training."
+            "help": "Random seed so the training will not repeat the same data."
         },
     )
 

@@ -284,18 +284,18 @@ class DataTrainingArguments:
         metadata={"help": "The dataset repository containing encoded files."},
     )
     # CHECK LATER
-    train_file: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "The input training data file (glob & braceexpand acceptable)."
-        },
-    )
-    validation_file: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "An optional input evaluation data file (glob & braceexpand acceptable)."
-        },
-    )
+    # train_file: Optional[str] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "The input training data file (glob & braceexpand acceptable)."
+    #     },
+    # )
+    # validation_file: Optional[str] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "An optional input evaluation data file (glob & braceexpand acceptable)."
+    #     },
+    # )
     # data loading should not be a bottleneck so we use "streaming" mode by default
     streaming: Optional[bool] = field(
         default=True,
@@ -303,19 +303,19 @@ class DataTrainingArguments:
         # read and processed in small chunks incrementally; slowly into memory
     )
     # DELETE LATER
-    use_auth_token: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "Whether to use the authentication token for private datasets."
-        },
-    )
-    shard_by_host: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "Whether to shard data files by host in multi-host environments."
-            # spread data into multiple devices; ah, yes, good ol teamwork that does not exist between humans- (distribution and synchronisation)
-        },
-    )
+    # use_auth_token: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to use the authentication token for private datasets."
+    #     },
+    # )
+    # shard_by_host: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to shard data files by host in multi-host environments."
+    #         # spread data into multiple devices; ah, yes, good ol teamwork that does not exist between humans- (distribution and synchronisation)
+    #     },
+    # )
     # DELETE LATER (?) using managed dataset
     blank_caption_prob: Optional[float] = field(
         default=0.0,
@@ -346,40 +346,40 @@ class DataTrainingArguments:
         metadata={"help": "Class value to be kept during filtering."},
     )
     # DELETE LATER
-    multi_eval_ds: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "Whether to look for multiple validation datasets (local support only)."
-        },
-    )
+    # multi_eval_ds: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to look for multiple validation datasets (local support only)."
+    #     },
+    # )
     # DELETE LATER
-    max_train_samples: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "For debugging purposes or quicker training, truncate the number of training examples."
-        },
-    )
+    # max_train_samples: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "For debugging purposes or quicker training, truncate the number of training examples."
+    #     },
+    # )
     # DELETE LATER
-    max_eval_samples: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "For debugging purposes or quicker training, truncate the number of evaluation examples."
-        },
-    )
+    # max_eval_samples: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "For debugging purposes or quicker training, truncate the number of evaluation examples."
+    #     },
+    # )
     # DELETE LATER
-    preprocessing_num_workers: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "The number of processes to use for the preprocessing. Not used in streaming mode."
-        },
-    )
+    # preprocessing_num_workers: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "The number of processes to use for the preprocessing. Not used in streaming mode."
+    #     },
+    # )
     # DELETE LATER
-    overwrite_cache: bool = field(
-        default=False,
-        metadata={
-            "help": "Overwrite the cached training and evaluation sets. Not used in streaming mode."
-        },
-    )
+    # overwrite_cache: bool = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Overwrite the cached training and evaluation sets. Not used in streaming mode."
+    #     },
+    # )
     # default seed of None ensures we don't repeat the same items if script was interrupted during an epoch
     seed_dataset: int = field(
         default=None,
@@ -885,7 +885,7 @@ def main():
         **asdict(data_args),
         # unpack dict (the dataset)
         do_train=training_args.do_train,
-        do_eval=training_args.do_eval,
+        # do_eval=training_args.do_eval,
     )
 
     # DELETE LATER
