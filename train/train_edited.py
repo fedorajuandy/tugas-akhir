@@ -761,13 +761,13 @@ def unsplit_params(data):
             
     return freeze(traverse_util.unflatten_dict(flat))
 
-
-def trainable_params(data, embeddings_only):
-    print(f"Ra's here. Filtering trainable params...")
+# remove (data, embeddings_only)
+def trainable_params(data):
     """Keep only trainable parameters"""
+    print(f"Ra's here. Filtering trainable params...")
 
-    if not embeddings_only:
-        return data
+    # if not embeddings_only:
+    #     return data
 #     print(f"RA: data = {data}")
 
     # DELETE LATER; by I mean delete, edit the whole functionality
@@ -934,8 +934,8 @@ def main():
             _do_init=False,
         )
         
-        if training_args.embeddings_only and training_args.init_embeddings:
-            params = init_embeddings(model, params)
+        # if training_args.embeddings_only and training_args.init_embeddings:
+        #     params = init_embeddings(model, params)
     else:
         model = DalleBart(
             config,
@@ -1194,7 +1194,7 @@ def main():
     # create optimizer
     print(f"Ra's here. Cereate optimizer...")
     trainable_params_shape = trainable_params(
-        params_shape, training_args.embeddings_only
+        params_shape#, training_args.embeddings_only
     )
 #     print(f"RA: params_shape = {params_shape}")
 #     print(f"RA: embeddings_only = {training_args.embeddings_only}")
@@ -1469,15 +1469,16 @@ def main():
 
         def apply_gradients(self, *, grads, **kwargs):
             print(f"Ra's here. Start applying gradients...")
-
-            grads = split_params(trainable_params(grads, training_args.embeddings_only))
+            # rm , training_args.embeddings_only
+            grads = split_params(trainable_params(grads))
 #             print(f"RA: grads = {grads}")
             params = split_params(
-                trainable_params(self.params, training_args.embeddings_only)
+                # rm , training_args.embeddings_only
+                trainable_params(self.params)
             )
 #             print(f"RA: params = {params}")
             opt_state = {}
-            
+
             # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
             print(f"Ra's here. Start looping...")
             for k, param in params.items():
@@ -1494,7 +1495,7 @@ def main():
                 opt_state[k] = new_opt_state
 #                 print(f"RA: opt_state[k] = {opt_state[k]}")
             print(f"Ra's here. Loop ends.")
-            
+
             print(f"Ra's here. Params stuff here.")
             params = unsplit_params(params)
 #             print(f"RA: params = {params}")
@@ -1525,7 +1526,8 @@ def main():
         def create(cls, *, apply_fn, params, tx, **kwargs):
             opt_state = {}
             for k, p in split_params(
-                trainable_params(params, training_args.embeddings_only)
+                # rm , training_args.embeddings_only
+                trainable_params(params)
             ).items():
                 init_fn = tx[k].init
                 if "scanned" in k:
@@ -1792,8 +1794,10 @@ def main():
             )
 
         # log additional metrics
-        params = trainable_params(state.params, training_args.embeddings_only)
-        grads = trainable_params(grads, training_args.embeddings_only)
+        # rm , training_args.embeddings_only
+        params = trainable_params(state.params)
+        # rm , training_args.embeddings_only
+        grads = trainable_params(grads)
         if training_args.log_norm_steps:
             zeros_norm = jax.tree_util.tree_map(lambda _: jnp.float32(0), params)
 
@@ -2233,13 +2237,14 @@ def main():
                         metrics_logger.update_state_metrics(local_state)
                         metrics_logger.log(train_metrics, prefix="train")
 
-                    eval_metrics = None
-                    if local_state["step"] % training_args.eval_steps == 0:
-                        eval_metrics = run_evaluation()
-                        evaluation_ran = True
+                    # eval_metrics = None
+                    # if local_state["step"] % training_args.eval_steps == 0:
+                    #     eval_metrics = run_evaluation()
+                    #     evaluation_ran = True
 
                     if local_state["step"] % training_args.save_steps == 0:
-                        run_save_model(state, eval_metrics)
+                        # rm , eval_metrics
+                        run_save_model(state)
                         save_model_ran = True
 
                 # log final train metrics
@@ -2252,12 +2257,13 @@ def main():
                     )
 
             # Final evaluation at the end of each epoch
-            if not evaluation_ran:
-                eval_metrics = run_evaluation()
+            # if not evaluation_ran:
+            #     eval_metrics = run_evaluation()
 
             # save checkpoint after each epoch
             if not save_model_ran:
-                run_save_model(state, eval_metrics)
+                # rm , eval_metrics
+                run_save_model(state)
 
 
 # import tensorflow as tf
