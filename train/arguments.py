@@ -3,7 +3,6 @@
 
 from dataclasses import dataclass, field
 import tempfile
-import os
 from pathlib import Path
 from typing import Optional
 import jax

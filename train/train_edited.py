@@ -1798,25 +1798,25 @@ def main():
         params = trainable_params(state.params)
         # rm , training_args.embeddings_only
         grads = trainable_params(grads)
-        if training_args.log_norm_steps:
-            zeros_norm = jax.tree_util.tree_map(lambda _: jnp.float32(0), params)
+        # if training_args.log_norm_steps:
+        #     zeros_norm = jax.tree_util.tree_map(lambda _: jnp.float32(0), params)
 
-            def norm(val):
-                return jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), val)
+        #     def norm(val):
+        #         return jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), val)
 
-            gradients_norm = maybe_fn(
-                norm, grads, zeros_norm, training_args.log_norm_steps
-            )
-            params_norm = maybe_fn(
-                norm, params, zeros_norm, training_args.log_norm_steps
-            )
+        #     gradients_norm = maybe_fn(
+        #         norm, grads, zeros_norm, training_args.log_norm_steps
+        #     )
+        #     params_norm = maybe_fn(
+        #         norm, params, zeros_norm, training_args.log_norm_steps
+        #     )
 
-            metrics.update(
-                {
-                    "gradients_norm": gradients_norm,
-                    "params_norm": params_norm,
-                }
-            )
+        #     metrics.update(
+        #         {
+        #             "gradients_norm": gradients_norm,
+        #             "params_norm": params_norm,
+        #         }
+        #     )
 
         # if training_args.log_histogram_steps:
         #     zeros_hist = jax.tree_util.tree_map(
@@ -2230,12 +2230,12 @@ def main():
                     local_state["train_time"] = train_time
                     local_state["train_samples"] += batch_size_per_step
 
-                    if (
-                        local_state["step"] % training_args.logging_steps == 0
-                        and jax.process_index() == 0
-                    ):
-                        metrics_logger.update_state_metrics(local_state)
-                        metrics_logger.log(train_metrics, prefix="train")
+                    # if (
+                    #     local_state["step"] % training_args.logging_steps == 0
+                    #     and jax.process_index() == 0
+                    # ):
+                    #     metrics_logger.update_state_metrics(local_state)
+                    #     metrics_logger.log(train_metrics, prefix="train")
 
                     # eval_metrics = None
                     # if local_state["step"] % training_args.eval_steps == 0:
