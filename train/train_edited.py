@@ -896,7 +896,7 @@ def main():
     # DELETE LATER (just set it up in notebook)
     if jax.process_index() == 0:
         wandb.init(
-            entity=training_args.wandb_entity,
+            # entity=training_args.wandb_entity,
             project=training_args.wandb_project,
             job_type=training_args.wandb_job_type,
             config=parser.parse_args(),
