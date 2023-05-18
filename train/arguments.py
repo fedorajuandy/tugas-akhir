@@ -137,7 +137,7 @@ class DataTrainingArguments:
     seed_dataset: int = field(
         default=None,
         metadata={
-            "help": "Random seed so the training will not repeat the same data."
+            "help": "Random seed so the training will not repeat the same data when interrupted."
         },
     )
 
@@ -148,257 +148,222 @@ class DataTrainingArguments:
 
 @dataclass
 class TrainingArguments:
-    """
-    Arguments pertaining to training parameters.
-    """
+    """ Training parameters """
 
     output_dir: str = field(
         metadata={
-            "help": "The output directory where the model predictions and checkpoints will be written."
+            "help": "Directory to store model predictions and checkpoints."
         },
     )
     overwrite_output_dir: bool = field(
         default=True,
         metadata={
             "help": (
-                "Overwrite the content of the output directory. "
-                "Use this to continue training if output_dir points to a checkpoint directory."
+                "Overwrite or continue from checkpoint if enabled "
             )
         },
     )
-
-    do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
-    # DELETE LATER
-    do_eval: bool = field(
-        default=False, metadata={"help": "Whether to run eval on the validation set."}
-    )
-
-    per_device_train_batch_size: int = field(
-        default=8,
-        metadata={"help": "Batch size per data parallel device for training."},
-    )
-    # DELETE LATER
-    per_device_eval_batch_size: Optional[int] = field(
-        default=None,
+    do_train: bool = field(
+        default=True,
         metadata={
-            "help": "Batch size per data parallel device for evaluation. Same as training batch size if not set."
+            "help": "Whether to run training."
         },
     )
-
+    per_device_train_batch_size: int = field(
+        default=1,
+        metadata={
+            "help": "Batch size per data parallel device."
+        },
+    )
     gradient_accumulation_steps: int = field(
         default=1,
         metadata={
-            "help": "Number of updates steps to accumulate before performing an update pass."
+            "help": "Number of updates steps to accumulate before updating pass."
         },
     )
     gradient_checkpointing: bool = field(
-        default=False, metadata={"help": "Use gradient checkpointing."}
-        # reduce memory usage (selectively recomputing intermediate actvations during backward pass (computing loss then update model); time++)
+        default=False,
+        metadata={
+            "help": "To reduce memory usage."
+        },
     )
-
     learning_rate: float = field(
-        default=5e-5, metadata={"help": "The initial learning rate."}
+        default=5e-5,
+        metadata={
+            "help": "The initial learning rate."
+        },
     )
     optim: str = field(
         default="distributed_shampoo",
         metadata={
-            "help": 'The optimizer to use. Can be "distributed_shampoo" (default), "adam" or "adafactor"'
-            # for learning rate and update; based on task, arch, or experiments
-            # shampoo: for distributed, based on Hessioan matrix (second order partial derivaties; those H(f) from high scholl)
-            # adam: Adaptive Moment Estimation = update weights each iteration
-            # adafactor: adaptive learning (per parameter), address Adam's limitation (sensitive: wrong val = fail, biased, cannot use large scale distribution, suboptimal solution)
+            "help": "Optimizer."
         },
     )
     weight_decay: float = field(
-        default=0.0, metadata={"help": "Weight decay applied to parameters."}
-        # regularisation, prevent overfitting (reduce weigthts'magnitude)
+        default=0.0,
+        metadata={
+            "help": "Weight dermscay applied to parameters."
+        },
     )
     beta1: float = field(
         default=0.9,
-        metadata={"help": "Beta1 for Adam & Distributed Shampoo."},
-        # hyperparameters; exponential decay rates (each x epochs, learning rate reduces by y) for first moment (gradient moving  average)
-        # Hessian and its inverse
-        # smaller value = slower (more stable)
-        # bigger = faster but can fluctuate and overshoot the optimal parameter value and swing back (like running too fast and past the intended point, need to go back and end up going back to far)
+        metadata={
+            "help": "Hyperparameters; exponential decay rates."
+        },
     )
     beta2: float = field(
         default=0.999,
-        metadata={"help": "Beta2 for for Adam & Distributed Shampoo."},
-        # second moment (squared gradient average)
-    )
-    adam_epsilon: float = field(
-        default=1e-8, metadata={"help": "Epsilon for Adam optimizer."}
-        # small value added to denominator so it would not be divided by zsero; default = common
-    )
-    max_grad_norm: float = field(
-        default=1.0, metadata={"help": "Max gradient norm for Adafactor."}
-        # max value prevent instabilities (too large, too small)
+        metadata={
+            "help": "Hyperparameters; second moment (squared gradient average)."
+        },
     )
     block_size: int = field(
         default=1024,
-        metadata={"help": "Chunked size for large layers with Distributed Shampoo."},
-        # reduce memory req
+        metadata={
+            "help": "Chunked size for large layers."
+        },
     )
     preconditioning_compute_steps: int = field(
-        default=10, metadata={"help": "Number of steps to update preconditioner."}
-        # steps = each iteration of optimization (more steps, more optimization; depending on dataset, model, criteria)
+        default=10,
+        metadata={
+            "help": "Number of steps to update preconditioner."
+        },
     )
     skip_preconditioning_dim_size_gt: int = field(
         default=4096,
-        metadata={"help": "Max size for preconditioning with Distributed Shampoo."},
+        metadata={
+            "help": "Max size for preconditioning."
+        },
     )
     graft_type: str = field(
         default="rmsprop_normalized",
         metadata={
-            "help": "The type of grafting to use. Can be 'rmsprop_normalized' (default), 'rmsprop', 'adagrad', 'adagrad_normalized', 'sgd' or 'sqrt_n'"
+            "help": "Maintain moving average of the square of gradients; divide the gradient by the root of the average."
         },
     )
     nesterov: bool = field(
         default=False,
-        metadata={"help": "Use Nesterov momentum for Distributed Shampoo."},
-        # improves convergence
+        metadata={
+            "help": "Nesterov momentum to improve convergence."
+        },
     )
     optim_quantized: bool = field(
         default=True,
         metadata={
-            "help": "Whether to quantize optimizer (only supported with Distributed Shampoo)."
-            # shard optimizer across devices
+            "help": "Quantize optimizer to map infinite values to a smaller set of discrete finite values."
         },
     )
     shard_shampoo_across: str = field(
         default="dp",
         metadata={
-            "help": "Whether to shard the optimizer across data devices (dp), model devices (mp) or both (2d)."
+            "help": "Shard optimizer across data devices (dp), model devices (mp), or both (2d)."
         },
     )
-
     num_train_epochs: int = field(
-        default=3, metadata={"help": "Total number of training epochs to perform."}
-        # an epoch = complete iteration (takes input, produces output, backward pass) until dataset is complete
+        default=1,
+        metadata={
+            "help": "Total number of complete iteration."
+        },
     )
-
     warmup_steps: int = field(
-        default=0, metadata={"help": "Linear warmup over warmup_steps."}
-        # Gradually increases lr (very small, avoid negative impact to performance) until max val over certain number of steps/epochs [said 5-20% of training steps]
+        default=0,
+        metadata={
+            "help": "Linear warmup over warmup_steps; gradually increases learning rate."
+        },
     )
     lr_decay: str = field(
         default=None,
         metadata={
-            "help": "Decay to be used in the learning rate scheduler. Can be None (default), linear or exponential."
-            # linear is reduces at a fixed number, exponential using some factor (yk, the usual)
-            # exponential more sensitive, yet more effective
+            "help": "Learning rate scheduler's decay; none, linear, or exponential."
         },
     )
     lr_transition_steps: int = field(
         default=None,
         metadata={
-            "help": "Number of transition steps associated with learning rate decay when using exponential decay."
+            "help": "Learning rate's transition steps when using exponential decay."
         },
     )
     lr_decay_rate: float = field(
         default=None,
         metadata={
-            "help": "Decay rate associated with learning rate when using exponential decay."
-            # the point of decay occurs (nth step)
+            "help": "Learning rate's decay rate (number of steps) when using exponential decay."
         },
     )
     lr_staircase: bool = field(
         default=False,
         metadata={
-            "help": "Whether to use staircase or continuous learning rate when using exponential decay."
-            # continuous: each each epoch/nth step
-            # staircase: discrete steps (determinded my decay rate; can be at 10 epochs or sth)
+            "help": "Staircase (discrete steps) or continuous learning rate (each epoch) when using exponential decay."
         },
     )
     lr_offset: int = field(
         default=0,
-        metadata={"help": "Number of steps to offset learning rate and keep it at 0."},
-        # keep lr at 0 at the beginning (if has many parameteres; uncertain to initialise weights to obtain optimal perfrom; model explore parameter without large changes at the beginning then lr increses slowly)
-    )
-    logging_steps: int = field(
-        default=40, metadata={"help": "Log every X updates steps."}
-    )
-    eval_steps: int = field(
-        default=400, metadata={"help": "Run an evaluation every X steps."}
+        metadata={
+            "help": "Number of steps to offset learning rate and keep it at 0."
+        },
     )
     save_steps: int = field(
-        default=1, metadata={"help": "Save checkpoint every X updates steps."}
+        default=1,
+        metadata={
+            "help": "Save checkpoint every save_steps updates steps."
+        },
     )
     log_model: bool = field(
         default=True,
-        metadata={"help": "Log model to wandb at `save_steps` frequency."},
+        metadata={
+            "help": "Log model to W&B at save_steps frequency."
+        },
     )
     log_norm_steps: int = field(
         default=True,
-        metadata={"help": "Log parameters and gradients norm at this frequency."},
-    )
-    log_histogram_steps: int = field(
-        default=False,
         metadata={
-            "help": "Log parameters and gradients histograms at this frequency. Slows down training."
+            "help": "Log parameters and gradients norm at this frequency."
         },
     )
-
     seed_model: int = field(
         default=42,
-        # 42 is the answer to life, universe, and everything~ #jk
         metadata={
-            "help": "Random seed for the model that will be set at the beginning of training."
-            # small, constant to be reproducible
-            # initialise weights and break symetry, avoid stuck in local minima (loss func raches local min val)
-            # same one in diff exp/model resulting in biased result
+            "help": "Random seed to initialise weights."
         },
     )
-
-    embeddings_only: bool = field(
-        default=False, metadata={"help": "Train only embedding layers."}
-        # map encoded word (high dimensional sparse vector; where the val is 1 in corresponding word and 0 in others) to word embedding (low dimensional dense vector; represents the attributes) -> more in report
-        # to capture the meaning and context of words (semantic relationship; hyponym etc., seek high school stuff)
-        # not including hidden and output; useful in transfer learning (fine tuned on specific task)
-    )
-    init_embeddings: bool = field(
-        default=False,
-        metadata={"help": "When training embedding layers, initialize them."},
-        # weights initialised before training; using pret-trained is more common
-    )
-
-    # DELETE LATER
-    wandb_entity: Optional[str] = field(
-        default=None,
-        metadata={"help": "The wandb entity to use (for teams)."},
-    )
-    # CHANGE LATER, DELETE LATER
     wandb_project: str = field(
         default="dalle-mini",
-        metadata={"help": "The name of the wandb project."},
+        metadata={
+            "help": "W&B project's name."
+        },
     )
     wandb_job_type: str = field(
         default="Seq2Seq",
-        metadata={"help": "The name of the wandb job type."},
+        metadata={
+            "help": "W&B project's job type."
+        },
     )
-
-    # DELETE LATER
     assert_tpu_available: bool = field(
         default=False,
-        metadata={"help": "Verify that TPU is not in use."},
+        metadata={
+            "help": "Whether using TPU or not."
+        },
     )
 
     use_vmap_trick: bool = field(
         default=True,
-        metadata={"help": "EDITED: DL framework to apply same operation to many at the same time for parallel processing"},
+        metadata={
+            "help": "Apply same operation to many at the same time for parallel processing"
+        },
     )
-
     mp_devices: Optional[int] = field(
         default=1,
         metadata={
-            "help": "Number of devices required for model parallelism. The other dimension of available devices is used for data parallelism."
+            "help": "Number of devices for model parallelism."
+        },
+    )
+    dp_devices: int = field(
+        init=False,
+        metadata={
+            "help": "Number of devices for data parallelism based on mp_devices."
         },
     )
 
-    dp_devices: int = field(init=False)
-
     def __post_init__(self):
-        # DELETE LATER
         if self.assert_tpu_available:
             assert (
                 jax.local_device_count() == 8
@@ -406,19 +371,10 @@ class TrainingArguments:
 
         assert self.optim in [
             "distributed_shampoo",
-            "adam",
-            "adafactor",
         ], f"Selected optimizer not supported: {self.optim}"
 
-        if self.optim == "adafactor" and self.weight_decay == 0:
-            self.weight_decay = None
         assert self.graft_type in [
             "rmsprop_normalized",
-            "rmsprop",
-            "adagrad",
-            "adagrad_normalized",
-            "sgd",
-            "sqrt_n",
         ], f"Selected graft type not supported: {self.graft_type}"
 
         assert self.lr_decay in [
@@ -426,25 +382,6 @@ class TrainingArguments:
             "linear",
             "exponential",
         ], f"Selected learning rate decay not supported: {self.lr_decay}"
-
-        if self.per_device_eval_batch_size is None:
-            self.per_device_eval_batch_size = self.per_device_train_batch_size
-
-        if self.log_norm_steps is True:
-            self.log_norm_steps = self.logging_steps
-
-        if not self.do_train:
-            self.num_train_epochs = 1
-        if (
-            os.path.exists(self.output_dir)
-            and os.listdir(self.output_dir)
-            and self.do_train
-            and not self.overwrite_output_dir
-        ):
-            raise ValueError(
-                f"Output directory ({self.output_dir}) already exists and is not empty."
-                "Use --overwrite_output_dir to overcome."
-            )
 
         assert self.shard_shampoo_across in [
             "dp",
@@ -459,4 +396,5 @@ class TrainingArguments:
         assert (
             jax.device_count() % self.mp_devices == 0
         ), f"Number of available devices ({jax.device_count()} must be divisible by number of devices used for model parallelism ({self.mp_devices})."
+
         self.dp_devices = jax.device_count() // self.mp_devices

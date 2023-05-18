@@ -416,21 +416,21 @@ class TrainingArguments:
 
     do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
     # DELETE LATER
-    do_eval: bool = field(
-        default=False, metadata={"help": "Whether to run eval on the validation set."}
-    )
+    # do_eval: bool = field(
+    #     default=False, metadata={"help": "Whether to run eval on the validation set."}
+    # )
 
     per_device_train_batch_size: int = field(
         default=8,
         metadata={"help": "Batch size per data parallel device for training."},
     )
     # DELETE LATER
-    per_device_eval_batch_size: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "Batch size per data parallel device for evaluation. Same as training batch size if not set."
-        },
-    )
+    # per_device_eval_batch_size: Optional[int] = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "Batch size per data parallel device for evaluation. Same as training batch size if not set."
+    #     },
+    # )
 
     gradient_accumulation_steps: int = field(
         default=1,
@@ -473,14 +473,14 @@ class TrainingArguments:
         metadata={"help": "Beta2 for for Adam & Distributed Shampoo."},
         # second moment (squared gradient average)
     )
-    adam_epsilon: float = field(
-        default=1e-8, metadata={"help": "Epsilon for Adam optimizer."}
-        # small value added to denominator so it would not be divided by zsero; default = common
-    )
-    max_grad_norm: float = field(
-        default=1.0, metadata={"help": "Max gradient norm for Adafactor."}
-        # max value prevent instabilities (too large, too small)
-    )
+    # adam_epsilon: float = field(
+    #     default=1e-8, metadata={"help": "Epsilon for Adam optimizer."}
+    #     # small value added to denominator so it would not be divided by zsero; default = common
+    # )
+    # max_grad_norm: float = field(
+    #     default=1.0, metadata={"help": "Max gradient norm for Adafactor."}
+    #     # max value prevent instabilities (too large, too small)
+    # )
     block_size: int = field(
         default=1024,
         metadata={"help": "Chunked size for large layers with Distributed Shampoo."},
@@ -562,12 +562,12 @@ class TrainingArguments:
         metadata={"help": "Number of steps to offset learning rate and keep it at 0."},
         # keep lr at 0 at the beginning (if has many parameteres; uncertain to initialise weights to obtain optimal perfrom; model explore parameter without large changes at the beginning then lr increses slowly)
     )
-    logging_steps: int = field(
-        default=40, metadata={"help": "Log every X updates steps."}
-    )
-    eval_steps: int = field(
-        default=400, metadata={"help": "Run an evaluation every X steps."}
-    )
+    # logging_steps: int = field(
+    #     default=40, metadata={"help": "Log every X updates steps."}
+    # )
+    # eval_steps: int = field(
+    #     default=400, metadata={"help": "Run an evaluation every X steps."}
+    # )
     save_steps: int = field(
         default=1, metadata={"help": "Save checkpoint every X updates steps."}
     )
@@ -579,12 +579,12 @@ class TrainingArguments:
         default=True,
         metadata={"help": "Log parameters and gradients norm at this frequency."},
     )
-    log_histogram_steps: int = field(
-        default=False,
-        metadata={
-            "help": "Log parameters and gradients histograms at this frequency. Slows down training."
-        },
-    )
+    # log_histogram_steps: int = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Log parameters and gradients histograms at this frequency. Slows down training."
+    #     },
+    # )
 
     seed_model: int = field(
         default=42,
@@ -597,23 +597,23 @@ class TrainingArguments:
         },
     )
 
-    embeddings_only: bool = field(
-        default=False, metadata={"help": "Train only embedding layers."}
-        # map encoded word (high dimensional sparse vector; where the val is 1 in corresponding word and 0 in others) to word embedding (low dimensional dense vector; represents the attributes) -> more in report
-        # to capture the meaning and context of words (semantic relationship; hyponym etc., seek high school stuff)
-        # not including hidden and output; useful in transfer learning (fine tuned on specific task)
-    )
-    init_embeddings: bool = field(
-        default=False,
-        metadata={"help": "When training embedding layers, initialize them."},
-        # weights initialised before training; using pret-trained is more common
-    )
+    # embeddings_only: bool = field(
+    #     default=False, metadata={"help": "Train only embedding layers."}
+    #     # map encoded word (high dimensional sparse vector; where the val is 1 in corresponding word and 0 in others) to word embedding (low dimensional dense vector; represents the attributes) -> more in report
+    #     # to capture the meaning and context of words (semantic relationship; hyponym etc., seek high school stuff)
+    #     # not including hidden and output; useful in transfer learning (fine tuned on specific task)
+    # )
+    # init_embeddings: bool = field(
+    #     default=False,
+    #     metadata={"help": "When training embedding layers, initialize them."},
+    #     # weights initialised before training; using pret-trained is more common
+    # )
 
     # DELETE LATER
-    wandb_entity: Optional[str] = field(
-        default=None,
-        metadata={"help": "The wandb entity to use (for teams)."},
-    )
+    # wandb_entity: Optional[str] = field(
+    #     default=None,
+    #     metadata={"help": "The wandb entity to use (for teams)."},
+    # )
     # CHANGE LATER, DELETE LATER
     wandb_project: str = field(
         default="dalle-mini",
@@ -659,19 +659,19 @@ class TrainingArguments:
 
         assert self.optim in [
             "distributed_shampoo",
-            "adam",
-            "adafactor",
+            # "adam",
+            # "adafactor",
         ], f"Selected optimizer not supported: {self.optim}"
         
-        if self.optim == "adafactor" and self.weight_decay == 0:
-            self.weight_decay = None
+        # if self.optim == "adafactor" and self.weight_decay == 0:
+        #     self.weight_decay = None
         assert self.graft_type in [
             "rmsprop_normalized",
-            "rmsprop",
-            "adagrad",
-            "adagrad_normalized",
-            "sgd",
-            "sqrt_n",
+            # "rmsprop",
+            # "adagrad",
+            # "adagrad_normalized",
+            # "sgd",
+            # "sqrt_n",
         ], f"Selected graft type not supported: {self.graft_type}"
         
         assert self.lr_decay in [
@@ -680,24 +680,24 @@ class TrainingArguments:
             "exponential",
         ], f"Selected learning rate decay not supported: {self.lr_decay}"
         
-        if self.per_device_eval_batch_size is None:
-            self.per_device_eval_batch_size = self.per_device_train_batch_size
+        # if self.per_device_eval_batch_size is None:
+        #     self.per_device_eval_batch_size = self.per_device_train_batch_size
             
-        if self.log_norm_steps is True:
-            self.log_norm_steps = self.logging_steps
+        # if self.log_norm_steps is True:
+        #     self.log_norm_steps = self.logging_steps
             
-        if not self.do_train:
-            self.num_train_epochs = 1
-        if (
-            os.path.exists(self.output_dir)
-            and os.listdir(self.output_dir)
-            and self.do_train
-            and not self.overwrite_output_dir
-        ):
-            raise ValueError(
-                f"Output directory ({self.output_dir}) already exists and is not empty."
-                "Use --overwrite_output_dir to overcome."
-            )
+        # if not self.do_train:
+        #     self.num_train_epochs = 1
+        # if (
+        #     os.path.exists(self.output_dir)
+        #     and os.listdir(self.output_dir)
+        #     and self.do_train
+        #     and not self.overwrite_output_dir
+        # ):
+        #     raise ValueError(
+        #         f"Output directory ({self.output_dir}) already exists and is not empty."
+        #         "Use --overwrite_output_dir to overcome."
+        #     )
             
         assert self.shard_shampoo_across in [
             "dp",
@@ -845,7 +845,7 @@ def main():
         # print(f"RA: model_args = {model_args}")
         # Colab: model_args = ModelArguments(model_name_or_path=None, config_name='/kaggle/working/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
         # Kaggle: ModelArguments(model_name_or_path=None, config_name='/kaggle/working/tugas-akhir/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
-        print(f"RA: data_args = {data_args}")
+        # print(f"RA: data_args = {data_args}")
         # RA: data_args = DataTrainingArguments(text_column='caption', encoding_column='encoding', dataset_repo_or_path='/kaggle/input/celeba-hq-encoded-512/encoded_data_512', train_file=None, validation_file=None, streaming=True, use_auth_token=False, shard_by_host=False, blank_caption_prob=0.0, clip_score_column='clip_score', min_clip_score=None, max_clip_score=None, filter_column=None, filter_value=None, multi_eval_ds=False, max_train_samples=None, max_eval_samples=None, preprocessing_num_workers=None, overwrite_cache=False, seed_dataset=None)
         # Kaggle: data_args = DataTrainingArguments(text_column='caption', encoding_column='encoding', dataset_repo_or_path='/kaggle/input/celeba-hq-encoded-512/encoded_data_512', train_file=None, validation_file=None, streaming=True, use_auth_token=False, shard_by_host=False, blank_caption_prob=0.0, clip_score_column='clip_score', min_clip_score=None, max_clip_score=None, filter_column=None, filter_value=None, multi_eval_ds=False, max_train_samples=None, max_eval_samples=None, preprocessing_num_workers=None, overwrite_cache=False, seed_dataset=None)
         # print(f"RA: training_args = {training_args}")
