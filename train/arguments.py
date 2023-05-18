@@ -349,7 +349,6 @@ class TrainingArguments:
             "help": "Whether using TPU or not."
         },
     )
-
     use_vmap_trick: bool = field(
         default=True,
         metadata={

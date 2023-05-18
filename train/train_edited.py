@@ -1818,29 +1818,29 @@ def main():
                 }
             )
 
-        if training_args.log_histogram_steps:
-            zeros_hist = jax.tree_util.tree_map(
-                lambda _: jnp.histogram(jnp.zeros(1), density=True), params
-            )
+        # if training_args.log_histogram_steps:
+        #     zeros_hist = jax.tree_util.tree_map(
+        #         lambda _: jnp.histogram(jnp.zeros(1), density=True), params
+        #     )
 
-            def histogram(val):
-                return jax.tree_util.tree_map(
-                    lambda x: jnp.histogram(x, density=True), val
-                )
+        #     def histogram(val):
+        #         return jax.tree_util.tree_map(
+        #             lambda x: jnp.histogram(x, density=True), val
+        #         )
 
-            gradients_hist = maybe_fn(
-                histogram, grads, zeros_hist, training_args.log_histogram_steps
-            )
-            params_hist = maybe_fn(
-                histogram, params, zeros_hist, training_args.log_histogram_steps
-            )
+        #     gradients_hist = maybe_fn(
+        #         histogram, grads, zeros_hist, training_args.log_histogram_steps
+        #     )
+        #     params_hist = maybe_fn(
+        #         histogram, params, zeros_hist, training_args.log_histogram_steps
+        #     )
 
-            metrics.update(
-                {
-                    "params_hist": params_hist,
-                    "gradients_hist": gradients_hist,
-                }
-            )
+        #     metrics.update(
+        #         {
+        #             "params_hist": params_hist,
+        #             "gradients_hist": gradients_hist,
+        #         }
+        #     )
 
         return state, metrics
 
@@ -1936,17 +1936,17 @@ def main():
                     if "_norm" in k:
                         if self.step % training_args.log_norm_steps == 0:
                             log_metrics[f"{k}/"] = unfreeze(v)
-                    elif "_hist" in k:
-                        if self.step % training_args.log_histogram_steps == 0:
-                            v = jax.tree_util.tree_map(
-                                lambda x: jax.device_get(x), unfreeze(v)
-                            )
-                            v = jax.tree_util.tree_map(
-                                lambda x: wandb.Histogram(np_histogram=x),
-                                v,
-                                is_leaf=lambda x: isinstance(x, tuple),
-                            )
-                            log_metrics[f"{k}/"] = v
+                    # elif "_hist" in k:
+                    #     if self.step % training_args.log_histogram_steps == 0:
+                    #         v = jax.tree_util.tree_map(
+                    #             lambda x: jax.device_get(x), unfreeze(v)
+                    #         )
+                    #         v = jax.tree_util.tree_map(
+                    #             lambda x: wandb.Histogram(np_histogram=x),
+                    #             v,
+                    #             is_leaf=lambda x: isinstance(x, tuple),
+                    #         )
+                    #         log_metrics[f"{k}/"] = v
                     else:
                         if prefix is not None:
                             k = f"{prefix}/{k}"
