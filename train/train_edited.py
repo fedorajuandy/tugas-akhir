@@ -323,28 +323,28 @@ class DataTrainingArguments:
             "help": "Probability of removing some captions for classifier-free guidance."
         },
     )
-    clip_score_column: Optional[str] = field(
-        default="clip_score",
-        metadata={"help": "Column that containts clip score for filtering."},
-    )
-    min_clip_score: Optional[float] = field(
-        default=None,
-        metadata={"help": "Minimum clip score required."},
-    )
-    max_clip_score: Optional[float] = field(
-        default=None,
-        metadata={"help": "Maximum clip score required."},
-    )
+    # clip_score_column: Optional[str] = field(
+    #     default="clip_score",
+    #     metadata={"help": "Column that containts clip score for filtering."},
+    # )
+    # min_clip_score: Optional[float] = field(
+    #     default=None,
+    #     metadata={"help": "Minimum clip score required."},
+    # )
+    # max_clip_score: Optional[float] = field(
+    #     default=None,
+    #     metadata={"help": "Maximum clip score required."},
+    # )
     # CHECK LATER
-    filter_column: Optional[str] = field(
-        default=None,
-        metadata={"help": "Column that containts classes to be filtered."},
-    )
+    # filter_column: Optional[str] = field(
+    #     default=None,
+    #     metadata={"help": "Column that containts classes to be filtered."},
+    # )
     # CHECK LATER
-    filter_value: Optional[str] = field(
-        default=None,
-        metadata={"help": "Class value to be kept during filtering."},
-    )
+    # filter_value: Optional[str] = field(
+    #     default=None,
+    #     metadata={"help": "Class value to be kept during filtering."},
+    # )
     # DELETE LATER
     # multi_eval_ds: Optional[bool] = field(
     #     default=False,

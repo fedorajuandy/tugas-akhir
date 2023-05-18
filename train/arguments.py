@@ -124,92 +124,16 @@ class DataTrainingArguments:
         default=None,
         metadata={"help": "Dataset's location."},
     )
-    # train_file: Optional[str] = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "The input training data file (glob & braceexpand acceptable)."
-    #     },
-    # )
-    # validation_file: Optional[str] = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "An optional input evaluation data file (glob & braceexpand acceptable)."
-    #     },
-    # )
     streaming: Optional[bool] = field(
         default=True,
         metadata={"help": "Whether to stream the dataset to prevent bottleneck."},
     )
-    # use_auth_token: Optional[bool] = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "Whether to use the authentication token for private datasets."
-    #     },
-    # )
-    # shard_by_host: Optional[bool] = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "Whether to shard data files by host in multi-host environments."
-    #     },
-    # )
     blank_caption_prob: Optional[float] = field(
         default=0.0,
         metadata={
             "help": "Probability of removing some captions for classifier-free guidance."
         },
     )
-    clip_score_column: Optional[str] = field(
-        default="clip_score",
-        metadata={"help": "Column that containts clip score for filtering."},
-    )
-    min_clip_score: Optional[float] = field(
-        default=None,
-        metadata={"help": "Minimum clip score required."},
-    )
-    max_clip_score: Optional[float] = field(
-        default=None,
-        metadata={"help": "Maximum clip score required."},
-    )
-    # CHECK LATER
-    filter_column: Optional[str] = field(
-        default=None,
-        metadata={"help": "Column that containts classes to be filtered."},
-    )
-    # CHECK LATER
-    filter_value: Optional[str] = field(
-        default=None,
-        metadata={"help": "Class value to be kept during filtering."},
-    )
-    # multi_eval_ds: Optional[bool] = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "Whether to look for multiple validation datasets (local support only)."
-    #     },
-    # )
-    # max_train_samples: Optional[int] = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "For debugging purposes or quicker training, truncate the number of training examples."
-    #     },
-    # )
-    # max_eval_samples: Optional[int] = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "For debugging purposes or quicker training, truncate the number of evaluation examples."
-    #     },
-    # )
-    # preprocessing_num_workers: Optional[int] = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "The number of processes to use for the preprocessing. Not used in streaming mode."
-    #     },
-    # )
-    # overwrite_cache: bool = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "Overwrite the cached training and evaluation sets. Not used in streaming mode."
-    #     },
-    # )
     seed_dataset: int = field(
         default=None,
         metadata={
@@ -234,7 +158,7 @@ class TrainingArguments:
         },
     )
     overwrite_output_dir: bool = field(
-        default=False,
+        default=True,
         metadata={
             "help": (
                 "Overwrite the content of the output directory. "
