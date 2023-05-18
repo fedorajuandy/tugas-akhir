@@ -1027,11 +1027,11 @@ def main():
     # MISSING
     
     # DELETE LATER
-    eval_batch_size_per_node = (
-        training_args.per_device_eval_batch_size
-        * jax.local_device_count()
-        // training_args.mp_devices
-    )
+    # eval_batch_size_per_node = (
+    #     training_args.per_device_eval_batch_size
+    #     * jax.local_device_count()
+    #     // training_args.mp_devices
+    # )
 #     print(f"RA: eval_batch_size_per_node = {eval_batch_size_per_node}")
     # Kaggle: eval_batch_size_per_node = 2
     eval_batch_size_per_step = eval_batch_size_per_node * jax.process_count()
