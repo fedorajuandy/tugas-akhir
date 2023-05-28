@@ -1,5 +1,5 @@
 ---
-title: FaceGenerator
+title: ImageGenerator
 emoji: 😄
 colorFrom: indigo
 colorTo: gray
@@ -9,26 +9,25 @@ app_file: app.py
 pinned: false
 ---
 
-# Face Generator
+# Image Generator
 
 ## Description
 
 ### About
 
-A simple application to generate human face images with the limitation of the algorithm, dataset, hardware specification, chosen limited configuration, and other various variables.
+A simple application to generate images with the limitation of the algorithm, dataset, hardware specification, chosen limited configuration, and other various variables.
 
-![UI](/img/ui.png)
+![UI](/img/interface.png)
 
-1. "Text prompt" textbox ,to enter text description of desired image
-2. "Gender" radio button, to choose desired gender
-3. "Attributes" checkboxes, to choose whether to include certain attributes or not
-4. "RUN" button (or keyboard ENTER button), to confirm input
-5. Result placeholder, the place for generated image
+1. "Text prompt" textbox to enter text description of desired image
+2. "Run" button (or keyboard ENTER button) to confirm input
+3. Result placeholder the place for generated image
 
 ### Notes
 
 - Optimisation only using Distributed Shampoo
 - The dataset is limited to CelebA-HQ
+- Very (extremely, exeedingly, incredibly-) limited computing resources
 
 ---
 
@@ -36,7 +35,7 @@ A simple application to generate human face images with the limitation of the al
 
 ### How to use
 
-Users input either free-form text in the textbox or choose one or several attribute options in the form of radio buttons and checkboxes then press the RUN or ENTER button to confirm them. Then the user waits until the desired image is generated and shown in the previously empty placeholder.
+Users input either free-form text in the textbox or choose one or several attribute options in the form of radio buttons and checkboxes then press the RUN button to confirm them. Then the user waits until the desired image is generated and shown in the previously empty placeholder.
 
 ---
 
@@ -143,7 +142,6 @@ Users input either free-form text in the textbox or choose one or several attrib
 
 ## Tools Used
 
-- [Amazon SageMaker Studio Lab](https://studiolab.sagemaker.aws/)
 - [Google Colab](https://colab.research.google.com/)
 - [Paperspace Gradient](https://www.paperspace.com/gradient)
 - [Kaggle](https://www.kaggle.com/)

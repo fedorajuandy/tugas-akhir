@@ -2,7 +2,7 @@
 
 from setuptools import setup
 
-NAME = "FaceGenerator"
+NAME = "ImageGenerator"
 VERSION = "1.0.0"
 DESCRIPTION = "The first (trial) deep learning of image generation based on Craiyon"
 URL = "https://github.com/fedorajuandy/tugas-akhir"
