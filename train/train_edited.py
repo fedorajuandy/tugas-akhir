@@ -211,7 +211,6 @@ class ModelArguments:
                 "/model-" in self.model_name_or_path
             ), "Restoring state only available with W&B artifact reference"
 
-    # PRE-TRAINED MODEL [DELETE LATER]
     def get_metadata(self):
         """ Get artifact's metadata or empty dict """
         if self.model_name_or_path is not None and ":" in self.model_name_or_path:
@@ -223,7 +222,6 @@ class ModelArguments:
         else:
             return dict()
 
-    # PROB DELETE LATER TOO
     def get_opt_state(self):
         # immediately deleted after execution
         with tempfile.TemporaryDirectory() as tmp_dir:  # avoid multiple artifact copies
@@ -536,27 +534,27 @@ class TrainingArguments:
             # exponential more sensitive, yet more effective
         },
     )
-    lr_transition_steps: int = field(
-        default=None,
-        metadata={
-            "help": "Number of transition steps associated with learning rate decay when using exponential decay."
-        },
-    )
-    lr_decay_rate: float = field(
-        default=None,
-        metadata={
-            "help": "Decay rate associated with learning rate when using exponential decay."
-            # the point of decay occurs (nth step)
-        },
-    )
-    lr_staircase: bool = field(
-        default=False,
-        metadata={
-            "help": "Whether to use staircase or continuous learning rate when using exponential decay."
-            # continuous: each each epoch/nth step
-            # staircase: discrete steps (determinded my decay rate; can be at 10 epochs or sth)
-        },
-    )
+    # lr_transition_steps: int = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "Number of transition steps associated with learning rate decay when using exponential decay."
+    #     },
+    # )
+    # lr_decay_rate: float = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "Decay rate associated with learning rate when using exponential decay."
+    #         # the point of decay occurs (nth step)
+    #     },
+    # )
+    # lr_staircase: bool = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Whether to use staircase or continuous learning rate when using exponential decay."
+    #         # continuous: each each epoch/nth step
+    #         # staircase: discrete steps (determinded my decay rate; can be at 10 epochs or sth)
+    #     },
+    # )
     lr_offset: int = field(
         default=0,
         metadata={"help": "Number of steps to offset learning rate and keep it at 0."},
