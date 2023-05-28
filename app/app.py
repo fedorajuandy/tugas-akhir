@@ -1,12 +1,12 @@
 """ Module for web UI """
+
 import gradio
-from inference import generate_image # pylint: disable=import-error
+from inference import generate_image
 
 
 block = gradio.Blocks(css=".container { max-width: 800px; margin: auto; }")
 
 
-# UI
 with block:
     gradio.Markdown("<h1><center>Image Generator</center></h1>")
 
