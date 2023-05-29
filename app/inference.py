@@ -12,7 +12,6 @@ from PIL import Image
 from tqdm.notebook import trange
 from dalle_mini import DalleBart, DalleBartProcessor
 from transformers import CLIPProcessor, FlaxCLIPModel
-# from .helpers import *
 
 
 def generate_image(text_prompt):
@@ -40,7 +39,7 @@ def generate_image(text_prompt):
     params = replicate(params)
     vqgan_params = replicate(vqgan_params)
 
-    # functions are parallelised to each device
+    # functions are compiled and parallelised to each device
     @partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
     def p_generate(
         tokenized_prompt, key, params, top_k, top_p, temperature, condition_scale
@@ -73,7 +72,7 @@ def generate_image(text_prompt):
     # replicate prompts to each device
     tokenized_prompt = replicate(tokenized_prompts)
 
-    # number of predictions
+    # number of predictions; split per device
     N_PREDICTIONS = 8
 
     # generetion parameters
@@ -85,6 +84,7 @@ def generate_image(text_prompt):
     # generate images
     images = []
     for i in trange(max(N_PREDICTIONS // jax.device_count(), 1)):
+        # get a new key
         key, subkey = jax.random.split(key)
         encoded_images = p_generate(
             tokenized_prompt,
