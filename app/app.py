@@ -17,7 +17,7 @@ with gradio.Blocks() as block:
     gallery = gradio.Gallery(
         label = "Result image",
     ).style(
-        # number of images per category
+        # Number of images per category
         columns = [3],
         height = "auto",
     )
@@ -27,6 +27,6 @@ with gradio.Blocks() as block:
     gradio.Markdown("<p style='text-align: center'>2019130032 - Fedora Yoshe Juandy</p>")
 
 
-# use 'queue' if the inference's time > 60s
-# use 'share' for more than one user usage
+# Use 'queue' if the inference's time > 60s
+# Use 'share' for more than one user usage
 block.queue().launch(share=True)
