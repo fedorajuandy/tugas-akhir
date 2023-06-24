@@ -1,4 +1,5 @@
-""" Encode a pair of image and text into an encoded one """
+""" Make dataset containing a pair of a caption and an encoded image """
+# caption = string, encoded image = integers
 
 from pathlib import Path
 from functools import partial
@@ -7,58 +8,55 @@ from flax.jax_utils import replicate
 from flax.training.common_utils import shard
 from tqdm.notebook import tqdm
 import webdataset as wds
-import braceexpand
 from vqgan_jax.modeling_flax_vqgan import VQModel
 import pandas as pd
 
 
-DATASETS = "{000..29999}.parquet"
-SHARDS = "/content/drive/MyDrive/Colab Notebooks/dalle-mini/tools/dataset/data_256.tar"
-encoded_output = Path("/content/output")
+DATASET = "/content/drive/MyDrive/Colab Notebooks/dalle-mini/tools/dataset/data_256.tar"
+output_location = Path("/content/output")
 
+# Pre-trained VQGAN with 16384 vocabulary token
 VQGAN_REPO, VQGAN_COMMIT_ID = (
     "dalle-mini/vqgan_imagenet_f16_16384",
     "85eb5d3b51a1c62a0cc8f4ccdee9882c0d0bd384",
 )
 
 BATCH_SIZE = 1
-NUM_WORKERS = 1
-TOTAL_BS = BATCH_SIZE * jax.device_count()
+NUM_DEVICES = 1
+TOTAL_BATCH_SIZE = BATCH_SIZE * jax.device_count()
 SAVE_FREQUENCY = 1
 
-SHARDS = list(
-    braceexpand.braceexpand(SHARDS)
-)
-
-ds = (
-    wds.WebDataset(SHARDS, handler=wds.warn_and_continue)
-    .decode("rgb", handler=wds.warn_and_continue)
-    .to_tuple("jpg", "txt")
-    .batched(TOTAL_BS)
+datasets = (
+    wds.WebDataset(DATASET) # Make WebDataset (PyTorch dataset) object by
+    .decode("rgb") # decoding the image
+    .to_tuple("jpg", "txt") # then make a list containing a pair of image and text
+    .batched(TOTAL_BATCH_SIZE) # per batch
 )
 
 dl = (
-    wds.WebLoader(ds, BATCH_SIZE=None, NUM_WORKERS=2).unbatched().batched(TOTAL_BS)
+    wds.WebLoader(datasets, BATCH_SIZE=None, NUM_DEVICES=1) # Make WebLOader object from
+    .unbatched() # unbatching the data
+    .batched(TOTAL_BATCH_SIZE) # batch again to avoid partial batch
 )
 
 vqgan = VQModel.from_pretrained("dalle-mini/vqgan_imagenet_f16_16384")
 vqgan_params = replicate(vqgan.params)
 
 
-@partial(jax.pmap, axis_name="batch")
-def p_encode(batch, params):
+# The function's computation is performed along 'batch' using 'pmap'
+@partial(jax.pmap, axis_name="batch") # Distribute each 'batch' across devices
+def p_encode(batch, params): # batch = dataset
     """ Function for parallel encoding using pre-trained VQGAN  """
 
-    _, indices = vqgan.encode(batch, params=params)
+    _, indices = vqgan.encode(batch, params=params) # quant_states is not used
     return indices
 
 
 def encode_dataset(dataloader, output_dir, save_frequency):
     """ Function to encode all selected data """
 
-    images, captions = next(iter(ds))
+    images, captions = next(iter(datasets))
 
-    output_dir.mkdir(parents=True, exist_ok=True)
     all_captions = []
     all_encoding = []
     n_file = 0
@@ -72,7 +70,7 @@ def encode_dataset(dataloader, output_dir, save_frequency):
         all_encoding.extend(encoded.tolist())
 
         if (idx + 1) % save_frequency == 0:
-            # print(f"Saving file {n_file}")
+            print(f"Saving file {n_file}")
             batch_df = pd.DataFrame.from_dict(
                 {"caption": all_captions, "encoding": all_encoding}
             )
@@ -89,4 +87,4 @@ def encode_dataset(dataloader, output_dir, save_frequency):
         batch_df.to_parquet(f"{output_dir}/{n_file:03d}.parquet")
 
 
-encode_dataset(dl, output_dir=encoded_output, save_frequency=SAVE_FREQUENCY)
+encode_dataset(dl, output_dir=output_location, save_frequency=SAVE_FREQUENCY)
