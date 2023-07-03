@@ -13,7 +13,7 @@ import pandas as pd
 
 
 DATASET = "/content/drive/MyDrive/Colab Notebooks/dalle-mini/tools/dataset/data_256.tar"
-output_location = Path("/content/output")
+output_dir = Path("/content/output")
 
 # Pre-trained VQGAN with 16384 vocabulary token
 VQGAN_REPO, VQGAN_COMMIT_ID = (
@@ -27,15 +27,15 @@ TOTAL_BATCH_SIZE = BATCH_SIZE * jax.device_count()
 SAVE_FREQUENCY = 1
 
 datasets = (
-    wds.WebDataset(DATASET) # Make WebDataset (PyTorch dataset) object by
-    .decode("rgb") # decoding the image
-    .to_tuple("jpg", "txt") # then make a list containing a pair of image and text
+    wds.WebDataset(DATASET) # Make WebDataset (PyTorch dataset) object
+    .decode("rgb")
+    .to_tuple("jpg", "txt")
     .batched(TOTAL_BATCH_SIZE) # per batch
 )
 
-dl = (
-    wds.WebLoader(datasets, BATCH_SIZE=None, NUM_DEVICES=1) # Make WebLOader object from
-    .unbatched() # unbatching the data
+data_loader = (
+    wds.WebLoader(datasets, BATCH_SIZE=None, NUM_DEVICES=1) # Make WebLOader object
+    .unbatched()
     .batched(TOTAL_BATCH_SIZE) # batch again to avoid partial batch
 )
 
@@ -45,46 +45,57 @@ vqgan_params = replicate(vqgan.params)
 
 # The function's computation is performed along 'batch' using 'pmap'
 @partial(jax.pmap, axis_name="batch") # Distribute each 'batch' across devices
-def p_encode(batch, params): # batch = dataset
+def p_encode(batch, params):
     """ Function for parallel encoding using pre-trained VQGAN  """
 
     _, indices = vqgan.encode(batch, params=params) # quant_states is not used
     return indices
 
 
-def encode_dataset(dataloader, output_dir, save_frequency):
+def encode_dataset(dataloader, outputdir, safefrequency):
     """ Function to encode all selected data """
 
     images, captions = next(iter(datasets))
 
     all_captions = []
-    all_encoding = []
+    all_encodings = []
     n_file = 0
 
     for idx, (images, captions) in enumerate(tqdm(dataloader)):
-        images = images.numpy()
+        images = images.numpy() # Convert tensor object into NumPy array
+        n_images = len(images)
+
+        # Take the number of dataset pairs according to batch size
+        n_images_batch = n_images // BATCH_SIZE * BATCH_SIZE
+        if n_images_batch != n_images:
+            print(f"Different sizes {n_images_batch} (per batch) vs {n_images} (original)")
+            images = images[:n_images_batch]
+            captions = captions[:n_images_batch]
+
         images = shard(images)
+
         encoded = p_encode(images, vqgan_params)
+        # 1D array becomes 2D with all elements intact
         encoded = encoded.reshape(-1, encoded.shape[-1])
         all_captions.extend(captions)
-        all_encoding.extend(encoded.tolist())
+        all_encodings.extend(encoded.tolist())
 
-        if (idx + 1) % save_frequency == 0:
+        if (idx + 1) % safefrequency == 0:
             print(f"Saving file {n_file}")
             batch_df = pd.DataFrame.from_dict(
-                {"caption": all_captions, "encoding": all_encoding}
+                {"caption": all_captions, "encoding": all_encodings}
             )
-            batch_df.to_parquet(f"{output_dir}/{n_file:03d}.parquet")
+            batch_df.to_parquet(f"{outputdir}/{n_file:03d}.parquet")
             all_captions = []
-            all_encoding = []
+            all_encodings = []
             n_file += 1
 
     if all_captions:
-        # print(f"Saving final file {n_file}")
-        batch_df = pd.DataFrame.from_dict(
-            {"caption": all_captions, "encoding": all_encoding}
+        print(f"Saving final file {n_file}")
+        batch_df = pd.DataFrame.from_dict( # create DataFrame from dictionary object; l
+            {"caption": all_captions, "encoding": all_encodings}
         )
-        batch_df.to_parquet(f"{output_dir}/{n_file:03d}.parquet")
+        batch_df.to_parquet(f"{outputdir}/{n_file:03d}.parquet")
 
 
-encode_dataset(dl, output_dir=output_location, save_frequency=SAVE_FREQUENCY)
+encode_dataset(dataloader=data_loader, outputdir=output_dir, safefrequency=SAVE_FREQUENCY)
