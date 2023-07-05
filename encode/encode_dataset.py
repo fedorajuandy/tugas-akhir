@@ -30,13 +30,13 @@ datasets = (
     wds.WebDataset(DATASET) # Make WebDataset (PyTorch dataset) object
     .decode("rgb")
     .to_tuple("jpg", "txt")
-    .batched(TOTAL_BATCH_SIZE) # per batch
+    .batched(TOTAL_BATCH_SIZE) # Per batch
 )
 
 data_loader = (
-    wds.WebLoader(datasets, BATCH_SIZE=None, NUM_DEVICES=1) # Make WebLOader object
+    wds.WebLoader(datasets, BATCH_SIZE=None, NUM_DEVICES=1) # Make WebLoader object
     .unbatched()
-    .batched(TOTAL_BATCH_SIZE) # batch again to avoid partial batch
+    .batched(TOTAL_BATCH_SIZE) # Batch again to avoid partial batch
 )
 
 vqgan = VQModel.from_pretrained("dalle-mini/vqgan_imagenet_f16_16384")
@@ -92,7 +92,7 @@ def encode_dataset(dataloader, outputdir, safefrequency):
 
     if all_captions:
         print(f"Saving final file {n_file}")
-        batch_df = pd.DataFrame.from_dict( # create DataFrame from dictionary object; l
+        batch_df = pd.DataFrame.from_dict( # Create DataFrame from dictionary object; l
             {"caption": all_captions, "encoding": all_encodings}
         )
         batch_df.to_parquet(f"{outputdir}/{n_file:03d}.parquet")
