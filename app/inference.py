@@ -40,6 +40,7 @@ CLIP_COMMIT_ID = None
 model, model_params = DalleBart.from_pretrained(
     MODEL, revision=MODEL_COMMIT_ID, dtype=jnp.float32, _do_init=False
 )
+# To process text
 processor = DalleBartProcessor.from_pretrained(
     MODEL, revision=MODEL_COMMIT_ID
 )
@@ -51,6 +52,7 @@ vqgan, vqgan_params = VQModel.from_pretrained(
 clip, clip_params = FlaxCLIPModel.from_pretrained(
     CLIP_REPO, revision=CLIP_COMMIT_ID, dtype=jnp.float16, _do_init=False
 )
+# To process text and image
 clip_processor = CLIPProcessor.from_pretrained(
     CLIP_REPO, revision=CLIP_COMMIT_ID
 )
@@ -92,19 +94,18 @@ def p_clip(inputs, params):
 def generate_image(text_prompt):
     """ Take text prompt and return generated image """
 
-    # generate key that is passed to each device to generate different images
+    # Generate key that is passed to each device to generate different images
     seed = random.randint(0, 2**32 - 1)
     key = jax.random.PRNGKey(seed)
 
-    texts = []
-    texts.append(text_prompt)
+    texts = [text_prompt]
     tokenized_prompts = processor(texts)
     tokenized_prompt = replicate(tokenized_prompts)
 
-    # generate images
+    # Generate images
     images = []
     for i in trange(max(N_PREDICTIONS // jax.device_count(), 1)):
-        # get a new key
+        # Get a new key
         key, subkey = jax.random.split(key)
         encoded_images = p_generate(
             tokenized_prompt,
@@ -115,12 +116,12 @@ def generate_image(text_prompt):
             TEMPERATURE,
             COND_SCALE,
         )
-        # remove BOS token
+        # Remove BOS token
         encoded_images = encoded_images.sequences[..., 1:]
-        # decode images
         decoded_images = p_decode(encoded_images, vqgan_params)
         decoded_images = decoded_images.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
         for decoded_img in decoded_images:
+            # Create image object NumPy array.
             img = Image.fromarray(np.asarray(decoded_img * 255, dtype=np.uint8))
             images.append(img)
 
