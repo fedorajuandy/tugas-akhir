@@ -134,21 +134,19 @@ def generate_image(text_prompt):
         max_length=77,
         truncation=True,
     ).data
+    # Shard for each device
     logits = p_clip(shard(clip_inputs), clip_params)
 
     # Organize scores
-    wut_is_p = len(texts)
-    logits = np.asarray([logits[:, i::wut_is_p, i] for i in range(wut_is_p)]).squeeze()
+    logits = np.asarray([logits[:, i::1, i] for i in range(1)]).squeeze()
 
     imgs = []
-    for i, text in enumerate(texts): # pylint: disable=unused-variable
+    for i, text in enumerate(texts):
         for idx in logits[i].argsort()[::-1]:
-            imgs.append(images[idx * wut_is_p + i])
+            imgs.append(images[idx * 1 + i])
             print(f"Score: {jnp.asarray(logits[i][idx], dtype=jnp.float32):.2f}\n")
 
-    # store_images(text_prompt, images, logits, N_PREDICTIONS)
-    result = []
-    result.append(imgs[0])
+    result = [imgs[0]]
 
 
     return result
