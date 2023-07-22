@@ -1,5 +1,7 @@
 # !/usr/bin/env python
 # coding=utf-8
+# Copyright 2021-2022 The HuggingFace & DALL·E Mini team. All rights reserved.
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -351,7 +353,7 @@ class TrainingArguments:
         assert self.optim in [
             "distributed_shampoo",
         ], f"Selected optimizer not supported: {self.optim}"
-        
+
         if self.optim == "adafactor" and self.weight_decay == 0:
             self.weight_decay = None
         assert self.graft_type in [
@@ -362,19 +364,19 @@ class TrainingArguments:
             "sgd",
             "sqrt_n",
         ], f"Selected graft type not supported: {self.graft_type}"
-        
+
         assert self.lr_decay in [
             None,
             "linear",
             "exponential",
         ], f"Selected learning rate decay not supported: {self.lr_decay}"
-        
+
         if self.per_device_eval_batch_size is None:
             self.per_device_eval_batch_size = self.per_device_train_batch_size
-            
+
         if self.log_norm_steps is True:
             self.log_norm_steps = self.logging_steps
-            
+
         if not self.do_train:
             self.num_train_epochs = 1
         if (
@@ -387,17 +389,17 @@ class TrainingArguments:
                 f"Output directory ({self.output_dir}) already exists and is not empty."
                 "Use --overwrite_output_dir to overcome."
             )
-            
+
         assert self.shard_shampoo_across in [
             "dp",
             "mp",
             "2d",
         ], f"Shard shampoo across {self.shard_shampoo_across} not supported."
-        
+
         assert (
             self.mp_devices > 0
         ), f"Number of devices for model parallelism must be > 0"
-        
+
         assert (
             jax.device_count() % self.mp_devices == 0
         ), f"Number of available devices ({jax.device_count()} must be divisible by number of devices used for model parallelism ({self.mp_devices})."

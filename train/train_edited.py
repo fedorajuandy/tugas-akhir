@@ -38,7 +38,7 @@ REPORT = on WANDB report for reasons
 MISSING = not seen/typo
 DILUC = bookmark (don't judge me; I keep forgotting the last bookmark
 KAEYA = I felt like I have seen it before, but memory gone awry
-SHIRA = change later if something wen t awry
+SHIRA = change later if something went awry
 """
 
 import io
@@ -496,6 +496,7 @@ class TrainingArguments:
         default="rmsprop_normalized",
         metadata={
             "help": "The type of grafting to use. Can be 'rmsprop_normalized' (default), 'rmsprop', 'adagrad', 'adagrad_normalized', 'sgd' or 'sqrt_n'"
+            # Divide the gradient by the root of the average.
         },
     )
     nesterov: bool = field(
@@ -507,7 +508,8 @@ class TrainingArguments:
         default=True,
         metadata={
             "help": "Whether to quantize optimizer (only supported with Distributed Shampoo)."
-            # shard optimizer across devices
+            # Quantize optimizer
+            # To map infinite values to a smaller set of discrete finite values.
         },
     )
     shard_shampoo_across: str = field(
@@ -553,6 +555,7 @@ class TrainingArguments:
     #         "help": "Whether to use staircase or continuous learning rate when using exponential decay."
     #         # continuous: each each epoch/nth step
     #         # staircase: discrete steps (determinded my decay rate; can be at 10 epochs or sth)
+    #         # Staircase (discrete steps) or continuous learning rate (each epoch) when using exponential decay.
     #     },
     # )
     lr_offset: int = field(
@@ -622,7 +625,6 @@ class TrainingArguments:
         metadata={"help": "The name of the wandb job type."},
     )
 
-    # DELETE LATER
     assert_tpu_available: bool = field(
         default=False,
         metadata={"help": "Verify that TPU is not in use."},
@@ -660,7 +662,7 @@ class TrainingArguments:
             # "adam",
             # "adafactor",
         ], f"Selected optimizer not supported: {self.optim}"
-        
+
         # if self.optim == "adafactor" and self.weight_decay == 0:
         #     self.weight_decay = None
         assert self.graft_type in [
@@ -671,19 +673,19 @@ class TrainingArguments:
             # "sgd",
             # "sqrt_n",
         ], f"Selected graft type not supported: {self.graft_type}"
-        
+
         assert self.lr_decay in [
             None,
             "linear",
             "exponential",
         ], f"Selected learning rate decay not supported: {self.lr_decay}"
-        
+
         # if self.per_device_eval_batch_size is None:
         #     self.per_device_eval_batch_size = self.per_device_train_batch_size
-            
+
         # if self.log_norm_steps is True:
         #     self.log_norm_steps = self.logging_steps
-            
+
         # if not self.do_train:
         #     self.num_train_epochs = 1
         # if (
@@ -696,17 +698,17 @@ class TrainingArguments:
         #         f"Output directory ({self.output_dir}) already exists and is not empty."
         #         "Use --overwrite_output_dir to overcome."
         #     )
-            
+
         assert self.shard_shampoo_across in [
             "dp",
             "mp",
             "2d",
         ], f"Shard shampoo across {self.shard_shampoo_across} not supported."
-        
+
         assert (
             self.mp_devices > 0
         ), f"Number of devices for model parallelism must be > 0"
-        
+
         assert (
             jax.device_count() % self.mp_devices == 0
         ), f"Number of available devices ({jax.device_count()} must be divisible by number of devices used for model parallelism ({self.mp_devices})."

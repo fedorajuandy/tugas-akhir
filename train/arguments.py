@@ -1,5 +1,22 @@
-""" Training, model, and data arguments """
-# pylint: disable=line-too-long
+#!/usr/bin/env python
+# coding=utf-8
+# Copyright 2021-2022 The HuggingFace & DALL·E Mini team. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.'
+"""
+Training, model, and data arguments adapted from DALL-E mini's training script.
+"""
+# RA: REMEMBER CHECK LATER.
 
 from dataclasses import dataclass, field
 import tempfile
@@ -11,7 +28,8 @@ import wandb
 
 @dataclass
 class ModelArguments:
-    """ Train from zero or from checkpoint """
+    """ Model's confirguration """
+    # Notes: modify save-point to anticipate workplace runtime limitation, then use checkpoint
 
     model_name_or_path: Optional[str] = field(
         default=None,
@@ -22,25 +40,25 @@ class ModelArguments:
     config_name: Optional[str] = field(
         default=None,
         metadata={
-            "help": "Pretrained config name or path."
+            "help": "If using different config name or path from model."
         },
     )
     tokenizer_name: Optional[str] = field(
         default=None,
         metadata={
-            "help": "Pretrained tokenizer name or path."
+            "help": "If using different tokenizer name or path from model."
         },
     )
     dtype: Optional[str] = field(
         default="float32",
         metadata={
-            "help": "Computations format."
+            "help": "Computations format (memory--, precision--): float32, bfloat16, float16."
         },
     )
     restore_state: Optional[bool] = field(
         default=False,
         metadata={
-            "help": "Restore optimizer and training state."
+            "help": "Restore optimizer and training state with checkpoint."
         },
     )
     dropout: Optional[float] = field(
@@ -83,7 +101,7 @@ class ModelArguments:
 
 
     def get_opt_state(self):
-        """ get state """
+        """ Get state """
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             if self.restore_state is True:
@@ -105,18 +123,18 @@ class ModelArguments:
 
 @dataclass
 class DataTrainingArguments:
-    """ Data's detail for training and evaluation """
+    """ Dataset's configuration """
 
     text_column: Optional[str] = field(
         default="caption",
         metadata={
-            "help": "Dataset's column name for caption."
+            "help": "Dataset's column name for captions."
         },
     )
     encoding_column: Optional[str] = field(
         default="encoding",
         metadata={
-            "help": "Dataset's column name for image encoding."
+            "help": "Dataset's column name for image encodings."
         },
     )
     dataset_repo_or_path: str = field(
@@ -127,6 +145,7 @@ class DataTrainingArguments:
         default=True,
         metadata={"help": "Whether to stream the dataset to prevent bottleneck."},
     )
+    # CHECK LATER
     blank_caption_prob: Optional[float] = field(
         default=0.0,
         metadata={
@@ -147,15 +166,15 @@ class DataTrainingArguments:
 
 @dataclass
 class TrainingArguments:
-    """ Training parameters """
+    """ Training's configuration """
 
     output_dir: str = field(
         metadata={
-            "help": "Directory to store model predictions and checkpoints."
+            "help": "Directory to write model predictions and checkpoints."
         },
     )
     overwrite_output_dir: bool = field(
-        default=True,
+        default=False,
         metadata={
             "help": (
                 "Overwrite or continue from checkpoint if enabled "
@@ -168,6 +187,7 @@ class TrainingArguments:
             "help": "Whether to run training."
         },
     )
+    # CHECK LATER
     do_eval: bool = field(
         default=False,
         metadata={
@@ -189,7 +209,7 @@ class TrainingArguments:
     gradient_checkpointing: bool = field(
         default=False,
         metadata={
-            "help": "To reduce memory usage."
+            "help": "To reduce memory usage with more time usage."
         },
     )
     learning_rate: float = field(
@@ -207,7 +227,7 @@ class TrainingArguments:
     weight_decay: float = field(
         default=0.0,
         metadata={
-            "help": "Weight dermscay applied to parameters."
+            "help": "Weight decays applied to parameters."
         },
     )
     beta1: float = field(
@@ -243,7 +263,8 @@ class TrainingArguments:
     graft_type: str = field(
         default="rmsprop_normalized",
         metadata={
-            "help": "Maintain moving average of the square of gradients; divide the gradient by the root of the average."
+            "help": "Maintain moving average of the square of gradients."
+            # rmsprop_normalized, rmsprop, adagrad, adagrad_normalized, sgd, sqrt_n
         },
     )
     nesterov: bool = field(
@@ -255,7 +276,7 @@ class TrainingArguments:
     optim_quantized: bool = field(
         default=True,
         metadata={
-            "help": "Quantize optimizer to map infinite values to a smaller set of discrete finite values."
+            "help": "Shard optimizer across devices."
         },
     )
     shard_shampoo_across: str = field(
@@ -282,22 +303,25 @@ class TrainingArguments:
             "help": "Learning rate scheduler's decay; none, linear, or exponential."
         },
     )
+    # CHECK LATER
     lr_transition_steps: int = field(
         default=None,
         metadata={
             "help": "Learning rate's transition steps when using exponential decay."
         },
     )
+    # CHECK LATER
     lr_decay_rate: float = field(
         default=None,
         metadata={
             "help": "Learning rate's decay rate (number of steps) when using exponential decay."
         },
     )
+    # CHECK LATER
     lr_staircase: bool = field(
         default=False,
         metadata={
-            "help": "Staircase (discrete steps) or continuous learning rate (each epoch) when using exponential decay."
+            "help": "Staircase or continuous learning rate when using exponential decay."
         },
     )
     lr_offset: int = field(
@@ -368,10 +392,11 @@ class TrainingArguments:
     )
 
     def __post_init__(self):
+        # CHECK LATER
         if self.assert_tpu_available:
             assert (
                 jax.local_device_count() == 8
-            ), "TPUs in use, please check running processes"
+            ), "TPUs in use, please check running processes."
 
         assert self.optim in [
             "distributed_shampoo",
@@ -379,6 +404,11 @@ class TrainingArguments:
 
         assert self.graft_type in [
             "rmsprop_normalized",
+            # "rmsprop",
+            # "adagrad",
+            # "adagrad_normalized",
+            # "sgd",
+            # "sqrt_n",
         ], f"Selected graft type not supported: {self.graft_type}"
 
         assert self.lr_decay in [
@@ -399,6 +429,6 @@ class TrainingArguments:
 
         assert (
             jax.device_count() % self.mp_devices == 0
-        ), f"Number of available devices ({jax.device_count()} must be divisible by number of devices used for model parallelism ({self.mp_devices})."
+        ), f"Available devices ({jax.device_count()}) > devices used for model parallelism ({self.mp_devices})?"
 
         self.dp_devices = jax.device_count() // self.mp_devices
