@@ -62,15 +62,15 @@ class ModelArguments:
         },
     )
     dropout: Optional[float] = field(
-        default=None,
+        default=1.0,
         metadata={"help": "Rate to prevent overfitting by neuron's output. Overwrites config."},
     )
     activation_dropout: Optional[float] = field(
-        default=None,
+        default=1.0,
         metadata={"help": "Rate to prevent overfitting by layer's output. Overwrites config."},
     )
     attention_dropout: Optional[float] = field(
-        default=None,
+        default=1.0,
         metadata={"help": "Rate to prevent overfitting by transformers. Overwrites config."},
     )
 
