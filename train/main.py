@@ -13,11 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.'
-""" Main training file """
-# pylint: disable=too-many-lines
-# pylint: disable=line-too-long
-# pylint: disable=f-string-without-interpolation
-# pylint: disable=invalid-name
+""" Main training file adapted from DALL-E mini's training script """
 
 import time
 from dataclasses import asdict
@@ -28,9 +24,9 @@ import datasets
 import flax
 import jax
 import jax.numpy as jnp
-import jaxlib # pylint: disable=import-error # type: ignore
+import jaxlib
 import numpy as np
-import optax # pylint: disable=import-error # type: ignore
+import optax
 import transformers
 import wandb
 from datasets import Dataset
@@ -41,12 +37,12 @@ from flax.training.common_utils import onehot
 from jax.experimental import PartitionSpec, maps
 from jax.experimental.compilation_cache import compilation_cache as cc
 from jax.experimental.pjit import pjit, with_sharding_constraint
-from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo #pylint: disable=import-error
+from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo
 from tqdm import tqdm
 from transformers import HfArgumentParser
 
 import dalle_mini
-from dalle_mini.data import Dataset # pylint: disable=import-error # pylint: disable=reimported
+from dalle_mini.data import Dataset
 from dalle_mini.model import (
     DalleBart,
     DalleBartConfig,
@@ -61,21 +57,21 @@ cc.initialize_cache("jax_cache")
 
 
 def split_params(data):
-    """Split params between scanned and non-scanned"""
+    """ Split params between scanned and non-scanned """
 
     flat = traverse_util.flatten_dict(unfreeze(data))
     split = {"standard": {}, "scanned_encoder": {}, "scanned_decoder": {}}
 
-    for k, v in flat.items(): # pylint: disable=invalid-name
+    for k, v in flat.items():
         if "FlaxBartEncoderLayers" in k:
             split["scanned_encoder"][k] = v
         elif "FlaxBartDecoderLayers" in k:
             split["scanned_decoder"][k] = v
         else:
             split["standard"][k] = v
-    
+
     split = {k: v for k, v in split.items() if v}
-    
+
     for k, v in split.items():
         split[k] = freeze(traverse_util.unflatten_dict(v))
 
@@ -130,7 +126,7 @@ def init_embeddings(model, params):
     ]
 
     init_keys = {tuple(k.split(".")) for k in trainable_keypaths}
-    model._missing_keys = init_keys # pylint: disable=protected-access
+    model._missing_keys = init_keys
 
     return model.init_weights(model.key, model.input_shape, params=params)
 
@@ -141,7 +137,7 @@ def main():
         (ModelArguments, DataTrainingArguments, TrainingArguments)
     )
 
-    model_args, data_args, training_args = parser.parse_args_into_dataclasses() # pylint: disable=unbalanced-tuple-unpacking
+    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
     if training_args.mp_devices > jax.local_device_count():
         assert (
@@ -690,7 +686,7 @@ def main():
             zeros_norm = jax.tree_util.tree_map(lambda _: jnp.float32(0), params)
 
             def norm(val):
-                return jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), val) # pylint: disable=unnecessary-lambda
+                return jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), val)
 
             gradients_norm = maybe_fn(
                 norm, grads, zeros_norm, training_args.log_norm_steps
@@ -838,7 +834,7 @@ def main():
                         ) + bs_shape
 
                     batch = jax.tree_util.tree_map(
-                        lambda x: x.reshape(bs_shape + x.shape[1:]), # pylint: disable=cell-var-from-loop
+                        lambda x: x.reshape(bs_shape + x.shape[1:]),
                         batch,
                     )
                     batch = freeze(batch)

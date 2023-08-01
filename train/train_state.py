@@ -13,9 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.'
-""" Training maybe """
-# pylint: disable=line-too-long
-# pylint: disable=abstract-method
+""" Training script adapted from DALL-E mini's training script """
 
 import os
 import sys
@@ -24,7 +22,7 @@ from flax import core, struct, traverse_util
 from flax.core.frozen_dict import freeze, unfreeze
 import jax
 import jax.numpy as jnp
-import optax # pylint: disable=import-error # type: ignore
+import optax
 from transformers import HfArgumentParser
 from .main import split_params, trainable_params, unsplit_params
 from .arguments import ModelArguments, DataTrainingArguments, TrainingArguments
@@ -36,9 +34,9 @@ model_args, data_args, training_args = parser.parse_json_file(
     json_file=os.path.abspath(sys.argv[1])
 )
 
-# define TrainState
+
 class TrainState(struct.PyTreeNode):
-    """ Training """
+    """ Definte training's state """
 
     step: int
     params: core.FrozenDict[str, Any]
@@ -62,7 +60,7 @@ class TrainState(struct.PyTreeNode):
         opt_state = {}
 
         for k, param in params.items():
-            update_fn = self.tx[k].update # pylint: disable=unsubscriptable-object
+            update_fn = self.tx[k].update
 
             if "scanned" in k:
                 update_fn = jax.vmap(update_fn, in_axes=(0, 0, 0), out_axes=(0, 0))
@@ -91,7 +89,7 @@ class TrainState(struct.PyTreeNode):
 
         opt_state = {}
 
-        for k, p in split_params( # pylint: disable=invalid-name
+        for k, p in split_params(
             trainable_params(params)
         ).items():
             init_fn = tx[k].init
