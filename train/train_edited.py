@@ -404,7 +404,7 @@ class TrainingArguments:
         },
     )
     overwrite_output_dir: bool = field(
-        default=False,
+        default=True,
         metadata={
             "help": (
                 "Overwrite the content of the output directory. "
@@ -1679,7 +1679,6 @@ def main():
             logits = state.apply_fn( # KAGGLE
                 **minibatch, params=params, dropout_rng=dropout_rng, train=True # KAGGLE
             )[0]
-            print(f"Kaeya, the bestest baby brother, is here~")
 #             print(f"RA: minibatch = {minibatch}")
 #             print(f"RA: params = {params}")
 #             print(f"RA: dropout_rng = {dropout_rng}")
@@ -2208,16 +2207,13 @@ def main():
                             training_args.gradient_accumulation_steps,
                         ) + bs_shape
 
-                    print(f"Sora")
                     # reshape batch
                     batch = jax.tree_util.tree_map(
                         lambda x: x.reshape(bs_shape + x.shape[1:]),
                         batch,
                     )
-                    print(f"Sara")
                     # freeze batch to pass safely to jax transforms
                     batch = freeze(batch)
-                    print(f"Nobody")
 
                     # train step
                     # print(f"HERE GOES NOTHING.")

@@ -174,7 +174,7 @@ class TrainingArguments:
         },
     )
     overwrite_output_dir: bool = field(
-        default=False,
+        default=True,
         metadata={
             "help": (
                 "Overwrite or continue from checkpoint if enabled "
