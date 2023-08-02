@@ -98,7 +98,8 @@ from flax.serialization import from_bytes, to_bytes
 # serialise and deserialise Flax objects (bytes oc)
 from flax.training.common_utils import onehot
 # for NN; oneshot: return integers from encoding
-from jax.experimental import PartitionSpec, maps
+from jax.sharding import PartitionSpec
+from jax.experimental import maps
 # specify & manipulate data sharding and parallelism
 # PartitionSpec: specify sharding pattern for tensor
 # maps: specify parallelism strategy
