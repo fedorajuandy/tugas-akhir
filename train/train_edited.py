@@ -827,11 +827,11 @@ def main():
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, TrainingArguments)
     )
-    print(f"RA: parser = {parser}")
+    # print(f"RA: parser = {parser}")
     # Kaggle: parser = HfArgumentParser(prog='train_edited.py', usage=None, description=None, formatter_class=<class 'argparse.ArgumentDefaultsHelpFormatter'>, conflict_handler='error', add_help=True)
-    print(f"RA: ModelArguments = {ModelArguments}")
-    print(f"RA: DataTrainingArguments = {DataTrainingArguments}")
-    print(f"RA: TrainingArguments = {TrainingArguments}")
+    # print(f"RA: ModelArguments = {ModelArguments}")
+    # print(f"RA: DataTrainingArguments = {DataTrainingArguments}")
+    # print(f"RA: TrainingArguments = {TrainingArguments}")
 
     # DELETE LATER (the json part)
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
@@ -2095,7 +2095,7 @@ def main():
             # save to W&B
             if training_args.log_model:
                 # save some space
-                c = wandb.sdk.artifacts.get_artifacts_cache()
+                c = wandb.sdk.artifacts.artifacts_cache()
                 c.cleanup(wandb.util.from_human_size("20GB"))
 
                 metadata = {
@@ -2200,7 +2200,7 @@ def main():
                             training_args.per_device_train_batch_size,
                         )
                     )
-                    print(f"RA: bs_shape = {bs_shape}")
+                    # print(f"RA: bs_shape = {bs_shape}")
                     if training_args.gradient_accumulation_steps > 1:
                         # reshape data into (gradient_accumulation_steps, batch_per_node, ...)
                         # to avoid any data redistribution when sharding
@@ -2220,12 +2220,12 @@ def main():
                     print(f"Nobody")
 
                     # train step
-                    print(f"HERE GOES NOTHING.")
-                    print(f"RA: state = {state}")
-                    print(f"RA: train_metrics = {train_metrics}")
-                    print(f"RA: state = {state}")
-                    print(f"RA: batch = {batch}")
-                    print(f"RA: train_time = {train_time}")
+                    # print(f"HERE GOES NOTHING.")
+                    # print(f"RA: state = {state}")
+                    # print(f"RA: train_metrics = {train_metrics}")
+                    # print(f"RA: state = {state}")
+                    # print(f"RA: batch = {batch}")
+                    # print(f"RA: train_time = {train_time}")
                     state, train_metrics = p_train_step(state, batch, train_time) # KAGGLE
                     local_state["step"] += 1
                     local_state["train_time"] = train_time
