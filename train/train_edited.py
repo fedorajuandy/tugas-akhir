@@ -571,7 +571,7 @@ class TrainingArguments:
     #     default=400, metadata={"help": "Run an evaluation every X steps."}
     # )
     save_steps: int = field(
-        default=1, metadata={"help": "Save checkpoint every X updates steps."}
+        default=3000, metadata={"help": "Save checkpoint every X updates steps."}
     )
     log_model: bool = field(
         default=True,
