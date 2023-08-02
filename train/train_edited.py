@@ -185,17 +185,17 @@ class ModelArguments:
         },
     )
     dropout: Optional[float] = field(
-        default=None,
+        default=1.0,
         metadata={"help": "Dropout rate. Overwrites config."},
         # Prevent overfitting (too complex, memorise rather than understand #human'shere) -> more on Kaggle ML lesson
     )
     activation_dropout: Optional[float] = field(
-        default=None,
+        default=1.0,
         metadata={"help": "Activation dropout rate. Overwrites config."},
         # layer's output (not neuron), prevent overfitting
     )
     attention_dropout: Optional[float] = field(
-        default=None,
+        default=1.0,
         metadata={"help": "Attention dropout rate. Overwrites config."},
         # attention mechanicsm in transformers (relation between tokens in seq to learn contextual representation), prevent overfitting
     )
@@ -2095,7 +2095,7 @@ def main():
             # save to W&B
             if training_args.log_model:
                 # save some space
-                c = wandb.wandb_sdk.wandb_artifacts.get_artifacts_cache()
+                c = wandb.sdk.artifacts.get_artifacts_cache()
                 c.cleanup(wandb.util.from_human_size("20GB"))
 
                 metadata = {
