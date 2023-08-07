@@ -51,7 +51,6 @@ from dalle_mini.model import (
 )
 from .arguments import DataTrainingArguments, ModelArguments, TrainingArguments
 from .train_state import TrainState
-from .metrics_logger import MetricsLogger
 
 cc.initialize_cache("jax_cache")
 
