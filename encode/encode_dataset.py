@@ -24,7 +24,7 @@ VQGAN_REPO, VQGAN_COMMIT_ID = (
 BATCH_SIZE = 60
 NUM_DEVICES = 1
 TOTAL_BATCH_SIZE = BATCH_SIZE * jax.device_count()
-SAVE_FREQUENCY = 1
+SAVE_FREQUENCY = 60
 
 datasets = (
     wds.WebDataset(DATASET) # Make WebDataset (PyTorch dataset) object
