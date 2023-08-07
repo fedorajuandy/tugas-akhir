@@ -21,7 +21,7 @@ VQGAN_REPO, VQGAN_COMMIT_ID = (
     "85eb5d3b51a1c62a0cc8f4ccdee9882c0d0bd384",
 )
 
-BATCH_SIZE = 1
+BATCH_SIZE = 60
 NUM_DEVICES = 1
 TOTAL_BATCH_SIZE = BATCH_SIZE * jax.device_count()
 SAVE_FREQUENCY = 1
@@ -34,7 +34,7 @@ datasets = (
 )
 
 data_loader = (
-    wds.WebLoader(datasets, BATCH_SIZE=None, NUM_DEVICES=1) # Make WebLoader object
+    wds.WebLoader(datasets, batch_size=None, num_workers=1) # Make WebLoader object
     .unbatched()
     .batched(TOTAL_BATCH_SIZE) # Batch again to avoid partial batch
 )
