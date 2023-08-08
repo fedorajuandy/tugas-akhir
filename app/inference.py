@@ -15,7 +15,7 @@ from transformers import CLIPProcessor, FlaxCLIPModel
 
 
 # Model to generate image tokens
-MODEL = "fedorajuandy/dalle-mini/model-jhhchemc:v11"
+MODEL = "fedorajuandy/dalle-mini/model-ueb929l3:v9"
 MODEL_COMMIT_ID = None
 
 # VQGAN to decode image tokens
