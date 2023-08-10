@@ -36,9 +36,9 @@ RESULT = calculation
 RA = monolog and step 0 debugging (diff from logs)
 REPORT = on WANDB report for reasons
 MISSING = not seen/typo
-DILUC = bookmark (don't judge me; I keep forgotting the last bookmark
-KAEYA = I felt like I have seen it before, but memory gone awry
-SHIRA = change later if something went awry
+BOOKMARK = bookmark (don't judge me; I keep forgotting the last bookmark
+SOMEWHERESOMEHEN = I felt like I have seen it before, but memory gone awry
+GONEAWRY = change later if something went awry
 """
 
 import io
@@ -1239,7 +1239,7 @@ def main():
         # CHECK LATER
         opt = distributed_shampoo(
             learning_rate_fn,
-            # KAEYA
+            # SOMEWHERESOMEHEN
             block_size=training_args.block_size,
             # for block-diagonal preconditioner
             beta1=training_args.beta1,
@@ -1281,7 +1281,7 @@ def main():
             clip_by_scaled_gradient_norm=None,
             # whether to clip the gradient by its scaled norm. Gradient clipping prevent the gradient from exploding or vanishing
             precision=jax.lax.Precision.HIGHEST,
-            # SHIRA
+            # GONEAWRY
             # improve accuracy with more memory and computation time
             best_effort_memory_usage_reduction=training_args.optim_quantized,
             # reducing memory usage during optimization (bool)
@@ -1353,7 +1353,7 @@ def main():
         # get opt_state shape without actual init
         opt_state_shape = {}
         
-        # DILUC for explanation
+        # BOOKMARK for explanation
         print(f"Ra's here. Start looping...")
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" not in k:
@@ -1522,7 +1522,7 @@ def main():
                 **kwargs,
             )
 
-        # DILUC
+        # BOOKMARK
         @classmethod
         def create(cls, *, apply_fn, params, tx, **kwargs):
             opt_state = {}
