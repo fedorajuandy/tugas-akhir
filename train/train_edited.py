@@ -534,28 +534,28 @@ class TrainingArguments:
             # exponential more sensitive, yet more effective
         },
     )
-    # lr_transition_steps: int = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "Number of transition steps associated with learning rate decay when using exponential decay."
-    #     },
-    # )
-    # lr_decay_rate: float = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "Decay rate associated with learning rate when using exponential decay."
-    #         # the point of decay occurs (nth step)
-    #     },
-    # )
-    # lr_staircase: bool = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "Whether to use staircase or continuous learning rate when using exponential decay."
-    #         # continuous: each each epoch/nth step
-    #         # staircase: discrete steps (determinded my decay rate; can be at 10 epochs or sth)
-    #         # Staircase (discrete steps) or continuous learning rate (each epoch) when using exponential decay.
-    #     },
-    # )
+    lr_transition_steps: int = field(
+        default=None,
+        metadata={
+            "help": "Number of transition steps associated with learning rate decay when using exponential decay."
+        },
+    )
+    lr_decay_rate: float = field(
+        default=None,
+        metadata={
+            "help": "Decay rate associated with learning rate when using exponential decay."
+            # the point of decay occurs (nth step)
+        },
+    )
+    lr_staircase: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to use staircase or continuous learning rate when using exponential decay."
+            # continuous: each each epoch/nth step
+            # staircase: discrete steps (determinded my decay rate; can be at 10 epochs or sth)
+            # Staircase (discrete steps) or continuous learning rate (each epoch) when using exponential decay.
+        },
+    )
     lr_offset: int = field(
         default=0,
         metadata={"help": "Number of steps to offset learning rate and keep it at 0."},

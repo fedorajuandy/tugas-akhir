@@ -318,7 +318,7 @@ class TrainingArguments:
         },
     )
     save_steps: int = field(
-        default=1,
+        default=3000,
         metadata={
             "help": "Save checkpoint every save_steps updates steps."
         },
@@ -379,7 +379,6 @@ class TrainingArguments:
     )
 
     def __post_init__(self):
-        # CHECK LATER
         if self.assert_tpu_available:
             assert (
                 jax.local_device_count() == 8
@@ -416,6 +415,6 @@ class TrainingArguments:
 
         assert (
             jax.device_count() % self.mp_devices == 0
-        ), f"Available devices ({jax.device_count()}) > devices used for model parallelism ({self.mp_devices})?"
+        ), f"Number of available devices ({jax.device_count()} must be divisible by number of devices used for model parallelism ({self.mp_devices})."
 
         self.dp_devices = jax.device_count() // self.mp_devices
