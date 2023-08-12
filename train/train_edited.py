@@ -715,7 +715,7 @@ class TrainingArguments:
 
 # Goes four times in Kaggle, runs trainable_params, nothing happens, and goes one more time. Then error
 def split_params(data):
-    print(f"Ra's here. starting spliting params...")
+    # print(f"Ra's here. starting spliting params...")
     """Split params between scanned and non-scanned"""
 
     flat = traverse_util.flatten_dict(unfreeze(data))
@@ -771,7 +771,7 @@ def trainable_params(data):
     # DELETE LATER; by I mean delete, edit the whole functionality
     data = unfreeze(data)
 #     print(f"RA: frozen data = {data}")
-    
+
     trainable = {
         "lm_head": data["lm_head"],
         "model": {
@@ -789,37 +789,37 @@ def trainable_params(data):
         },
     }
 #     print(f"RA: trainable = {trainable}")
-    
+
     return freeze(trainable)
 
 # CHECK LATER
-def init_embeddings(model, params):
-    # print(f"Ra's here. initialising embedding...")
-    """Reinitialize trainable embeddings"""
+# def init_embeddings(model, params):
+#     # print(f"Ra's here. initialising embedding...")
+#     """Reinitialize trainable embeddings"""
     
-    # Must match params in trainable_params() above
-    trainable_keypaths = [
-        "lm_head.kernel",
-        "model.decoder.embed_positions.embedding",
-        "model.decoder.embed_tokens.embedding",
-        "model.decoder.final_ln.bias",
-        "model.decoder.layernorm_embedding.bias",
-        "model.decoder.layernorm_embedding.scale",
-    ]
-#     print(f"RA: trainable_keypaths = {trainable_keypaths}")
+#     # Must match params in trainable_params() above
+#     trainable_keypaths = [
+#         "lm_head.kernel",
+#         "model.decoder.embed_positions.embedding",
+#         "model.decoder.embed_tokens.embedding",
+#         "model.decoder.final_ln.bias",
+#         "model.decoder.layernorm_embedding.bias",
+#         "model.decoder.layernorm_embedding.scale",
+#     ]
+# #     print(f"RA: trainable_keypaths = {trainable_keypaths}")
 
-    # Note: using private _missing_keys
-    init_keys = {tuple(k.split(".")) for k in trainable_keypaths}
-#     print(f"RA: init_keys = {init_keys}")
-    model._missing_keys = init_keys
+#     # Note: using private _missing_keys
+#     init_keys = {tuple(k.split(".")) for k in trainable_keypaths}
+# #     print(f"RA: init_keys = {init_keys}")
+#     model._missing_keys = init_keys
     
-    return model.init_weights(model.key, model.input_shape, params=params)
+#     return model.init_weights(model.key, model.input_shape, params=params)
 
 
 def main():
     # print(f"Ra's here. Starting...")
     # print(f"Ra's here. Parsing arguments...")
-    
+
     # See all possible arguments by passing the --help flag to this script.
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, TrainingArguments)
@@ -831,15 +831,15 @@ def main():
     # print(f"RA: TrainingArguments = {TrainingArguments}")
 
     # DELETE LATER (the json part)
-    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
-        # If we pass only one argument to the script and it's the path to a json file,
-        # let's parse it to get our arguments.
-        model_args, data_args, training_args = parser.parse_json_file(
-            json_file=os.path.abspath(sys.argv[1])
-        )
-    else:
+    # if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
+    #     # If we pass only one argument to the script and it's the path to a json file,
+    #     # let's parse it to get our arguments.
+    #     model_args, data_args, training_args = parser.parse_json_file(
+    #         json_file=os.path.abspath(sys.argv[1])
+    #     )
+    # else:
         # print(f"RA: parser.parse_args_into_dataclasses() = {parser.parse_args_into_dataclasses()}")
-        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
         # print(f"RA: model_args = {model_args}")
         # Colab: model_args = ModelArguments(model_name_or_path=None, config_name='/kaggle/working/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
         # Kaggle: ModelArguments(model_name_or_path=None, config_name='/kaggle/working/tugas-akhir/train/config/edited', tokenizer_name='boris/dalle-mini-tokenizer', dtype='float32', restore_state=False, dropout=None, activation_dropout=None, attention_dropout=None)
@@ -856,28 +856,28 @@ def main():
             data_args.seed_dataset is not None
         ), "Seed dataset must be provided when model is split over multiple hosts"
 
-    print(f"Ra's here. Start logging...")
+    # print(f"Ra's here. Start logging...")
     # Make one log on every process with the configuration for debugging.
     # DELETE LATER; useful for now tho...
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-        # name = the producing one
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
+    # logging.basicConfig(
+    #     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    #     # name = the producing one
+    #     datefmt="%m/%d/%Y %H:%M:%S",
+    #     level=logging.INFO,
+    # )
     # Setup logging, we only want one process per machine to log things on the screen.
-    logger.setLevel(logging.INFO if jax.process_index() == 0 else logging.ERROR)
-    if jax.process_index() == 0:
-        datasets.utils.logging.set_verbosity_warning()
-        transformers.utils.logging.set_verbosity_info()
-    else:
-        datasets.utils.logging.set_verbosity_error()
-        transformers.utils.logging.set_verbosity_error()
+    # logger.setLevel(logging.INFO if jax.process_index() == 0 else logging.ERROR)
+    # if jax.process_index() == 0:
+    #     datasets.utils.logging.set_verbosity_warning()
+    #     transformers.utils.logging.set_verbosity_info()
+    # else:
+    #     datasets.utils.logging.set_verbosity_error()
+    #     transformers.utils.logging.set_verbosity_error()
 
     # Set the verbosity to info of the Transformers logger (on main process only):
-    logger.info(f"Training/evaluation parameters {training_args}")
+    # logger.info(f"Training/evaluation parameters {training_args}")
 
-    print(f"Ra's here. load dataset...")
+    # print(f"Ra's here. load dataset...")
     # Load dataset
     dataset = Dataset(
         **asdict(data_args),
@@ -888,8 +888,8 @@ def main():
     )
 
     # DELETE LATER
-    logger.info(f"Local TPUs: {jax.local_device_count()}")
-    logger.info(f"Global TPUs: {jax.device_count()}")
+    # logger.info(f"Local TPUs: {jax.local_device_count()}")
+    # logger.info(f"Global TPUs: {jax.device_count()}")
 
     # Set up wandb run
     # DELETE LATER (just set it up in notebook)
@@ -901,7 +901,7 @@ def main():
             config=parser.parse_args(),
         )
 
-    print(f"Ra's here. Getting config...")
+    # print(f"Ra's here. Getting config...")
     # Set up our new model config
     # CHECK LATER
     config_args = {
@@ -911,9 +911,9 @@ def main():
     }
 #     print(f"RA: config_args = {config_args}")
     # Kaggle: config_args = {}
-    
+
     config_args["gradient_checkpointing"] = training_args.gradient_checkpointing
-    
+
     # IDK
     if model_args.config_name:
         config = DalleBartConfig.from_pretrained(model_args.config_name)
@@ -932,7 +932,7 @@ def main():
             dtype=getattr(jnp, model_args.dtype),
             _do_init=False,
         )
-        
+
         # if training_args.embeddings_only and training_args.init_embeddings:
         #     params = init_embeddings(model, params)
     else:
@@ -947,7 +947,7 @@ def main():
     # Kaggle: model = <dalle_mini.model.modeling.DalleBart object at 0x7f5a19c48510>
 #     print(f"RA: params = {params}")
     # Kaggle: params = None
-        
+
     # CHECK LATER
     for k, v in config_args.items():
         setattr(model.config, k, v)
@@ -960,8 +960,8 @@ def main():
     model_metadata = model_args.get_metadata()
 #     print(f"RA: model_metadata = {model_metadata}")
     # Kaggle: model_metadata = {}
-    
-    print(f"Ra's here. Processing dataset...")
+
+    # print(f"Ra's here. Processing dataset...")
     # get PartitionSpec for model params (required to be a dict)
     # break to small chunks for parallel
     param_spec = set_partitions(params_shape, model.config.use_scan)
@@ -988,7 +988,7 @@ def main():
     # tokenize those words according to tokenizer and config (layer, etc)
     dataset.preprocess(tokenizer=tokenizer, config=model.config)
 
-    print(f"Ra's here. Config details and all... stuff...")
+    # print(f"Ra's here. Config details and all... stuff...")
     # Initialize our training
     dropout_rng = jax.random.PRNGKey(training_args.seed_model)
     # PRNGKey (data type) = 128 bit (2 x 64 for JAX)  seed val for PRNG (based on Threefry counter-based RNG; peseudorandom from counter val)
@@ -1024,7 +1024,7 @@ def main():
 #     print(f"RA: batch_size_per_step = {batch_size_per_step}")
     # RESULT = 1 * 1 = 1
     # MISSING
-    
+
     # DELETE LATER
     # eval_batch_size_per_node = (
     #     training_args.per_device_eval_batch_size
@@ -1036,7 +1036,7 @@ def main():
     # eval_batch_size_per_step = eval_batch_size_per_node * jax.process_count()
 #     print(f"RA: eval_batch_size_per_step = {eval_batch_size_per_step}")
     # Kaggle: eval_batch_size_per_step = 2
-    
+
     # DELETE LATER the eval part
     len_train_dataset, len_eval_dataset = dataset.length
 #     print(f"RA: len_train_dataset = {len_train_dataset}")
@@ -1061,23 +1061,23 @@ def main():
 #     print(f"RA: num_params = {num_params}")
     # Kaggle: num_params = 437833712
 
-    print(f"Ra's here. Start training...")
+    # print(f"Ra's here. Start training...")
     # DELETE LATER
-    logger.info("***** Running training *****")
-    logger.info(f"  Num examples = {len_train_dataset}")
-    logger.info(f"  Num Epochs = {num_epochs}")
-    logger.info(
-        f"  Batch size per dp device = {training_args.per_device_train_batch_size}"
-    )
-    logger.info(f"  Number of devices = {jax.device_count()}")
-    logger.info(
-        f"  Gradient accumulation steps = {training_args.gradient_accumulation_steps}"
-    )
-    logger.info(f"  Batch size per update = {batch_size_per_step}")
-    logger.info(f"  Model parameters = {num_params:,}")
+    # logger.info("***** Running training *****")
+    # logger.info(f"  Num examples = {len_train_dataset}")
+    # logger.info(f"  Num Epochs = {num_epochs}")
+    # logger.info(
+    #     f"  Batch size per dp device = {training_args.per_device_train_batch_size}"
+    # )
+    # logger.info(f"  Number of devices = {jax.device_count()}")
+    # logger.info(
+    #     f"  Gradient accumulation steps = {training_args.gradient_accumulation_steps}"
+    # )
+    # logger.info(f"  Batch size per update = {batch_size_per_step}")
+    # logger.info(f"  Model parameters = {num_params:,}")
     
     # set up wandb run; DELETE LATER
-    print(f"Ra's here. Initialising WANDB metrics...")
+    # print(f"Ra's here. Initialising WANDB metrics...")
     if jax.process_index() == 0:
         # set default x-axis as 'train/step'
         wandb.define_metric("*", step_metric="train/step")
@@ -1109,8 +1109,8 @@ def main():
     def create_learning_rate_fn() -> Callable[[int], jnp.array]:
         # jnp.array = NumPy array (multi-dimensional, homogeneous array of fixed-size items; same data type)
         """Create the learning rate function."""
-        print(f"Ra's here. Creating learning rate...")
-        
+        # print(f"Ra's here. Creating learning rate...")
+
         # gradually increases learning rate from init_value to training_args.learning_rate over training_args.warmup_steps; for helping model converge faster during the initial phase of training
         warmup_fn = optax.linear_schedule(
             init_value=0.0,
@@ -1123,11 +1123,11 @@ def main():
         # Kaggle: transition_steps = 1
 #         print(f"RA: warmup_fn = {warmup_fn}")
         # Kaggle: warmup_fn = <function polynomial_schedule.<locals>.schedule at 0x754647245320>
-        
+
         last_boundary = training_args.warmup_steps
 #         print(f"RA: last_boundary = {last_boundary}")
         # Kaggle: last_boundary = 0
-        
+
         # offset step when resuming
         # DELETE LATER... maaaaaybe. Let's see the GPU limit first. Or luck
 #         print(f"RA: lr_offset = {training_args.lr_offset}")
@@ -1143,7 +1143,7 @@ def main():
 #             print(f"RA: warmup_fn = {warmup_fn}")
             last_boundary += training_args.lr_offset
 #             print(f"RA: last_boundary = {last_boundary}")
-            
+
 #         print(f"RA: lr_decay = {training_args.lr_decay}")
         # Kaggle: lr_decay = None
         if training_args.lr_decay is None:

@@ -126,6 +126,7 @@ def main():
             data_args.seed_dataset is not None
         ), "Seed dataset must be provided when model is split over multiple hosts."
 
+    # Load dataset
     dataset = Dataset(
         **asdict(data_args),
         do_train=True,
@@ -134,7 +135,6 @@ def main():
 
     if jax.process_index() == 0:
         wandb.init(
-            entity=training_args.wandb_entity,
             project=training_args.wandb_project,
             job_type=training_args.wandb_job_type,
             config=parser.parse_args(),
@@ -161,7 +161,6 @@ def main():
             dtype=getattr(jnp, model_args.dtype),
             _do_init=False,
         )
-
     else:
         model = DalleBart(
             config,
@@ -190,9 +189,7 @@ def main():
     dropout_rng = jax.random.PRNGKey(training_args.seed_model)
     num_epochs = training_args.num_train_epochs
     batch_size_per_node_per_grad_step = (
-        training_args.per_device_train_batch_size
-        * jax.local_device_count()
-        // training_args.mp_devices
+        training_args.per_device_train_batch_size * jax.local_device_count() // training_args.mp_devices
     )
     batch_size_per_node = (
         batch_size_per_node_per_grad_step * training_args.gradient_accumulation_steps
@@ -232,7 +229,7 @@ def main():
         )
 
     def create_learning_rate_fn() -> Callable[[int], jnp.array]:
-        """Create the learning rate function."""
+        """ Create the learning rate function """
 
         warmup_fn = optax.linear_schedule(
             init_value=0.0,
