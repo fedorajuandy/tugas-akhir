@@ -13,11 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.'
-# pylint: disable=too-many-lines
-# pylint: disable=line-too-long
 """
-Training DALL·E Mini.
-Script adapted from run_summarization_flax.py
+Training script adapted from DALL-E mini's training script
 
 run_summarization_flax.py (CLI; passed through script's arguments) for running summarization models on using Flax library.
 - input: JSON (list of input text)
@@ -137,7 +134,7 @@ from dalle_mini.model import (
 # except:
 #     storage = None
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 # logger.debug('This is a debug message'); logger.info(), logger.warning(), or logger.error()
 
 cc.initialize_cache("jax_cache")
@@ -415,9 +412,9 @@ class TrainingArguments:
 
     do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
     # DELETE LATER
-    do_eval: bool = field(
-        default=False, metadata={"help": "Whether to run eval on the validation set."}
-    )
+    # do_eval: bool = field(
+    #     default=False, metadata={"help": "Whether to run eval on the validation set."}
+    # )
 
     per_device_train_batch_size: int = field(
         default=8,
@@ -759,13 +756,13 @@ def unsplit_params(data):
         if k in data:
             flat.update(traverse_util.flatten_dict(unfreeze(data[k])))
 #     print(f"RA: flat = {flat}")
-            
+
     return freeze(traverse_util.unflatten_dict(flat))
 
 # remove (data, embeddings_only)
 def trainable_params(data):
     """Keep only trainable parameters"""
-    print(f"Ra's here. Filtering trainable params...")
+    # print(f"Ra's here. Filtering trainable params...")
 
     # if not embeddings_only:
     #     return data
@@ -797,7 +794,7 @@ def trainable_params(data):
 
 # CHECK LATER
 def init_embeddings(model, params):
-    print(f"Ra's here. initialising embedding...")
+    # print(f"Ra's here. initialising embedding...")
     """Reinitialize trainable embeddings"""
     
     # Must match params in trainable_params() above
@@ -820,8 +817,8 @@ def init_embeddings(model, params):
 
 
 def main():
-    print(f"Ra's here. Starting...")
-    print(f"Ra's here. Parsing arguments...")
+    # print(f"Ra's here. Starting...")
+    # print(f"Ra's here. Parsing arguments...")
     
     # See all possible arguments by passing the --help flag to this script.
     parser = HfArgumentParser(
@@ -886,7 +883,8 @@ def main():
         **asdict(data_args),
         # unpack dict (the dataset)
         do_train=training_args.do_train,
-        do_eval=training_args.do_eval,
+        do_eval=False,
+        # do_eval=training_args.do_eval,
     )
 
     # DELETE LATER

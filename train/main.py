@@ -56,7 +56,7 @@ cc.initialize_cache("jax_cache")
 
 
 def split_params(data):
-    """ Split params between scanned and non-scanned """
+    """ Split train params between scanned and non-scanned """
 
     flat = traverse_util.flatten_dict(unfreeze(data))
     split = {"standard": {}, "scanned_encoder": {}, "scanned_decoder": {}}
@@ -78,7 +78,7 @@ def split_params(data):
 
 
 def unsplit_params(data):
-    """" Unsplitting parameterse """
+    """" Unsplit train params """
 
     flat = {}
 
@@ -90,7 +90,7 @@ def unsplit_params(data):
 
 
 def trainable_params(data):
-    """Keep only trainable parameters"""
+    """ Keep only trainable parameters """
 
     data = unfreeze(data)
 
@@ -112,26 +112,9 @@ def trainable_params(data):
     return freeze(trainable)
 
 
-def init_embeddings(model, params):
-    """Reinitialize trainable embeddings"""
-
-    trainable_keypaths = [
-        "lm_head.kernel",
-        "model.decoder.embed_positions.embedding",
-        "model.decoder.embed_tokens.embedding",
-        "model.decoder.final_ln.bias",
-        "model.decoder.layernorm_embedding.bias",
-        "model.decoder.layernorm_embedding.scale",
-    ]
-
-    init_keys = {tuple(k.split(".")) for k in trainable_keypaths}
-    model._missing_keys = init_keys
-
-    return model.init_weights(model.key, model.input_shape, params=params)
-
-
 def main():
     """ Main function """
+
     parser = HfArgumentParser(
         (ModelArguments, DataTrainingArguments, TrainingArguments)
     )
@@ -141,12 +124,12 @@ def main():
     if training_args.mp_devices > jax.local_device_count():
         assert (
             data_args.seed_dataset is not None
-        ), "Seed dataset must be provided when model is split over multiple hosts"
+        ), "Seed dataset must be provided when model is split over multiple hosts."
 
     dataset = Dataset(
         **asdict(data_args),
-        do_train=training_args.do_train,
-        do_eval=training_args.do_eval,
+        do_train=True,
+        do_eval=False,
     )
 
     if jax.process_index() == 0:
