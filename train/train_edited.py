@@ -1565,7 +1565,7 @@ def main():
             return model.init_weights(model.key, model.input_shape)
 
     with mesh:
-        logger.info("  Creating state")
+        # logger.info("  Creating state")
 
         # restore metadata
         attr_state = {}
@@ -1608,7 +1608,7 @@ def main():
                     **attr_state,
                 )
 
-            print(f"RA: WHY")
+            # print(f"RA: WHY")
             state = pjit(
                 restore_state,
                 in_axis_resources=(

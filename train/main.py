@@ -421,7 +421,6 @@ def main():
         attr_state = {k: v for k, v in model_metadata.items() if k in keys}
 
         if not model_args.restore_state:
-
             def init_state(params):
                 return TrainState.create(
                     apply_fn=model.__call__,
@@ -475,7 +474,6 @@ def main():
         loss = loss.mean()
         return loss
 
-    # lead to better perf: see https://wandb.ai/dalle-mini/dalle-mini/reports/JAX-pmap-vs-pjit--VmlldzoxNDg1ODA2
     use_vmap_trick = training_args.use_vmap_trick
 
     # make grad_param_spec for vmap
@@ -497,30 +495,9 @@ def main():
         def compute_loss(params, minibatch, dropout_rng):
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
-#             print(f"RA: minibatch = {minibatch}")
-            # Kaggle: minibatch = FrozenDict({
-            # attention_mask: Traced<ShapedArray(int32[1,64])>with<BatchTrace(level=2/0)> with
-            #   val = Traced<ShapedArray(int32[2,1,64])>with<DynamicJaxprTrace(level=1/0)>
-            #   batch_dim = 0,
-            # decoder_input_ids: Traced<ShapedArray(float32[1,1024])>with<BatchTrace(level=2/0)> with
-            #   val = Traced<ShapedArray(float32[2,1,1024])>with<DynamicJaxprTrace(level=1/0)>
-            #   batch_dim = 0,
-            # input_ids: Traced<ShapedArray(int32[1,64])>with<BatchTrace(level=2/0)> with
-            #   val = Traced<ShapedArray(int32[2,1,64])>with<DynamicJaxprTrace(level=1/0)>
-            #   batch_dim = 0
-            # })
-#             print(f"RA: labels = {labels}")
-            # Kaggle: labels = Traced<ShapedArray(int32[1,1024])>with<BatchTrace(level=2/0)> with
-            # val = Traced<ShapedArray(int32[2,1,1024])>with<DynamicJaxprTrace(level=1/0)>
-            # batch_dim = 0
             logits = state.apply_fn( # KAGGLE
                 **minibatch, params=params, dropout_rng=dropout_rng, train=True # KAGGLE
             )[0]
-            print(f"Kaeya, the bestest baby brother, is here~")
-#             print(f"RA: minibatch = {minibatch}")
-#             print(f"RA: params = {params}")
-#             print(f"RA: dropout_rng = {dropout_rng}")
-#             print(f"RA: logits = {logits}")
             return loss_fn(logits, labels)
 
         grad_fn = jax.value_and_grad(compute_loss)
