@@ -72,6 +72,10 @@ def encode_dataset(dataloader, outputdir, safefrequency):
             images = images[:n_images_batch]
             captions = captions[:n_images_batch]
 
+        if len(captions) == 0:
+            print("No captions in batch...")
+            continue
+
         images = shard(images)
 
         encoded = p_encode(images, vqgan_params)
