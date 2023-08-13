@@ -1175,7 +1175,7 @@ def main():
 #             print(f"RA: decay_rate = {decay_rate}")
 #             print(f"RA: staircase = {staircase}")
 #             print(f"RA: decay_fn = {decay_fn}")
-            
+
         schedule_fn = optax.join_schedules(
             schedules=[warmup_fn, decay_fn],
             boundaries=[last_boundary],
@@ -1183,13 +1183,13 @@ def main():
 #         print(f"RA: schedules = {schedules}")
 #         print(f"RA: boundaries = {boundaries}")
 #         print(f"RA: schedule_fn = {schedule_fn}")
-        
+
         return schedule_fn
 
     learning_rate_fn = create_learning_rate_fn()
 #     print(f"RA: learning_rate_fn = {learning_rate_fn}")
     # Kaggle: learning_rate_fn = <function polynomial_schedule.<locals>.schedule at 0x754647245320>
-    
+
     # create optimizer
     print(f"Ra's here. Cereate optimizer...")
     trainable_params_shape = trainable_params(
@@ -1200,243 +1200,243 @@ def main():
 #     print(f"RA: trainable_params_shape = {trainable_params_shape}")
 
     # REMOVE LATER; most likely only us
-    if training_args.optim == "distributed_shampoo":
+    # if training_args.optim == "distributed_shampoo":
         # parameters from https://github.com/tensorflow/lingvo/blob/03ee9d7cd50764b0424c7c863733c91fc0b053ec/lingvo/jax/optimizers.py#L729
-        print(f"Ra's here. Using distributed shampoo...")
+        # print(f"Ra's here. Using distributed shampoo...")
 
         # CHECK LATER
         # depends on the chosen one, that is the value (and that is what I get)
-        graft_type = {
-            # Stochastic Gradient Descent
-            "sgd": GraftingType.SGD,
-            # Adaptive Gradient Algorithm
-            "adagrad": GraftingType.ADAGRAD,
-            # Root Mean Square Propagation
-            "rmsprop": GraftingType.RMSPROP,
-            # Root Mean Square Propagation with Normalization
-            "rmsprop_normalized": GraftingType.RMSPROP_NORMALIZED,
-            # Square-root N scaling
-            "sqrt_n": GraftingType.SQRT_N,
-            # Adaptive Gradient Algorithm with Normalization
-            "adagrad_normalized": GraftingType.ADAGRAD_NORMALIZED,
-            # Adaptive Gradient Algorithm with Normalization
-        }[training_args.graft_type]
+    graft_type = {
+        # Stochastic Gradient Descent
+        "sgd": GraftingType.SGD,
+        # Adaptive Gradient Algorithm
+        "adagrad": GraftingType.ADAGRAD,
+        # Root Mean Square Propagation
+        "rmsprop": GraftingType.RMSPROP,
+        # Root Mean Square Propagation with Normalization
+        "rmsprop_normalized": GraftingType.RMSPROP_NORMALIZED,
+        # Square-root N scaling
+        "sqrt_n": GraftingType.SQRT_N,
+        # Adaptive Gradient Algorithm with Normalization
+        "adagrad_normalized": GraftingType.ADAGRAD_NORMALIZED,
+        # Adaptive Gradient Algorithm with Normalization
+    }[training_args.graft_type]
 #         print(f"RA: training_args.graft_type = {training_args.graft_type}")
 #         print(f"RA: graft_type = {graft_type}")
-        
+
         # partitioning the training across devices (one is one ;v;)
-        statistics_partition_spec = (
-            PartitionSpec(None, training_args.shard_shampoo_across, None)
-            # class to partition tensor (mesh, mp, dp)
-            if training_args.shard_shampoo_across != "2d"
-            else PartitionSpec(None, "dp", "mp")
-        )
+    statistics_partition_spec = (
+        PartitionSpec(None, training_args.shard_shampoo_across, None)
+        # class to partition tensor (mesh, mp, dp)
+        if training_args.shard_shampoo_across != "2d"
+        else PartitionSpec(None, "dp", "mp")
+    )
 #         print(f"RA: shard_shampoo_across = {training_args.shard_shampoo_across}")
 #         print(f"RA: statistics_partition_spec = {statistics_partition_spec}")
-        
+
         # CHECK LATER
-        opt = distributed_shampoo(
-            learning_rate_fn,
-            # SOMEWHERESOMEHEN
-            block_size=training_args.block_size,
-            # for block-diagonal preconditioner
-            beta1=training_args.beta1,
-            beta2=training_args.beta2,
-            diagonal_epsilon=1e-10,
-            matrix_epsilon=1e-6,
-            weight_decay=training_args.weight_decay,
-            start_preconditioning_step=max(
-                training_args.preconditioning_compute_steps + 1, 101
-            ),
-            # when and how often the preconditioner and statistics are computed during training (and the two following lines too)
-            preconditioning_compute_steps=training_args.preconditioning_compute_steps,
-            statistics_compute_steps=1,
-            best_effort_shape_interpretation=True,
-            # allow the optimizer to handle inputs with unknown shapes
-            graft_type=graft_type,
-            nesterov=training_args.nesterov,
-            # Nesterov momentum
-            exponent_override=0,
-            # usually 0.5
-            statistics_partition_spec=statistics_partition_spec,
-            preconditioner_partition_spec=PartitionSpec(
-                training_args.shard_shampoo_across, None, None
-            )
-            if training_args.shard_shampoo_across != "2d"
-            else PartitionSpec(
-                "mp" if training_args.mp_devices > training_args.dp_devices else "dp",
-                None,
-                None,
-            ),
-            num_devices_for_pjit=training_args.dp_devices,
-            shard_optimizer_states=True,
-            inverse_failure_threshold=0.1,
-            # if the inverse operation fails to converge within this threshold, the algorithm will fall back to a less accurate but more stable approximation
-            moving_average_for_momentum=True,
-            # help smooth out fluctuations in the momentum value, which can improve convergence
-            skip_preconditioning_dim_size_gt=training_args.skip_preconditioning_dim_size_gt,
-            # on dimensions that are larger than a certain size. Skipping preconditioning can reduce memory usage
-            clip_by_scaled_gradient_norm=None,
-            # whether to clip the gradient by its scaled norm. Gradient clipping prevent the gradient from exploding or vanishing
-            precision=jax.lax.Precision.HIGHEST,
-            # GONEAWRY
-            # improve accuracy with more memory and computation time
-            best_effort_memory_usage_reduction=training_args.optim_quantized,
-            # reducing memory usage during optimization (bool)
+    opt = distributed_shampoo(
+        learning_rate_fn,
+        # SOMEWHERESOMEHEN
+        block_size=training_args.block_size,
+        # for block-diagonal preconditioner
+        beta1=training_args.beta1,
+        beta2=training_args.beta2,
+        diagonal_epsilon=1e-10,
+        matrix_epsilon=1e-6,
+        weight_decay=training_args.weight_decay,
+        start_preconditioning_step=max(
+            training_args.preconditioning_compute_steps + 1, 101
+        ),
+        # when and how often the preconditioner and statistics are computed during training (and the two following lines too)
+        preconditioning_compute_steps=training_args.preconditioning_compute_steps,
+        statistics_compute_steps=1,
+        best_effort_shape_interpretation=True,
+        # allow the optimizer to handle inputs with unknown shapes
+        graft_type=graft_type,
+        nesterov=training_args.nesterov,
+        # Nesterov momentum
+        exponent_override=0,
+        # usually 0.5
+        statistics_partition_spec=statistics_partition_spec,
+        preconditioner_partition_spec=PartitionSpec(
+            training_args.shard_shampoo_across, None, None
         )
+        if training_args.shard_shampoo_across != "2d"
+        else PartitionSpec(
+            "mp" if training_args.mp_devices > training_args.dp_devices else "dp",
+            None,
+            None,
+        ),
+        num_devices_for_pjit=training_args.dp_devices,
+        shard_optimizer_states=True,
+        inverse_failure_threshold=0.1,
+        # if the inverse operation fails to converge within this threshold, the algorithm will fall back to a less accurate but more stable approximation
+        moving_average_for_momentum=True,
+        # help smooth out fluctuations in the momentum value, which can improve convergence
+        skip_preconditioning_dim_size_gt=training_args.skip_preconditioning_dim_size_gt,
+        # on dimensions that are larger than a certain size. Skipping preconditioning can reduce memory usage
+        clip_by_scaled_gradient_norm=None,
+        # whether to clip the gradient by its scaled norm. Gradient clipping prevent the gradient from exploding or vanishing
+        precision=jax.lax.Precision.HIGHEST,
+        # GONEAWRY
+        # improve accuracy with more memory and computation time
+        best_effort_memory_usage_reduction=training_args.optim_quantized,
+        # reducing memory usage during optimization (bool)
+    )
 #         print(f"RA: preconditioning_compute_steps = {training_args.preconditioning_compute_steps}")
 #         print(f"RA: opt = {opt}")
-        
+
         # get the real optimizer and helper functions
-        update_fn = opt.update
+    update_fn = opt.update
 #         print(f"RA: update_fn = {update_fn}")
 
-        optimizer = {}
-        opt_fn = {}
+    optimizer = {}
+    opt_fn = {}
 
-        for k, p in split_params(trainable_params_shape).items():
-            if "scanned" in k:
-                p = jax.eval_shape(
-                    # CHECK LATER
-                    lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
-                    # extracts the first element of each value in the parameter tree
-                )
-#                 print(f"RA: update_fn = {update_fn}")
-                
-            optimizer[k] = opt.init(p)
-            # initialize the optimizer with the trainable parameter values
-#             print(f"RA: optimizer[k] = {optimizer[k]}")
-            # CHECK LATER
-            opt_fn[k] = NamedTuple("opt_fn", pspec_fn=Any, shape_and_dtype_fn=Any)(
-                optimizer[k].pspec_fn, optimizer[k].shape_and_dtype_fn
+    for k, p in split_params(trainable_params_shape).items():
+        if "scanned" in k:
+            p = jax.eval_shape(
+                # CHECK LATER
+                lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
+                # extracts the first element of each value in the parameter tree
             )
-#             print(f"RA: opt_fn[k] = {opt_fn[k]}")
-            # CHECK LATER
-            optimizer[k] = optax.GradientTransformation(optimizer[k].init_fn, update_fn)
-#             print(f"RA: optimizer[k] = {optimizer[k]}")
-            
-    elif training_args.optim == "adam":
-        print(f"Ra's here. Using adam...")
-        # adam optimizier includes weight decay regularization
-        optimizer = optax.adamw(
-            learning_rate=learning_rate_fn,
-            b1=training_args.beta1,
-            b2=training_args.beta2,
-            eps=training_args.adam_epsilon,
-            weight_decay=training_args.weight_decay,
-        )
-#         print(f"RA: optimizer = {optimizer}")
-        optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
-        # creates a dictionary where the keys are the names of the trainable parameters and the values are the optimizer object created
-        # splits the trainable parameters into separate groups based on their shapes (for applying different optimization strategies to different groups of parameters, such as applying weight decay only to the weights and not the biases)
-#         print(f"RA: optimizer = {optimizer}")
+#                 print(f"RA: update_fn = {update_fn}")
 
-    elif training_args.optim == "adafactor":
-        print(f"Ra's here. Using adafactor...")
-        # We use the default parameters here to initialize adafactor,
-        # For more details about the parameters please check https://github.com/deepmind/optax/blob/ed02befef9bf81cbbf236be3d2b0e032e9ed4a40/optax/_src/alias.py#L74
-        optimizer = optax.adafactor(
-            learning_rate=learning_rate_fn,
-            clipping_threshold=training_args.max_grad_norm,
-            # prevent gradient becoming too large (esp with many parameters)
-            weight_decay_rate=training_args.weight_decay,
+        optimizer[k] = opt.init(p)
+        # initialize the optimizer with the trainable parameter values
+#             print(f"RA: optimizer[k] = {optimizer[k]}")
+        # CHECK LATER
+        opt_fn[k] = NamedTuple("opt_fn", pspec_fn=Any, shape_and_dtype_fn=Any)(
+            optimizer[k].pspec_fn, optimizer[k].shape_and_dtype_fn
         )
-#         print(f"RA: optimizer = {optimizer}")
-        optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
-#         print(f"RA: optimizer = {optimizer}")
+#             print(f"RA: opt_fn[k] = {opt_fn[k]}")
+        # CHECK LATER
+        optimizer[k] = optax.GradientTransformation(optimizer[k].init_fn, update_fn)
+#             print(f"RA: optimizer[k] = {optimizer[k]}")
+
+#     elif training_args.optim == "adam":
+#         print(f"Ra's here. Using adam...")
+#         # adam optimizier includes weight decay regularization
+#         optimizer = optax.adamw(
+#             learning_rate=learning_rate_fn,
+#             b1=training_args.beta1,
+#             b2=training_args.beta2,
+#             eps=training_args.adam_epsilon,
+#             weight_decay=training_args.weight_decay,
+#         )
+# #         print(f"RA: optimizer = {optimizer}")
+#         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
+#         # creates a dictionary where the keys are the names of the trainable parameters and the values are the optimizer object created
+#         # splits the trainable parameters into separate groups based on their shapes (for applying different optimization strategies to different groups of parameters, such as applying weight decay only to the weights and not the biases)
+# #         print(f"RA: optimizer = {optimizer}")
+
+#     elif training_args.optim == "adafactor":
+#         print(f"Ra's here. Using adafactor...")
+#         # We use the default parameters here to initialize adafactor,
+#         # For more details about the parameters please check https://github.com/deepmind/optax/blob/ed02befef9bf81cbbf236be3d2b0e032e9ed4a40/optax/_src/alias.py#L74
+#         optimizer = optax.adafactor(
+#             learning_rate=learning_rate_fn,
+#             clipping_threshold=training_args.max_grad_norm,
+#             # prevent gradient becoming too large (esp with many parameters)
+#             weight_decay_rate=training_args.weight_decay,
+#         )
+# #         print(f"RA: optimizer = {optimizer}")
+#         optimizer = {k: optimizer for k in split_params(trainable_params_shape)}
+# #         print(f"RA: optimizer = {optimizer}")
 
     # get PartitionSpec for optimizer state
     def get_opt_state_spec_and_shape():
-        print(f"Ra's here. Getting PartitionSpec...")
+        # print(f"Ra's here. Getting PartitionSpec...")
         # get opt_state shape without actual init
         opt_state_shape = {}
-        
+
         # BOOKMARK for explanation
-        print(f"Ra's here. Start looping...")
+        # print(f"Ra's here. Start looping...")
         for k, p in split_params(trainable_params_shape).items():
             if "scanned" not in k:
                 opt_state_shape[k] = jax.eval_shape(optimizer[k].init, p)
 #                 print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
             else:
                 opt_state_shape[k] = jax.eval_shape(jax.vmap(optimizer[k].init), p)
-        print(f"Ra's here. Ends loop...")
-        
+        # print(f"Ra's here. Ends loop...")
+
         # most likely remove if
-        if training_args.optim == "adafactor":
-            print(f"Ra's here. Using adafactor...")
-            # factorized state must be replicated (rank different than params)
-            opt_state_spec = {k: None for k in split_params(trainable_params_shape)}
+        # if training_args.optim == "adafactor":
+        #     print(f"Ra's here. Using adafactor...")
+        #     # factorized state must be replicated (rank different than params)
+        #     opt_state_spec = {k: None for k in split_params(trainable_params_shape)}
 #             print(f"RA: opt_state_spec = {opt_state_spec}")
 
-        elif training_args.optim in ["adam", "distributed_shampoo"]:
-            print(f"Ra's here. Using distributed shampoo or adam...")
-            def _opt_state_spec_per_leaf(x, spec):
-                print(f"Ra's here. _opt_state_spec_per_leaf starts...")
+        # elif training_args.optim in ["adam", "distributed_shampoo"]:
+        # print(f"Ra's here. Using distributed shampoo or adam...")
+        def _opt_state_spec_per_leaf(x, spec):
+            # print(f"Ra's here. _opt_state_spec_per_leaf starts...")
 #                 print(f"RA: x = {x}")
 #                 print(f"RA: spec = {spec}")
-                if isinstance(x, FrozenDict):
-                    # variables with same structure as params
-                    return spec
-                else:
-                    # other variables such as count
-                    return None
+            if isinstance(x, FrozenDict):
+                # variables with same structure as params
+                return spec
+            else:
+                # other variables such as count
+                return None
 
-            print(f"Ra's here. _opt_state_spec_per_leaf ends.")
-            split_spec = split_params(set_partitions(trainable_params_shape, False))
+        # print(f"Ra's here. _opt_state_spec_per_leaf ends.")
+        split_spec = split_params(set_partitions(trainable_params_shape, False))
 #             print(f"RA: split_spec = {split_spec}")
-            opt_state_spec = {}
-            
+        opt_state_spec = {}
+
 #             print(f"RA: trainable_params_shape = {trainable_params_shape}")
-            print(f"Ra's here. Start looping...")
-            for k, p in split_params(trainable_params_shape).items():
-                if "scanned" in k:
-                    p = jax.eval_shape(
-                        lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
-                    )
+        # print(f"Ra's here. Start looping...")
+        for k, p in split_params(trainable_params_shape).items():
+            if "scanned" in k:
+                p = jax.eval_shape(
+                    lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
+                )
 #                     print(f"RA: p = {p}")
-                    
-                if training_args.optim == "adam":
-                    print(f"Ra's here. Using adam...")
-                    opt_state_spec[k] = jax.tree_util.tree_map(
-                        partial(_opt_state_spec_per_leaf, spec=split_spec[k]),
-                        opt_state_shape[k],
-                        # return None spec for empty elements
-                        is_leaf=lambda x: isinstance(x, (FrozenDict, optax.EmptyState)),
-                    )
+
+            # if training_args.optim == "adam":
+            #     print(f"Ra's here. Using adam...")
+            #     opt_state_spec[k] = jax.tree_util.tree_map(
+            #         partial(_opt_state_spec_per_leaf, spec=split_spec[k]),
+            #         opt_state_shape[k],
+            #         # return None spec for empty elements
+            #         is_leaf=lambda x: isinstance(x, (FrozenDict, optax.EmptyState)),
+            #     )
 #                     print(f"RA: opt_state_spec[k] = {opt_state_spec[k]}")
 #                     print(f"RA: _opt_state_spec_per_leaf = {_opt_state_spec_per_leaf}")
 #                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
 #                     print(f"RA: is_leaf = {is_leaf}")
-                elif training_args.optim == "distributed_shampoo":
-                    print(f"Ra's here. Using distributed shampoo...")
-                    opt_state_spec[k] = opt_fn[k].pspec_fn(
-                        p,
-                        split_spec[k],
-                        statistics_partition_spec,
-                    )
+            # elif training_args.optim == "distributed_shampoo":
+                # print(f"Ra's here. Using distributed shampoo...")
+            opt_state_spec[k] = opt_fn[k].pspec_fn(
+                p,
+                split_spec[k],
+                statistics_partition_spec,
+            )
 #                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
-                    
-                # add dimension for scanned params
-                if "scanned" in k:
-                    opt_state_spec[k] = jax.tree_util.tree_map(
-                        lambda x: PartitionSpec(*(None,) + x)
-                        if x is not None
-                        else None,
-                        opt_state_spec[k],
-                        is_leaf=lambda x: isinstance(x, PartitionSpec),
-                    )
+
+            # add dimension for scanned params
+            if "scanned" in k:
+                opt_state_spec[k] = jax.tree_util.tree_map(
+                    lambda x: PartitionSpec(*(None,) + x)
+                    if x is not None
+                    else None,
+                    opt_state_spec[k],
+                    is_leaf=lambda x: isinstance(x, PartitionSpec),
+                )
 #                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
 #                     print(f"RA: is_leaf = {is_leaf}")
-                    
-            print(f"Ra's here. Loop ended.")
-        else:
-            raise NotImplementedError
-            
+
+            # print(f"Ra's here. Loop ended.")
+        # else:
+        #     raise NotImplementedError
+
 #         print(f"RA: opt_state_spec = {opt_state_spec}")
 #         print(f"RA: opt_state_shape = {opt_state_shape}")
         return freeze(opt_state_spec), freeze(opt_state_shape)
 
-    print(f"Ra's here. Mesh stuff here..?")
+    # print(f"Ra's here. Mesh stuff here..?")
     opt_state_spec, opt_state_shape = get_opt_state_spec_and_shape()
 #     print(f"RA: opt_state_spec = {opt_state_spec}")
 #     print(f"RA: opt_state_shape = {opt_state_shape}")
@@ -1452,7 +1452,7 @@ def main():
     mesh = maps.Mesh(devices, ("dp", "mp"))
     # reshape it into a grid of the specified shape to distribute computation
 #     print(f"RA: mesh = {mesh}")
-    logger.info(f"  Mesh shape: {mesh_shape}")
+    # logger.info(f"  Mesh shape: {mesh_shape}")
 
     # define TrainState
     class TrainState(struct.PyTreeNode):

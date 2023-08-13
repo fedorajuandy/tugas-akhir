@@ -36,7 +36,7 @@ model_args, data_args, training_args = parser.parse_json_file(
 
 
 class TrainState(struct.PyTreeNode):
-    """ Definte training's state """
+    """ Define training's state """
 
     step: int
     params: core.FrozenDict[str, Any]

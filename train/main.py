@@ -239,7 +239,7 @@ def main():
         last_boundary = training_args.warmup_steps
 
         if training_args.lr_offset:
-            # appends a constant schedule of 0 before the warm-up schedule, and updates the last boundary (for resuming training from a checkpoint)
+            # Append 0 constant schedule before warm-up schedule then update last boundary (train from checkpoint)
             warmup_fn = optax.join_schedules(
                 schedules=[optax.constant_schedule(0.0), warmup_fn],
                 boundaries=[training_args.lr_offset],
@@ -251,7 +251,7 @@ def main():
         elif training_args.lr_decay == "linear":
             assert (
                 num_train_steps is not None
-            ), "linear decay requires knowing the dataset length"
+            ), "Linear decay requires knowing the dataset length."
             decay_fn = optax.linear_schedule(
                 init_value=training_args.learning_rate,
                 end_value=0,
@@ -354,69 +354,41 @@ def main():
             else:
                 opt_state_shape[k] = jax.eval_shape(jax.vmap(optimizer[k].init), p)
 
-        if training_args.optim in ["adam", "distributed_shampoo"]:
-            print(f"Ra's here. Using distributed shampoo or adam...")
-            def _opt_state_spec_per_leaf(x, spec):
-                print(f"Ra's here. _opt_state_spec_per_leaf starts...")
-#                 print(f"RA: x = {x}")
-#                 print(f"RA: spec = {spec}")
-                if isinstance(x, FrozenDict):
-                    # variables with same structure as params
-                    return spec
-                else:
-                    # other variables such as count
-                    return None
+        def _opt_state_spec_per_leaf(x, spec):
+            if isinstance(x, FrozenDict):
+                # variables with same structure as params
+                return spec
+            else:
+                # other variables such as count
+                return None
 
-            print(f"Ra's here. _opt_state_spec_per_leaf ends.")
-            split_spec = split_params(set_partitions(trainable_params_shape, False))
-#             print(f"RA: split_spec = {split_spec}")
-            opt_state_spec = {}
+        split_spec = split_params(set_partitions(trainable_params_shape, False))
+        opt_state_spec = {}
 
-#             print(f"RA: trainable_params_shape = {trainable_params_shape}")
-            print(f"Ra's here. Start looping...")
-            for k, p in split_params(trainable_params_shape).items():
-                if "scanned" in k:
-                    p = jax.eval_shape(
-                        lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
-                    )
-#                     print(f"RA: p = {p}")
+        for k, p in split_params(trainable_params_shape).items():
+            if "scanned" in k:
+                p = jax.eval_shape(
+                    lambda x: jax.tree_util.tree_map(lambda y: y[0], x), p
+                )
 
-                if training_args.optim == "adam":
-                    print(f"Ra's here. Using adam...")
-                    opt_state_spec[k] = jax.tree_util.tree_map(
-                        partial(_opt_state_spec_per_leaf, spec=split_spec[k]),
-                        opt_state_shape[k],
-                        # return None spec for empty elements
-                        is_leaf=lambda x: isinstance(x, (FrozenDict, optax.EmptyState)),
-                    )
-#                     print(f"RA: opt_state_spec[k] = {opt_state_spec[k]}")
-#                     print(f"RA: _opt_state_spec_per_leaf = {_opt_state_spec_per_leaf}")
-#                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
-#                     print(f"RA: is_leaf = {is_leaf}")
-                elif training_args.optim == "distributed_shampoo":
-                    print(f"Ra's here. Using distributed shampoo...")
-                    opt_state_spec[k] = opt_fn[k].pspec_fn(
-                        p,
-                        split_spec[k],
-                        statistics_partition_spec,
-                    )
-#                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
+            opt_state_spec[k] = opt_fn[k].pspec_fn(
+                p,
+                split_spec[k],
+                statistics_partition_spec,
+            )
 
-                # add dimension for scanned params
-                if "scanned" in k:
-                    opt_state_spec[k] = jax.tree_util.tree_map(
-                        lambda x: PartitionSpec(*(None,) + x)
-                        if x is not None
-                        else None,
-                        opt_state_spec[k],
-                        is_leaf=lambda x: isinstance(x, PartitionSpec),
-                    )
-#                     print(f"RA: opt_state_shape[k] = {opt_state_shape[k]}")
-#                     print(f"RA: is_leaf = {is_leaf}")
+            # add dimension for scanned params
+            if "scanned" in k:
+                opt_state_spec[k] = jax.tree_util.tree_map(
+                    lambda x: PartitionSpec(*(None,) + x)
+                    if x is not None
+                    else None,
+                    opt_state_spec[k],
+                    is_leaf=lambda x: isinstance(x, PartitionSpec),
+                )
 
         return freeze(opt_state_spec), freeze(opt_state_shape)
 
-    print(f"Ra's here. Mesh stuff here..?")
     opt_state_spec, opt_state_shape = get_opt_state_spec_and_shape()
 
     mesh_shape = (training_args.dp_devices, training_args.mp_devices)
