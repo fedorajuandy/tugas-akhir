@@ -45,8 +45,8 @@ class TrainState(struct.PyTreeNode):
     tx: optax.GradientTransformation = struct.field(pytree_node=False)
     dropout_rng: jnp.ndarray = None
     epoch: int = 0
-    train_time: float = 0.0  # total time the model trained
-    train_samples: int = 0  # number of samples seen
+    train_time: float = 0.0
+    train_samples: int = 0
 
     def apply_gradients(self, *, grads, **kwargs):
         """ One step of training """

@@ -1467,7 +1467,7 @@ def main():
         train_samples: int = 0  # number of samples seen
 
         def apply_gradients(self, *, grads, **kwargs):
-            print(f"Ra's here. Start applying gradients...")
+            # print(f"Ra's here. Start applying gradients...")
             # rm , training_args.embeddings_only
             grads = split_params(trainable_params(grads))
 #             print(f"RA: grads = {grads}")
@@ -1479,7 +1479,7 @@ def main():
             opt_state = {}
 
             # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
-            print(f"Ra's here. Start looping...")
+            # print(f"Ra's here. Start looping...")
             for k, param in params.items():
                 update_fn = self.tx[k].update # pylint: disable=unsubscriptable-object
 #                 print(f"RA: update_fn = {update_fn}")
@@ -1493,9 +1493,9 @@ def main():
 #                 print(f"RA: params[k] = {params[k]}")
                 opt_state[k] = new_opt_state
 #                 print(f"RA: opt_state[k] = {opt_state[k]}")
-            print(f"Ra's here. Loop ends.")
+            # print(f"Ra's here. Loop ends.")
 
-            print(f"Ra's here. Params stuff here.")
+            # print(f"Ra's here. Params stuff here.")
             params = unsplit_params(params)
 #             print(f"RA: params = {params}")
             # merge with non-trainable params
