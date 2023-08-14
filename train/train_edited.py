@@ -1684,7 +1684,7 @@ def main():
             return loss_fn(logits, labels)
 
         grad_fn = jax.value_and_grad(compute_loss)
-        
+
         def loss_and_grad(grad_idx, dropout_rng):
             # minibatch at grad_idx for gradient accumulation (None otherwise)
             minibatch = (
@@ -1796,25 +1796,25 @@ def main():
         params = trainable_params(state.params)
         # rm , training_args.embeddings_only
         grads = trainable_params(grads)
-        # if training_args.log_norm_steps:
-        #     zeros_norm = jax.tree_util.tree_map(lambda _: jnp.float32(0), params)
+        if training_args.log_norm_steps:
+            zeros_norm = jax.tree_util.tree_map(lambda _: jnp.float32(0), params)
 
-        #     def norm(val):
-        #         return jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), val)
+            def norm(val):
+                return jax.tree_util.tree_map(lambda x: jnp.linalg.norm(x), val)
 
-        #     gradients_norm = maybe_fn(
-        #         norm, grads, zeros_norm, training_args.log_norm_steps
-        #     )
-        #     params_norm = maybe_fn(
-        #         norm, params, zeros_norm, training_args.log_norm_steps
-        #     )
+            gradients_norm = maybe_fn(
+                norm, grads, zeros_norm, training_args.log_norm_steps
+            )
+            params_norm = maybe_fn(
+                norm, params, zeros_norm, training_args.log_norm_steps
+            )
 
-        #     metrics.update(
-        #         {
-        #             "gradients_norm": gradients_norm,
-        #             "params_norm": params_norm,
-        #         }
-        #     )
+            metrics.update(
+                {
+                    "gradients_norm": gradients_norm,
+                    "params_norm": params_norm,
+                }
+            )
 
         # if training_args.log_histogram_steps:
         #     zeros_hist = jax.tree_util.tree_map(
@@ -1843,33 +1843,33 @@ def main():
         return state, metrics
 
     # Define eval fn
-    eval_model = (
-        model
-        if model_args.dtype == "float32"
-        else DalleBart(
-            model.config,
-            seed=training_args.seed_model,
-            dtype=jnp.float32,
-            _do_init=False,
-        )
-    )
+    # eval_model = (
+    #     model
+    #     if model_args.dtype == "float32"
+    #     else DalleBart(
+    #         model.config,
+    #         seed=training_args.seed_model,
+    #         dtype=jnp.float32,
+    #         _do_init=False,
+    #     )
+    # )
 
-    def eval_step(state, batch):
-        def compute_eval_loss(batch):
-            batch, labels = batch.pop("labels")
-            logits = eval_model(**batch, params=state.params, train=False)[0]
-            return loss_fn(logits, labels)
+    # def eval_step(state, batch):
+    #     def compute_eval_loss(batch):
+    #         batch, labels = batch.pop("labels")
+    #         logits = eval_model(**batch, params=state.params, train=False)[0]
+    #         return loss_fn(logits, labels)
 
-        if use_vmap_trick:
-            loss = jax.vmap(compute_eval_loss)(batch)
-            # ensure they are sharded correctly
-            loss = with_sharding_constraint(loss, batch_spec)
-            # average across all devices
-            loss = jnp.mean(loss)
-        else:
-            loss = compute_eval_loss(batch)
+    #     if use_vmap_trick:
+    #         loss = jax.vmap(compute_eval_loss)(batch)
+    #         # ensure they are sharded correctly
+    #         loss = with_sharding_constraint(loss, batch_spec)
+    #         # average across all devices
+    #         loss = jnp.mean(loss)
+    #     else:
+    #         loss = compute_eval_loss(batch)
 
-        return loss
+    #     return loss
 
     # Create parallel version of the train and eval step
     p_train_step = pjit(
@@ -1884,72 +1884,72 @@ def main():
         out_axis_resources=(state_spec, None),
         donate_argnums=(0,),
     )
-    print(f"RA p_train_step = {p_train_step}")
+    # print(f"RA p_train_step = {p_train_step}")
     # Kaggle: p_train_step = <jaxlib.xla_extension.PjitFunction object at 0x7038eeacc1d0>
-    p_eval_step = pjit(
-        eval_step,
-        in_axis_resources=(state_spec, batch_spec),
-        out_axis_resources=None,
-    )
+    # p_eval_step = pjit(
+    #     eval_step,
+    #     in_axis_resources=(state_spec, batch_spec),
+    #     out_axis_resources=None,
+    # )
 
     # define metrics logger
-    class MetricsLogger:
-        def __init__(self, step):
-            # keep state
-            self.state_dict = {}
-            # estimate speed
-            self.step = step
-            self.time = time.perf_counter()
-            self.offset_time = 0.0
+    # class MetricsLogger:
+    #     def __init__(self, step):
+    #         # keep state
+    #         self.state_dict = {}
+    #         # estimate speed
+    #         self.step = step
+    #         self.time = time.perf_counter()
+    #         self.offset_time = 0.0
 
-        def update_state_metrics(self, state):
-            """Update internal state metrics (logged at each call to be used as x-axis)"""
-            self.state_dict = {
-                f'train/{k.split("_")[-1]}': state[k]
-                for k in ["step", "epoch", "train_time", "train_samples"]
-            }
-            # timing metrics
-            new_step = int(state["step"])
-            new_time = time.perf_counter()
-            if new_step > self.step:
-                # remove time for eval & save
-                delta_time = new_time - self.time - self.offset_time
-                self.offset_time = 0
-                time_per_step = delta_time / (new_step - self.step)
-                self.step = new_step
-                self.time = new_time
-                self.log_time("train_per_step", time_per_step, offset=False)
-                self.log_time("train_per_log", delta_time, offset=False)
+    #     def update_state_metrics(self, state):
+    #         """Update internal state metrics (logged at each call to be used as x-axis)"""
+    #         self.state_dict = {
+    #             f'train/{k.split("_")[-1]}': state[k]
+    #             for k in ["step", "epoch", "train_time", "train_samples"]
+    #         }
+    #         # timing metrics
+    #         new_step = int(state["step"])
+    #         new_time = time.perf_counter()
+    #         if new_step > self.step:
+    #             # remove time for eval & save
+    #             delta_time = new_time - self.time - self.offset_time
+    #             self.offset_time = 0
+    #             time_per_step = delta_time / (new_step - self.step)
+    #             self.step = new_step
+    #             self.time = new_time
+    #             self.log_time("train_per_step", time_per_step, offset=False)
+    #             self.log_time("train_per_log", delta_time, offset=False)
 
-        def log_time(self, key, duration, offset=True):
-            if jax.process_index() == 0:
-                wandb.log({f"time/{key}": duration, **self.state_dict})
-            if offset:
-                self.offset_time += duration
+    #     def log_time(self, key, duration, offset=True):
+    #         if jax.process_index() == 0:
+    #             wandb.log({f"time/{key}": duration, **self.state_dict})
+    #         if offset:
+    #             self.offset_time += duration
 
-        def log(self, metrics, prefix=None):
-            if jax.process_index() == 0:
-                log_metrics = {}
-                for k, v in metrics.items():
-                    if "_norm" in k:
-                        if self.step % training_args.log_norm_steps == 0:
-                            log_metrics[f"{k}/"] = unfreeze(v)
-                    # elif "_hist" in k:
-                    #     if self.step % training_args.log_histogram_steps == 0:
-                    #         v = jax.tree_util.tree_map(
-                    #             lambda x: jax.device_get(x), unfreeze(v)
-                    #         )
-                    #         v = jax.tree_util.tree_map(
-                    #             lambda x: wandb.Histogram(np_histogram=x),
-                    #             v,
-                    #             is_leaf=lambda x: isinstance(x, tuple),
-                    #         )
-                    #         log_metrics[f"{k}/"] = v
-                    else:
-                        if prefix is not None:
-                            k = f"{prefix}/{k}"
-                        log_metrics[k] = v
-                wandb.log({**log_metrics, **self.state_dict})
+    #     def log(self, metrics, prefix=None):
+    #         if jax.process_index() == 0:
+    #             log_metrics = {}
+    #             for k, v in metrics.items():
+    #                 if "_norm" in k:
+    #                     if self.step % training_args.log_norm_steps == 0:
+    #                         log_metrics[f"{k}/"] = unfreeze(v)
+    #                 # elif "_hist" in k:
+    #                 #     if self.step % training_args.log_histogram_steps == 0:
+    #                 #         v = jax.tree_util.tree_map(
+    #                 #             lambda x: jax.device_get(x), unfreeze(v)
+    #                 #         )
+    #                 #         v = jax.tree_util.tree_map(
+    #                 #             lambda x: wandb.Histogram(np_histogram=x),
+    #                 #             v,
+    #                 #             is_leaf=lambda x: isinstance(x, tuple),
+    #                 #         )
+    #                 #         log_metrics[f"{k}/"] = v
+    #                 else:
+    #                     if prefix is not None:
+    #                         k = f"{prefix}/{k}"
+    #                     log_metrics[k] = v
+    #             wandb.log({**log_metrics, **self.state_dict})
 
     # keep local copy of state
     local_state = {
@@ -1958,18 +1958,18 @@ def main():
     }
     # init variables
     start_time = time.perf_counter() - local_state["train_time"]
-    train_metrics = None
-    evaluation_ran = False
+    # train_metrics = None
+    # evaluation_ran = False
     save_model_ran = False
-    metrics_logger = MetricsLogger(local_state["step"])
+    # metrics_logger = MetricsLogger(local_state["step"])
     epochs = tqdm(
         range(local_state["epoch"], num_epochs),
         desc=f"Epoch ... (1/{num_epochs})",
         position=0,
         disable=jax.process_index() > 0,
     )
-    
-    print(f"Sadness upon your soul ;-;")
+
+    # print(f"Sadness upon your soul ;-;")
     # def run_evaluation():
     #     # ======================== Evaluating ==============================
     #     if training_args.do_eval:
@@ -2046,18 +2046,18 @@ def main():
 
     #         return eval_metrics
 
-    print(f"Yaya")
+    # print(f"Yaya")
     def run_save_model(state, eval_metrics=None):
         if jax.process_index() == 0:
 
             start_save_time = time.perf_counter()
             output_dir = training_args.output_dir
-            use_bucket = output_dir.startswith("gs://")
-            if use_bucket:
-                bucket_path = Path(output_dir[5:]) / wandb.run.id / f"step_{state.step}"
-                bucket, dir_path = str(bucket_path).split("/", 1)
-                tmp_dir = tempfile.TemporaryDirectory()
-                output_dir = tmp_dir.name
+            # use_bucket = output_dir.startswith("gs://")
+            # if use_bucket:
+            #     bucket_path = Path(output_dir[5:]) / wandb.run.id / f"step_{state.step}"
+            #     bucket, dir_path = str(bucket_path).split("/", 1)
+            #     tmp_dir = tempfile.TemporaryDirectory()
+            #     output_dir = tmp_dir.name
 
             # save model
             params = jax.device_get(state.params)
@@ -2081,13 +2081,13 @@ def main():
 
             # save state
             opt_state = jax.device_get(state.opt_state)
-            if use_bucket:
-                blob_name = str(Path(dir_path) / "state" / "opt_state.msgpack")
-                blob = bucket.blob(blob_name)
-                blob.upload_from_file(io.BytesIO(to_bytes(opt_state)))
-            else:
-                with (Path(output_dir) / "opt_state.msgpack").open("wb") as f:
-                    f.write(to_bytes(opt_state))
+            # if use_bucket:
+            #     blob_name = str(Path(dir_path) / "state" / "opt_state.msgpack")
+            #     blob = bucket.blob(blob_name)
+            #     blob.upload_from_file(io.BytesIO(to_bytes(opt_state)))
+            # else:
+            with (Path(output_dir) / "opt_state.msgpack").open("wb") as f:
+                f.write(to_bytes(opt_state))
 
             # save to W&B
             if training_args.log_model:
@@ -2100,63 +2100,61 @@ def main():
                     for k in ["step", "epoch", "train_time", "train_samples"]
                 }
                 metadata["num_params"] = num_params
-                if eval_metrics is not None:
-                    metadata["eval"] = eval_metrics
+                # if eval_metrics is not None:
+                #     metadata["eval"] = eval_metrics
 
                 # create model artifact
-                if use_bucket:
-                    metadata["bucket_path"] = f"gs://{bucket_path}/model"
+                # if use_bucket:
+                #     metadata["bucket_path"] = f"gs://{bucket_path}/model"
                 artifact = wandb.Artifact(
                     name=f"model-{wandb.run.id}",
                     type="DalleBart_model",
                     metadata=metadata,
                 )
-                if use_bucket:
-                    artifact.add_reference(metadata["bucket_path"])
-                else:
-                    for filename in [
-                        "config.json",
-                        "flax_model.msgpack",
-                        "merges.txt",
-                        "special_tokens_map.json",
-                        "tokenizer.json",
-                        "tokenizer_config.json",
-                        "vocab.json",
-                    ]:
-                        artifact.add_file(
-                            f"{Path(training_args.output_dir) / filename}"
-                        )
+                # if use_bucket:
+                #     artifact.add_reference(metadata["bucket_path"])
+                # else:
+                for filename in [
+                    "config.json",
+                    "flax_model.msgpack",
+                    "merges.txt",
+                    "special_tokens_map.json",
+                    "tokenizer.json",
+                    "tokenizer_config.json",
+                    "vocab.json",
+                ]:
+                    artifact.add_file(
+                        f"{Path(training_args.output_dir) / filename}"
+                    )
                 wandb.run.log_artifact(artifact)
 
                 # create state artifact
-                if use_bucket:
-                    metadata["bucket_path"] = f"gs://{bucket_path}/state"
+                # if use_bucket:
+                #     metadata["bucket_path"] = f"gs://{bucket_path}/state"
                 artifact_state = wandb.Artifact(
                     name=f"state-{wandb.run.id}",
                     type="DalleBart_state",
                     metadata=metadata,
                 )
-                if use_bucket:
-                    artifact_state.add_reference(metadata["bucket_path"])
-                else:
-                    artifact_state.add_file(
-                        f"{Path(training_args.output_dir) / 'opt_state.msgpack'}"
-                    )
+                # if use_bucket:
+                #     artifact_state.add_reference(metadata["bucket_path"])
+                # else:
+                artifact_state.add_file(
+                    f"{Path(training_args.output_dir) / 'opt_state.msgpack'}"
+                )
                 wandb.run.log_artifact(artifact_state)
-            metrics_logger.log_time("save_model", time.perf_counter() - start_save_time)
-    
-    logger.info("  Ready to start training")
+            # metrics_logger.log_time("save_model", time.perf_counter() - start_save_time)
+
+    # logger.info("  Ready to start training")
     with mesh:
         for epoch in epochs:
-            print(f"Ra's here. starting epoch...")
+            # print(f"Ra's here. starting epoch...")
             state = state.replace(epoch=epoch)
             local_state["epoch"] = epoch
             # ======================== Training ================================
-            metrics_logger.update_state_metrics(local_state)
-            metrics_logger.log({})
 
             if training_args.do_train:
-                print(f"Ra's here. Starting the actual thing...")
+                # print(f"Ra's here. Starting the actual thing...")
                 # load data - may be replicated on multiple nodes
                 node_groups = max(
                     1, training_args.mp_devices // jax.local_device_count()
@@ -2168,7 +2166,7 @@ def main():
                     epoch,
                 )
                 # train
-                print(f"Ra's here. Batching...")
+                # print(f"Ra's here. Batching...")
                 for batch in tqdm(
                     train_loader,
                     desc="Training...",
@@ -2181,12 +2179,12 @@ def main():
                     train_time = time.perf_counter() - start_time
 
                     # reset control variables
-                    evaluation_ran = False
+                    # evaluation_ran = False
                     save_model_ran = False
 
                     # set correct shape to batch
                     # - add grad_step dim if gradient_accumulation_steps > 1
-                    print(f"Ra's here. Shaping bs...")
+                    # print(f"Ra's here. Shaping bs...")
                     bs_shape = (
                         (batch_size_per_node_per_grad_step * node_groups,)
                         if not use_vmap_trick
@@ -2243,13 +2241,13 @@ def main():
                         save_model_ran = True
 
                 # log final train metrics
-                if train_metrics is not None:
-                    metrics_logger.update_state_metrics(local_state)
-                    metrics_logger.log(train_metrics, prefix="train")
+                # if train_metrics is not None:
+                #     metrics_logger.update_state_metrics(local_state)
+                #     metrics_logger.log(train_metrics, prefix="train")
 
-                    epochs.write(
-                        f"Epoch... ({epoch + 1}/{num_epochs} | Loss: {train_metrics['loss']}, Learning Rate: {train_metrics['learning_rate']})"
-                    )
+                #     epochs.write(
+                #         f"Epoch... ({epoch + 1}/{num_epochs} | Loss: {train_metrics['loss']}, Learning Rate: {train_metrics['learning_rate']})"
+                #     )
 
             # Final evaluation at the end of each epoch
             # if not evaluation_ran:

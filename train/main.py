@@ -495,8 +495,8 @@ def main():
         def compute_loss(params, minibatch, dropout_rng):
             # minibatch has dim (batch_size, ...)
             minibatch, labels = minibatch.pop("labels")
-            logits = state.apply_fn( # KAGGLE
-                **minibatch, params=params, dropout_rng=dropout_rng, train=True # KAGGLE
+            logits = state.apply_fn(
+                **minibatch, params=params, dropout_rng=dropout_rng, train=True
             )[0]
             return loss_fn(logits, labels)
 
@@ -514,12 +514,9 @@ def main():
 
             if use_vmap_trick:
                 # "vmap trick", calculate loss and grads independently per dp_device
-                loss, grads = jax.vmap( # KAGGLE
+                loss, grads = jax.vmap(
                     grad_fn, in_axes=(None, 0, None), out_axes=(0, 0)
-                )(state.params, minibatch, dropout_rng) # KAGGLE
-#                 print(f"RA: loss = {loss}")
-#                 print(f"RA: grads = {grads}")
-#                 print(f"RA: grad_fn = {grad_fn}")
+                )(state.params, minibatch, dropout_rng)
                 # ensure they are sharded correctly
                 loss = with_sharding_constraint(loss, batch_spec)
                 grads = with_sharding_constraint(grads, grad_param_spec)
@@ -537,11 +534,7 @@ def main():
             return loss, grads, dropout_rng
 
         if training_args.gradient_accumulation_steps == 1:
-            loss, grads, dropout_rng = loss_and_grad(None, state.dropout_rng) # KAGGLE
-#             print(f"RA: loss = {loss}")
-#             print(f"RA: grads = {grads}")
-#             print(f"RA: dropout_rng = {dropout_rng}")
-#             print(f"RA: state.dropout_rng = {state.dropout_rng}")
+            loss, grads, dropout_rng = loss_and_grad(None, state.dropout_rng)
         else:
             # create initial state for cumul_minibatch_step loop
             init_minibatch_step = (
@@ -555,11 +548,7 @@ def main():
             # accumulate gradients
             def cumul_minibatch_step(grad_idx, cumul_loss_grad_dropout):
                 cumul_loss, cumul_grads, dropout_rng = cumul_loss_grad_dropout
-                loss, grads, dropout_rng = loss_and_grad(grad_idx, dropout_rng) # KAGGLE
-#                 print(f"RA: loss = {loss}")
-#                 print(f"RA: grads = {grads}")
-#                 print(f"RA: dropout_rng = {dropout_rng}")
-#                 print(f"RA: grad_idx = {grad_idx}")
+                loss, grads, dropout_rng = loss_and_grad(grad_idx, dropout_rng)
                 cumul_loss, cumul_grads = jax.tree_util.tree_map(
                     jnp.add, (cumul_loss, cumul_grads), (loss, grads)
                 )
@@ -571,13 +560,8 @@ def main():
                 0,
                 training_args.gradient_accumulation_steps,
                 cumul_minibatch_step,
-                init_minibatch_step, # KAGGLE
+                init_minibatch_step,
             )
-#             print(f"RA: loss = {loss}")
-#             print(f"RA: grads = {grads}")
-#             print(f"RA: dropout_rng = {dropout_rng}")
-#             print(f"RA: cumul_minibatch_step = {cumul_minibatch_step}")
-#             print(f"RA: init_minibatch_step = {init_minibatch_step}")
             grads = with_sharding_constraint(grads, param_spec)
             # sum -> mean
             loss, grads = jax.tree_util.tree_map(
@@ -653,7 +637,6 @@ def main():
     }
     start_time = time.perf_counter() - local_state["train_time"]
     save_model_ran = False
-    metrics_logger = MetricsLogger(local_state["step"])
     epochs = tqdm(
         range(local_state["epoch"], num_epochs),
         desc=f"Epoch ... (1/{num_epochs})",
@@ -663,6 +646,7 @@ def main():
 
     def run_save_model(state):
         if jax.process_index() == 0:
+            start_save_time = time.perf_counter()
             output_dir = training_args.output_dir
 
             params = jax.device_get(state.params)
@@ -678,9 +662,6 @@ def main():
                 f.write(to_bytes(opt_state))
 
             if training_args.log_model:
-                c = wandb.wandb_sdk.wandb_artifacts.get_artifacts_cache()
-                c.cleanup(wandb.util.from_human_size("20GB"))
-
                 metadata = {
                     k: jax.device_get(getattr(state, k)).item()
                     for k in ["step", "epoch", "train_time", "train_samples"]
@@ -720,8 +701,6 @@ def main():
         for epoch in epochs:
             state = state.replace(epoch=epoch)
             local_state["epoch"] = epoch
-            metrics_logger.update_state_metrics(local_state)
-            metrics_logger.log({})
 
             if training_args.do_train:
                 node_groups = max(
@@ -767,7 +746,7 @@ def main():
                     )
                     batch = freeze(batch)
 
-                    state, train_metrics = p_train_step(state, batch, train_time) # KAGGLE
+                    state, train_metrics = p_train_step(state, batch, train_time)
                     local_state["step"] += 1
                     local_state["train_time"] = train_time
                     local_state["train_samples"] += batch_size_per_step
