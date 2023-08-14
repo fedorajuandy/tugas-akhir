@@ -646,7 +646,6 @@ def main():
 
     def run_save_model(state):
         if jax.process_index() == 0:
-            start_save_time = time.perf_counter()
             output_dir = training_args.output_dir
 
             params = jax.device_get(state.params)
@@ -746,7 +745,7 @@ def main():
                     )
                     batch = freeze(batch)
 
-                    state, train_metrics = p_train_step(state, batch, train_time)
+                    state = p_train_step(state, batch, train_time)
                     local_state["step"] += 1
                     local_state["train_time"] = train_time
                     local_state["train_samples"] += batch_size_per_step
