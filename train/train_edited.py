@@ -38,14 +38,14 @@ SOMEWHERESOMEHEN = I felt like I have seen it before, but memory gone awry
 GONEAWRY = change later if something went awry
 """
 
-import io
+# import io
 # for input/output operation; to work with stream (files, strings, other data; stored in memory (not file)
 # DELETE LATER; for bucket (ha, as if I have that much money-)
-import logging
+# import logging
 # loggin messagese for debugging and monitoring
-import os
+# import os
 # for files, directories, creating processes, getting info about the process and environment
-import sys
+# import sys
 # interact with interpreter (sys.arg; CL argv,) sys.path(), sys.exit()
 import tempfile
 # create temporary files and directories (deleted after run)
@@ -56,7 +56,7 @@ from dataclasses import asdict, dataclass, field
 # dataclass: class' decorator, generate methods, such as __init__(), __repr__(), and __eq__(), based on the class's fields; boilerplate to hold data
 # asdict(): returns dictionary containing values of given instance of dataclass (dictionary => JSON)
 # field(): specify metadata about the fields of a dataclass (default values, whether they are mutable, how they should be compared for equality); help match requirements
-from functools import partial
+# from functools import partial
 # create a new function with some of the arguments of an existing function "pre-filled" (using same fuction with some same arg)
 from pathlib import Path
 # provides an object-oriented interface to working with file paths and file systems in a platform-independent way (windows, linux, wutevar does not matter)
@@ -2050,7 +2050,7 @@ def main():
     def run_save_model(state, eval_metrics=None):
         if jax.process_index() == 0:
 
-            start_save_time = time.perf_counter()
+            # start_save_time = time.perf_counter()
             output_dir = training_args.output_dir
             # use_bucket = output_dir.startswith("gs://")
             # if use_bucket:
