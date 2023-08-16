@@ -902,7 +902,7 @@ def main():
                     **attr_state,
                 )
 
-            state = pjit(
+            state = pjit( # KAEYA
                 init_state,
                 in_axis_resources=(param_spec,)
                 if model_args.model_name_or_path
@@ -1173,58 +1173,57 @@ def main():
             state = state.replace(epoch=epoch)
             local_state["epoch"] = epoch
 
-            if training_args.do_train:
-                node_groups = max(
-                    1, training_args.mp_devices // jax.local_device_count()
+            node_groups = max(
+                1, training_args.mp_devices // jax.local_device_count()
+            )
+            loader_bs = batch_size_per_node * node_groups
+            train_loader = dataset.dataloader(
+                "train",
+                loader_bs,
+                epoch,
+            )
+
+            for batch in tqdm(
+                train_loader,
+                desc="Training...",
+                position=1,
+                leave=False,
+                total=steps_per_epoch,
+                disable=jax.process_index() > 0,
+            ):
+                train_time = time.perf_counter() - start_time
+
+                save_model_ran = False
+
+                bs_shape = (
+                    (batch_size_per_node_per_grad_step * node_groups,)
+                    if not use_vmap_trick
+                    else (
+                        jax.local_device_count()
+                        * node_groups
+                        // training_args.mp_devices,  # local dp devices
+                        training_args.per_device_train_batch_size,
+                    )
                 )
-                loader_bs = batch_size_per_node * node_groups
-                train_loader = dataset.dataloader(
-                    "train",
-                    loader_bs,
-                    epoch,
-                )
-
-                for batch in tqdm(
-                    train_loader,
-                    desc="Training...",
-                    position=1,
-                    leave=False,
-                    total=steps_per_epoch,
-                    disable=jax.process_index() > 0,
-                ):
-                    train_time = time.perf_counter() - start_time
-
-                    save_model_ran = False
-
+                if training_args.gradient_accumulation_steps > 1:
                     bs_shape = (
-                        (batch_size_per_node_per_grad_step * node_groups,)
-                        if not use_vmap_trick
-                        else (
-                            jax.local_device_count()
-                            * node_groups
-                            // training_args.mp_devices,  # local dp devices
-                            training_args.per_device_train_batch_size,
-                        )
-                    )
-                    if training_args.gradient_accumulation_steps > 1:
-                        bs_shape = (
-                            training_args.gradient_accumulation_steps,
-                        ) + bs_shape
+                        training_args.gradient_accumulation_steps,
+                    ) + bs_shape
 
-                    batch = jax.tree_util.tree_map(
-                        lambda x: x.reshape(bs_shape + x.shape[1:]),
-                        batch,
-                    )
-                    batch = freeze(batch)
+                batch = jax.tree_util.tree_map(
+                    lambda x: x.reshape(bs_shape + x.shape[1:]),
+                    batch,
+                )
+                batch = freeze(batch)
 
-                    state = p_train_step(state, batch, train_time)
-                    local_state["step"] += 1
-                    local_state["train_time"] = train_time
-                    local_state["train_samples"] += batch_size_per_step
+                state = p_train_step(state, batch, train_time)
+                local_state["step"] += 1
+                local_state["train_time"] = train_time
+                local_state["train_samples"] += batch_size_per_step
 
-                    if local_state["step"] % training_args.save_steps == 0:
-                        run_save_model(state)
-                        save_model_ran = True
+                if local_state["step"] % training_args.save_steps == 0:
+                    run_save_model(state)
+                    save_model_ran = True
 
 
             if not save_model_ran:

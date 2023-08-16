@@ -1191,7 +1191,7 @@ def main():
     # Kaggle: learning_rate_fn = <function polynomial_schedule.<locals>.schedule at 0x754647245320>
 
     # create optimizer
-    print(f"Ra's here. Cereate optimizer...")
+    # print(f"Ra's here. Cereate optimizer...")
     trainable_params_shape = trainable_params(
         params_shape#, training_args.embeddings_only
     )
@@ -2096,7 +2096,7 @@ def main():
                 # c.cleanup(wandb.util.from_human_size("20GB"))
 
                 metadata = {
-                    k: jax.device_get(getattr(state, k)).item()
+                    k: jax.device_get(getattr(state, k)).item() # KAEYA
                     for k in ["step", "epoch", "train_time", "train_samples"]
                 }
                 metadata["num_params"] = num_params
