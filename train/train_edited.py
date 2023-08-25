@@ -47,9 +47,9 @@ GONEAWRY = change later if something went awry
 # for files, directories, creating processes, getting info about the process and environment
 # import sys
 # interact with interpreter (sys.arg; CL argv,) sys.path(), sys.exit()
+import time
 import tempfile
 # create temporary files and directories (deleted after run)
-import time
 # get time, sleep, measure elapsed time (this trigger something that I should... contemplate later)
 from dataclasses import asdict, dataclass, field
 # create class representing data
@@ -73,7 +73,7 @@ import flax
 import jax
 import jax.numpy as jnp
 # Numberical computing library for GPU and TPU (like numpy; working with arrays said accelerators... does accelerator's vector actually functions just to manipulate the vector's speed? How does one's brain even calculate that on spot-)
-import jaxlib # pylint: disable=import-error # type: ignore
+import jaxlib
 # Low-level utilities (basic software tools for computing and numerical analysis; for efficiency and speed; building blocks for complex algorithms) for jax (rng, matrix stuff, algebra)
 import numpy as np
 # computing for CPU
@@ -104,7 +104,7 @@ from jax.experimental.compilation_cache import compilation_cache as cc
 # compilation_cache: JAX cache (yey to no cache) to reuse compiled functions [result: not used if < 1s]
 from jax.experimental.pjit import pjit, with_sharding_constraint
 # decorator (takes another function as input, returns modified one: like inheritance, but already made) for parallelism
-from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo #pylint: disable=import-error
+from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo
 # distributed training
 # GraftingType: enumeration (named constant values)
 from tqdm import tqdm
@@ -114,7 +114,7 @@ from transformers import HfArgumentParser
 
 import dalle_mini
 # lightweight DALL-E (I want more GPU-)
-from dalle_mini.data import Dataset # pylint: disable=import-error
+from dalle_mini.data import Dataset
 # load & preprocess image data
 from dalle_mini.model import (
     DalleBart,
@@ -1481,7 +1481,7 @@ def main():
             # we loop over keys: "standard", "scanned_encoder", "scanned_decoder"
             # print(f"Ra's here. Start looping...")
             for k, param in params.items():
-                update_fn = self.tx[k].update # pylint: disable=unsubscriptable-object
+                update_fn = self.tx[k].update
 #                 print(f"RA: update_fn = {update_fn}")
                 if "scanned" in k:
                     update_fn = jax.vmap(update_fn, in_axes=(0, 0, 0), out_axes=(0, 0))

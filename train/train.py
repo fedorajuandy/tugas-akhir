@@ -16,19 +16,12 @@
 """ Main training file adapted from DALL-E mini's training script """
 
 import time
+import tempfile
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Callable, NamedTuple, Optional
-import tempfile
-from pathlib import Path
-import jax
-import jax.numpy as jnp
-import optax
-from transformers import HfArgumentParser
 import datasets
 import flax
-from flax import core, struct, traverse_util
-from flax.core.frozen_dict import freeze, unfreeze
 import jax
 import jax.numpy as jnp
 import jaxlib
@@ -37,11 +30,12 @@ import optax
 import transformers
 import wandb
 from datasets import Dataset
-from flax import traverse_util
+from flax import core, struct, traverse_util
 from flax.core.frozen_dict import FrozenDict, freeze, unfreeze
 from flax.serialization import from_bytes, to_bytes
 from flax.training.common_utils import onehot
-from jax.experimental import PartitionSpec, maps
+from jax.sharding import PartitionSpec
+from jax.experimental import maps
 from jax.experimental.compilation_cache import compilation_cache as cc
 from jax.experimental.pjit import pjit, with_sharding_constraint
 from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo
@@ -97,15 +91,21 @@ class ModelArguments:
     )
     dropout: Optional[float] = field(
         default=1.0,
-        metadata={"help": "Rate to prevent overfitting by neuron's output. Overwrites config."},
+        metadata={
+            "help": "Rate to prevent overfitting by neuron's output. Overwrites config."
+        },
     )
     activation_dropout: Optional[float] = field(
         default=1.0,
-        metadata={"help": "Rate to prevent overfitting by layer's output. Overwrites config."},
+        metadata={
+            "help": "Rate to prevent overfitting by layer's output. Overwrites config."
+        },
     )
     attention_dropout: Optional[float] = field(
         default=1.0,
-        metadata={"help": "Rate to prevent overfitting by transformers. Overwrites config."},
+        metadata={
+            "help": "Rate to prevent overfitting by transformers. Overwrites config."
+        },
     )
 
 
@@ -116,8 +116,8 @@ class ModelArguments:
                 self.tokenizer_name is not None
             ), "tokenizer_name or model_name_or_path needs to be specified."
         if self.restore_state:
-            assert self.model_name_or_path is not None and (
-                "/model-" in self.model_name_or_path
+            assert (
+                self.model_name_or_path is not None and "/model-" in self.model_name_or_path
             ), "model_name_or_path with W&B artifact is needed."
 
 
@@ -135,7 +135,7 @@ class ModelArguments:
 
 
     def get_opt_state(self):
-        """ Get state """
+        """ Get training state """
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             if self.restore_state is True:
@@ -177,13 +177,8 @@ class DataTrainingArguments:
     )
     streaming: Optional[bool] = field(
         default=True,
-        metadata={"help": "Whether to stream the dataset to prevent bottleneck."},
-    )
-    # CHECK LATER
-    blank_caption_prob: Optional[float] = field(
-        default=0.0,
         metadata={
-            "help": "Probability of removing some captions for classifier-free guidance."
+            "help": "Whether to stream the dataset to prevent bottleneck."
         },
     )
     seed_dataset: int = field(
