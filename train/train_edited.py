@@ -2048,7 +2048,8 @@ def main():
     #         return eval_metrics
 
     # print(f"Yaya")
-    def run_save_model(state, eval_metrics=None):
+    # rm , eval_metrics=None
+    def run_save_model(state):
         if jax.process_index() == 0:
 
             # start_save_time = time.perf_counter()
@@ -2220,7 +2221,7 @@ def main():
                 # print(f"RA: batch = {batch}")
                 # print(f"RA: train_time = {train_time}")
                 # rm , train_metrics
-                state = p_train_step(state, batch, train_time) # KAGGLE
+                state = p_train_step(state, batch, train_time) # DILUC
                 local_state["step"] += 1
                 local_state["train_time"] = train_time
                 local_state["train_samples"] += batch_size_per_step

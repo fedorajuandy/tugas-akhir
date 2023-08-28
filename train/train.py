@@ -1228,7 +1228,7 @@ def main():
                 )
                 batch = freeze(batch)
 
-                state = p_train_step(state, batch, train_time)
+                state = p_train_step(state, batch, train_time) # DILUC (edited)
                 local_state["step"] += 1
                 local_state["train_time"] = train_time
                 local_state["train_samples"] += batch_size_per_step
