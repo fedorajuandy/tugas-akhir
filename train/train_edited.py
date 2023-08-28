@@ -313,12 +313,12 @@ class DataTrainingArguments:
     #     },
     # )
     # DELETE LATER (?) using managed dataset
-    blank_caption_prob: Optional[float] = field(
-        default=0.0,
-        metadata={
-            "help": "Probability of removing some captions for classifier-free guidance."
-        },
-    )
+    # blank_caption_prob: Optional[float] = field(
+    #     default=0.0,
+    #     metadata={
+    #         "help": "Probability of removing some captions for classifier-free guidance."
+    #     },
+    # )
     # clip_score_column: Optional[str] = field(
     #     default="clip_score",
     #     metadata={"help": "Column that containts clip score for filtering."},
@@ -410,7 +410,7 @@ class TrainingArguments:
         },
     )
 
-    do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
+    # do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
     # DELETE LATER
     # do_eval: bool = field(
     #     default=False, metadata={"help": "Whether to run eval on the validation set."}
@@ -749,7 +749,7 @@ def split_params(data):
 
 
 def unsplit_params(data):
-    print(f"Ra's here. Starting unspliting params...")
+    # print(f"Ra's here. Starting unspliting params...")
 
     flat = {}
     for k in ["standard", "scanned_encoder", "scanned_decoder"]:
@@ -765,38 +765,38 @@ def trainable_params(data):
     # print(f"Ra's here. Filtering trainable params...")
 
     # if not embeddings_only:
-    #     return data
+    return data
 #     print(f"RA: data = {data}")
 
     # DELETE LATER; by I mean delete, edit the whole functionality
-    data = unfreeze(data)
+    # data = unfreeze(data)
 #     print(f"RA: frozen data = {data}")
 
-    trainable = {
-        "lm_head": data["lm_head"],
-        "model": {
-            "decoder": {
-                # CHECK LATER
-                layer: data["model"]["decoder"][layer]
-                for layer in [
-                    "embed_positions",
-                    "embed_tokens",
-                    "final_ln",
-                    "layernorm_embedding",
-                ]
-                # dictionary comprehension; transform one dict to another -> seek report
-            }
-        },
-    }
+    # trainable = {
+    #     "lm_head": data["lm_head"],
+    #     "model": {
+    #         "decoder": {
+    #             # CHECK LATER
+    #             layer: data["model"]["decoder"][layer]
+    #             for layer in [
+    #                 "embed_positions",
+    #                 "embed_tokens",
+    #                 "final_ln",
+    #                 "layernorm_embedding",
+    #             ]
+    #             # dictionary comprehension; transform one dict to another -> seek report
+    #         }
+    #     },
+    # }
 #     print(f"RA: trainable = {trainable}")
 
-    return freeze(trainable)
+    # return freeze(trainable)
 
 # CHECK LATER
 # def init_embeddings(model, params):
 #     # print(f"Ra's here. initialising embedding...")
 #     """Reinitialize trainable embeddings"""
-    
+
 #     # Must match params in trainable_params() above
 #     trainable_keypaths = [
 #         "lm_head.kernel",
@@ -812,7 +812,7 @@ def trainable_params(data):
 #     init_keys = {tuple(k.split(".")) for k in trainable_keypaths}
 # #     print(f"RA: init_keys = {init_keys}")
 #     model._missing_keys = init_keys
-    
+
 #     return model.init_weights(model.key, model.input_shape, params=params)
 
 
@@ -871,7 +871,7 @@ def main():
     #     datasets.utils.logging.set_verbosity_warning()
     #     transformers.utils.logging.set_verbosity_info()
     # else:
-    #     datasets.utils.logging.set_verbosity_error()
+    #     datasets.utils.logging.segt_verbosity_error()
     #     transformers.utils.logging.set_verbosity_error()
 
     # Set the verbosity to info of the Transformers logger (on main process only):
@@ -882,7 +882,8 @@ def main():
     dataset = Dataset(
         **asdict(data_args),
         # unpack dict (the dataset)
-        do_train=training_args.do_train,
+        do_eval=True,
+        # do_train=training_args.do_train,
         do_eval=False,
         # do_eval=training_args.do_eval,
     )
@@ -1037,7 +1038,7 @@ def main():
 #     print(f"RA: eval_batch_size_per_step = {eval_batch_size_per_step}")
     # Kaggle: eval_batch_size_per_step = 2
 
-    # DELETE LATER the eval part
+    # DELETE LATER the eval part; CANNOT- NEED CONFIG
     len_train_dataset, len_eval_dataset = dataset.length
 #     print(f"RA: len_train_dataset = {len_train_dataset}")
     # Kaggle: len_train_dataset = None
@@ -1075,8 +1076,8 @@ def main():
     # )
     # logger.info(f"  Batch size per update = {batch_size_per_step}")
     # logger.info(f"  Model parameters = {num_params:,}")
-    
-    # set up wandb run; DELETE LATER
+
+    # set up wandb run
     # print(f"Ra's here. Initialising WANDB metrics...")
     if jax.process_index() == 0:
         # set default x-axis as 'train/step'
@@ -1370,16 +1371,16 @@ def main():
 
         # elif training_args.optim in ["adam", "distributed_shampoo"]:
         # print(f"Ra's here. Using distributed shampoo or adam...")
-        def _opt_state_spec_per_leaf(x, spec):
-            # print(f"Ra's here. _opt_state_spec_per_leaf starts...")
-#                 print(f"RA: x = {x}")
-#                 print(f"RA: spec = {spec}")
-            if isinstance(x, FrozenDict):
-                # variables with same structure as params
-                return spec
-            else:
-                # other variables such as count
-                return None
+    #         def _opt_state_spec_per_leaf(x, spec):
+    #             # print(f"Ra's here. _opt_state_spec_per_leaf starts...")
+    # #                 print(f"RA: x = {x}")
+    # #                 print(f"RA: spec = {spec}")
+    #             if isinstance(x, FrozenDict):
+    #                 # variables with same structure as params
+    #                 return spec
+    #             else:
+    #                 # other variables such as count
+    #                 return None
 
         # print(f"Ra's here. _opt_state_spec_per_leaf ends.")
         split_spec = split_params(set_partitions(trainable_params_shape, False))

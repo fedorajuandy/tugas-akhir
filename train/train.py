@@ -444,7 +444,7 @@ class TrainingArguments:
 
         assert (
             jax.device_count() % self.mp_devices == 0
-        ), f"Number of available devices ({jax.device_count()} must be divisible by number of devices used for model parallelism ({self.mp_devices})."
+        ), f"Number of available devices must be divisible by mp_devices."
 
         self.dp_devices = jax.device_count() // self.mp_devices
 
@@ -486,24 +486,7 @@ def unsplit_params(data):
 def trainable_params(data):
     """ Keep only trainable parameters """
 
-    data = unfreeze(data)
-
-    trainable = {
-        "lm_head": data["lm_head"],
-        "model": {
-            "decoder": {
-                layer: data["model"]["decoder"][layer]
-                for layer in [
-                    "embed_positions",
-                    "embed_tokens",
-                    "final_ln",
-                    "layernorm_embedding",
-                ]
-            }
-        },
-    }
-
-    return freeze(trainable)
+    return data
 
 
 def main():
@@ -527,6 +510,7 @@ def main():
         do_eval=False,
     )
 
+    # Initialize wandb
     if jax.process_index() == 0:
         wandb.init(
             project=training_args.wandb_project,
@@ -534,12 +518,12 @@ def main():
             config=parser.parse_args(),
         )
 
+    # Set up config
     config_args = {
         k: getattr(model_args, k)
         for k in ["dropout", "activation_dropout", "attention_dropout"]
         if getattr(model_args, k) is not None
     }
-
     config_args["gradient_checkpointing"] = training_args.gradient_checkpointing
 
     if model_args.config_name:
@@ -547,6 +531,7 @@ def main():
     else:
         config = None
 
+    # Load or create model
     if model_args.model_name_or_path:
         model, params = DalleBart.from_pretrained(
             model_args.model_name_or_path,
@@ -569,19 +554,26 @@ def main():
 
     params_shape = model.params_shape_tree
     model_metadata = model_args.get_metadata()
+
+    # break parameters for parallel computation
     param_spec = set_partitions(params_shape, model.config.use_scan)
     params_shape = freeze(params_shape)
 
     if params is not None:
         params = freeze(params)
 
+    # Load tokenizer
     tokenizer = DalleBartTokenizer.from_pretrained(
         model_args.tokenizer_name, use_fast=True
     )
 
+    # Tokenize words according tokenizer and config
     dataset.preprocess(tokenizer=tokenizer, config=model.config)
+
+    # Initialize training
     dropout_rng = jax.random.PRNGKey(training_args.seed_model)
     num_epochs = training_args.num_train_epochs
+
     batch_size_per_node_per_grad_step = (
         training_args.per_device_train_batch_size * jax.local_device_count() // training_args.mp_devices
     )
@@ -589,6 +581,7 @@ def main():
         batch_size_per_node_per_grad_step * training_args.gradient_accumulation_steps
     )
     batch_size_per_step = batch_size_per_node * jax.process_count()
+
     len_train_dataset, len_eval_dataset = dataset.length
     steps_per_epoch = (
         len_train_dataset // batch_size_per_node
@@ -601,7 +594,7 @@ def main():
     num_params = model.num_params(params_shape)
 
     if jax.process_index() == 0:
-        wandb.define_metric("*", step_metric="train/step")
+        wandb.define_metric("*", step_metric="train/step") # x-axis
         wandb.config.update(
             {
                 "len_train_dataset": len_train_dataset,
@@ -623,8 +616,9 @@ def main():
         )
 
     def create_learning_rate_fn() -> Callable[[int], jnp.array]:
-        """ Create the learning rate function """
+        """ Create the learning rate (step size each update) function """
 
+        # gradually increases learning rate from init_value to training_args.learning_rate
         warmup_fn = optax.linear_schedule(
             init_value=0.0,
             end_value=training_args.learning_rate,
@@ -666,6 +660,7 @@ def main():
 
         return schedule_fn
 
+    # create optimizer
     learning_rate_fn = create_learning_rate_fn()
     trainable_params_shape = trainable_params(
         params_shape
@@ -705,7 +700,9 @@ def main():
         exponent_override=0,
         statistics_partition_spec=statistics_partition_spec,
         preconditioner_partition_spec=PartitionSpec(
-            training_args.shard_shampoo_across, None, None
+            training_args.shard_shampoo_across,
+            None,
+            None
         )
         if training_args.shard_shampoo_across != "2d"
         else PartitionSpec(
@@ -727,6 +724,7 @@ def main():
     optimizer = {}
     opt_fn = {}
 
+    # initialize optimizer with training parameters
     for k, p in split_params(trainable_params_shape).items():
         if "scanned" in k:
             p = jax.eval_shape(
@@ -740,6 +738,8 @@ def main():
         optimizer[k] = optax.GradientTransformation(optimizer[k].init_fn, update_fn)
 
     def get_opt_state_spec_and_shape():
+        """ Get PartitionSpec for optimizer state """
+
         opt_state_shape = {}
 
         for k, p in split_params(trainable_params_shape).items():
@@ -747,14 +747,6 @@ def main():
                 opt_state_shape[k] = jax.eval_shape(optimizer[k].init, p)
             else:
                 opt_state_shape[k] = jax.eval_shape(jax.vmap(optimizer[k].init), p)
-
-        def _opt_state_spec_per_leaf(x, spec):
-            if isinstance(x, FrozenDict):
-                # variables with same structure as params
-                return spec
-            else:
-                # other variables such as count
-                return None
 
         split_spec = split_params(set_partitions(trainable_params_shape, False))
         opt_state_spec = {}
@@ -771,7 +763,7 @@ def main():
                 statistics_partition_spec,
             )
 
-            # add dimension for scanned params
+            # Add dimension for scanned params
             if "scanned" in k:
                 opt_state_spec[k] = jax.tree_util.tree_map(
                     lambda x: PartitionSpec(*(None,) + x)
@@ -785,6 +777,7 @@ def main():
 
     opt_state_spec, opt_state_shape = get_opt_state_spec_and_shape()
 
+    # Represent data as matrix
     mesh_shape = (training_args.dp_devices, training_args.mp_devices)
     devices = np.asarray(jax.devices()).reshape(*mesh_shape)
     mesh = maps.Mesh(devices, ("dp", "mp"))
@@ -813,6 +806,7 @@ def main():
             )
             opt_state = {}
 
+            # Loop over keys: "standard", "scanned_encoder", "scanned_decoder"
             for k, param in params.items():
                 update_fn = self.tx[k].update
 
@@ -875,12 +869,16 @@ def main():
     )
 
     def maybe_init_params(params):
+        """ Init params if not available yet """
+
         if params is not None:
             return params
         else:
             return model.init_weights(model.key, model.input_shape)
 
+    # Create state
     with mesh:
+        # Restore state
         attr_state = {}
         keys = ["train_time", "train_samples"]
         if model_args.restore_state:
@@ -889,6 +887,8 @@ def main():
 
         if not model_args.restore_state:
             def init_state(params):
+                """ Initialize new state """
+
                 return TrainState.create(
                     apply_fn=model.__call__,
                     tx=optimizer,
@@ -910,6 +910,8 @@ def main():
             opt_state = from_bytes(opt_state_shape, model_args.get_opt_state())
 
             def restore_state(params, opt_state):
+                """ Load state """
+
                 return TrainState(
                     apply_fn=model.__call__,
                     tx=optimizer,
@@ -929,6 +931,7 @@ def main():
                 donate_argnums=(0, 1),
             )(params, opt_state)
 
+            # Free stuff from CPU memory
             del opt_state
 
     del params, opt_state_spec, opt_state_shape
@@ -937,30 +940,36 @@ def main():
     grad_batch_spec = PartitionSpec(None, "dp")
 
     def loss_fn(logits, labels):
+        """ Define loss """
+
         loss = optax.softmax_cross_entropy(logits, onehot(labels, logits.shape[-1]))
         loss = loss.mean()
         return loss
 
+    # Avoid crash
     use_vmap_trick = training_args.use_vmap_trick
 
-    # make grad_param_spec for vmap
+    # Make grad_param_spec for vmap
     if use_vmap_trick:
         grad_param_spec = jax.tree_util.tree_map(
             lambda x: PartitionSpec(*("dp",) + (x if x is not None else (None,))),
             param_spec,
         )
 
-    # Define gradient update step fn
     def train_step(state, batch, train_time):
-        # get a minibatch (one gradient accumulation slice)
+        """ Gradient update step """
+
         def get_minibatch(batch, grad_idx):
+            """ Get a minibatch (one gradient accumulation slice) """
+
             return jax.tree_util.tree_map(
                 lambda x: jax.lax.dynamic_index_in_dim(x, grad_idx, keepdims=False),
                 batch,
             )
 
         def compute_loss(params, minibatch, dropout_rng):
-            # minibatch has dim (batch_size, ...)
+            """ Loss function """
+
             minibatch, labels = minibatch.pop("labels")
             logits = state.apply_fn(
                 **minibatch, params=params, dropout_rng=dropout_rng, train=True
