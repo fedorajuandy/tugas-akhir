@@ -957,7 +957,7 @@ def main():
         )
 
     def train_step(state, batch, train_time):
-        """ Gradient update step """
+        """ Update gradient each step """
 
         def get_minibatch(batch, grad_idx):
             """ Get a minibatch (one gradient accumulation slice) """
@@ -979,34 +979,31 @@ def main():
         grad_fn = jax.value_and_grad(compute_loss)
 
         def loss_and_grad(grad_idx, dropout_rng):
-            # minibatch at grad_idx for gradient accumulation (None otherwise)
+            """ Get loss, gradient, and dropout for each step """
+
             minibatch = (
                 get_minibatch(batch, grad_idx) if grad_idx is not None else batch
             )
-            # ensure it is sharded properly
             minibatch = with_sharding_constraint(minibatch, batch_spec)
-            # only 1 single rng per grad step, let us handle larger batch size (not sure why)
+
             dropout_rng, _ = jax.random.split(dropout_rng)
 
             if use_vmap_trick:
-                # "vmap trick", calculate loss and grads independently per dp_device
+                # Get values per device
                 loss, grads = jax.vmap(
                     grad_fn, in_axes=(None, 0, None), out_axes=(0, 0)
                 )(state.params, minibatch, dropout_rng)
-                # ensure they are sharded correctly
                 loss = with_sharding_constraint(loss, batch_spec)
                 grads = with_sharding_constraint(grads, grad_param_spec)
-                # average across all devices
-                # Note: we could average per device only after gradient accumulation, right before params update
+                # Average values across all devices
                 loss, grads = jax.tree_util.tree_map(
                     lambda x: jnp.mean(x, axis=0), (loss, grads)
                 )
             else:
-                # "vmap trick" does not work in multi-hosts and requires too much hbm
                 loss, grads = grad_fn(state.params, minibatch, dropout_rng)
-            # ensure grads are sharded
+
             grads = with_sharding_constraint(grads, param_spec)
-            # return loss and grads
+
             return loss, grads, dropout_rng
 
         if training_args.gradient_accumulation_steps == 1:
@@ -1021,17 +1018,19 @@ def main():
                 state.dropout_rng,
             )
 
-            # accumulate gradients
             def cumul_minibatch_step(grad_idx, cumul_loss_grad_dropout):
+                """ Accumulate gradients """
+
                 cumul_loss, cumul_grads, dropout_rng = cumul_loss_grad_dropout
                 loss, grads, dropout_rng = loss_and_grad(grad_idx, dropout_rng)
                 cumul_loss, cumul_grads = jax.tree_util.tree_map(
                     jnp.add, (cumul_loss, cumul_grads), (loss, grads)
                 )
                 cumul_grads = with_sharding_constraint(cumul_grads, param_spec)
+
                 return cumul_loss, cumul_grads, dropout_rng
 
-            # loop over gradients
+            # Loop over gradients
             loss, grads, dropout_rng = jax.lax.fori_loop(
                 0,
                 training_args.gradient_accumulation_steps,
@@ -1039,14 +1038,14 @@ def main():
                 init_minibatch_step,
             )
             grads = with_sharding_constraint(grads, param_spec)
-            # sum -> mean
+
             loss, grads = jax.tree_util.tree_map(
                 lambda x: x / training_args.gradient_accumulation_steps, (loss, grads)
             )
 
         grads = with_sharding_constraint(grads, param_spec)
 
-        # update state
+        # Uspdate state
         state = state.apply_gradients(
             grads=grads,
             dropout_rng=dropout_rng,
@@ -1059,11 +1058,12 @@ def main():
             "learning_rate": learning_rate_fn(state.step),
         }
 
-        def maybe_fn(fn, val, zeros, freq):
-            """Call fn only if it is a logging step"""
+        def maybe_fn(function, val, zeros, freq):
+            """ Log update """
+
             return jax.lax.cond(
                 state.step % freq == 0,
-                fn,
+                function,
                 lambda _: zeros,
                 val,
             )
@@ -1106,7 +1106,7 @@ def main():
     )
 
 
-    # keep local copy of state
+    # Keep local copy of state
     local_state = {
         k: jax.device_get(getattr(state, k)).item()
         for k in ["step", "epoch", "train_time", "train_samples"]
@@ -1121,6 +1121,8 @@ def main():
     )
 
     def run_save_model(state):
+        """ Save model """
+
         if jax.process_index() == 0:
             output_dir = training_args.output_dir
 
@@ -1133,8 +1135,8 @@ def main():
             tokenizer.save_pretrained(output_dir)
 
             opt_state = jax.device_get(state.opt_state)
-            with (Path(output_dir) / "opt_state.msgpack").open("wb") as f:
-                f.write(to_bytes(opt_state))
+            with (Path(output_dir) / "opt_state.msgpack").open("wb") as file:
+                file.write(to_bytes(opt_state))
 
             if training_args.log_model:
                 metadata = {
@@ -1142,11 +1144,13 @@ def main():
                     for k in ["step", "epoch", "train_time", "train_samples"]
                 }
                 metadata["num_params"] = num_params
+
                 artifact = wandb.Artifact(
                     name=f"model-{wandb.run.id}",
                     type="DalleBart_model",
                     metadata=metadata,
                 )
+
                 for filename in [
                     "config.json",
                     "flax_model.msgpack",
@@ -1159,6 +1163,7 @@ def main():
                     artifact.add_file(
                         f"{Path(training_args.output_dir) / filename}"
                     )
+
                 wandb.run.log_artifact(artifact)
 
                 artifact_state = wandb.Artifact(
@@ -1166,17 +1171,19 @@ def main():
                     type="DalleBart_state",
                     metadata=metadata,
                 )
-
                 artifact_state.add_file(
                     f"{Path(training_args.output_dir) / 'opt_state.msgpack'}"
                 )
+
                 wandb.run.log_artifact(artifact_state)
 
+    # Start training
     with mesh:
         for epoch in epochs:
             state = state.replace(epoch=epoch)
             local_state["epoch"] = epoch
 
+            # Load data
             node_groups = max(
                 1, training_args.mp_devices // jax.local_device_count()
             )
@@ -1209,6 +1216,7 @@ def main():
                         training_args.per_device_train_batch_size,
                     )
                 )
+
                 if training_args.gradient_accumulation_steps > 1:
                     bs_shape = (
                         training_args.gradient_accumulation_steps,
@@ -1229,7 +1237,7 @@ def main():
                     run_save_model(state)
                     save_model_ran = True
 
-
+            # Save each epoch
             if not save_model_ran:
                 run_save_model(state)
 
