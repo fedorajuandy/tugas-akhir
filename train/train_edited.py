@@ -882,7 +882,7 @@ def main():
     dataset = Dataset(
         **asdict(data_args),
         # unpack dict (the dataset)
-        do_eval=True,
+        do_train=True,
         # do_train=training_args.do_train,
         do_eval=False,
         # do_eval=training_args.do_eval,
