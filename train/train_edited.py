@@ -765,32 +765,32 @@ def trainable_params(data):
     # print(f"Ra's here. Filtering trainable params...")
 
     # if not embeddings_only:
-    # return data
+    return data
 #     print(f"RA: data = {data}")
 
     # DELETE LATER; by I mean delete, edit the whole functionality
-    data = unfreeze(data)
-    # print(f"RA: frozen data = {data}")
+    # data = unfreeze(data)
+    # # print(f"RA: frozen data = {data}")
 
-    trainable = {
-        "lm_head": data["lm_head"],
-        "model": {
-            "decoder": {
-                # CHECK LATER
-                layer: data["model"]["decoder"][layer]
-                for layer in [
-                    "embed_positions",
-                    "embed_tokens",
-                    "final_ln",
-                    "layernorm_embedding",
-                ]
-                # dictionary comprehension; transform one dict to another -> seek report
-            }
-        },
-    }
-    # print(f"RA: trainable = {trainable}")
+    # trainable = {
+    #     "lm_head": data["lm_head"],
+    #     "model": {
+    #         "decoder": {
+    #             # CHECK LATER
+    #             layer: data["model"]["decoder"][layer]
+    #             for layer in [
+    #                 "embed_positions",
+    #                 "embed_tokens",
+    #                 "final_ln",
+    #                 "layernorm_embedding",
+    #             ]
+    #             # dictionary comprehension; transform one dict to another -> seek report
+    #         }
+    #     },
+    # }
+    # # print(f"RA: trainable = {trainable}")
 
-    return freeze(trainable)
+    # return freeze(trainable)
 
 # CHECK LATER
 # def init_embeddings(model, params):
