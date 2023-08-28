@@ -486,7 +486,24 @@ def unsplit_params(data):
 def trainable_params(data):
     """ Keep only trainable parameters """
 
-    return data
+    data = unfreeze(data)
+
+    trainable = {
+        "lm_head": data["lm_head"],
+        "model": {
+            "decoder": {
+                layer: data["model"]["decoder"][layer]
+                for layer in [
+                    "embed_positions",
+                    "embed_tokens",
+                    "final_ln",
+                    "layernorm_embedding",
+                ]
+            }
+        },
+    }
+
+    return freeze(trainable)
 
 
 def main():
