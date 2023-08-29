@@ -896,9 +896,7 @@ def main():
                     dropout_rng=dropout_rng,
                     **attr_state,
                 )
-            
-            print(init_state)
-            print(type(init_state))
+
             state = pjit( # KAEYA
                 init_state,
                 in_axis_resources=(param_spec,)
