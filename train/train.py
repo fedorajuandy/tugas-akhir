@@ -786,7 +786,7 @@ def main():
         """ Define training's state """
 
         step: int
-        params: FrozenDict[str, Any]
+        params: core.FrozenDict[str, Any]
         opt_state: optax.OptState
         apply_fn: Callable = struct.field(pytree_node=False)
         tx: optax.GradientTransformation = struct.field(pytree_node=False)
@@ -899,7 +899,7 @@ def main():
 
             state = pjit( # KAEYA
                 init_state,
-                in_axis_resources=(param_spec,)
+                in_axis_resources=(FrozenDict[param_spec],)
                 if model_args.model_name_or_path
                 else None,
                 out_axis_resources=state_spec,
