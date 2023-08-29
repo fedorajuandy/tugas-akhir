@@ -29,9 +29,8 @@ import numpy as np
 import optax
 import transformers
 import wandb
-from datasets import Dataset
 from flax import core, struct, traverse_util
-from flax.core.frozen_dict import FrozenDict, freeze, unfreeze
+from flax.core.frozen_dict import freeze, unfreeze
 from flax.serialization import from_bytes, to_bytes
 from flax.training.common_utils import onehot
 from jax.sharding import PartitionSpec
@@ -786,7 +785,7 @@ def main():
         """ Define training's state """
 
         step: int
-        params: FrozenDict[str, Any]
+        params: core.FrozenDict[str, Any]
         opt_state: optax.OptState
         apply_fn: Callable = struct.field(pytree_node=False)
         tx: optax.GradientTransformation = struct.field(pytree_node=False)
