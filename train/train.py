@@ -444,7 +444,7 @@ class TrainingArguments:
 
         assert (
             jax.device_count() % self.mp_devices == 0
-        ), f"Number of available devices must be divisible by mp_devices."
+        ), "Number of available devices must be divisible by mp_devices."
 
         self.dp_devices = jax.device_count() // self.mp_devices
 
@@ -1009,7 +1009,7 @@ def main():
         if training_args.gradient_accumulation_steps == 1:
             loss, grads, dropout_rng = loss_and_grad(None, state.dropout_rng)
         else:
-            # create initial state for cumul_minibatch_step loop
+            # Create initial state for cumul_minibatch_step loop
             init_minibatch_step = (
                 0.0,
                 with_sharding_constraint(
@@ -1104,7 +1104,6 @@ def main():
         out_axis_resources=(state_spec, None),
         donate_argnums=(0,),
     )
-
 
     # Keep local copy of state
     local_state = {
