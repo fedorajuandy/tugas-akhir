@@ -897,6 +897,8 @@ def main():
                     **attr_state,
                 )
 
+            print(param_spec)
+            print(state_spec)
             state = pjit( # KAEYA
                 init_state,
                 in_axis_resources=(param_spec,)
