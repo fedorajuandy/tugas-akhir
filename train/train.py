@@ -180,6 +180,12 @@ class DataTrainingArguments:
             "help": "Whether to stream the dataset to prevent bottleneck."
         },
     )
+    blank_caption_prob: Optional[float] = field(
+        default=0.0,
+        metadata={
+            "help": "Probability of removing some captions for classifier-free guidance."
+        },
+    )
     seed_dataset: int = field(
         default=None,
         metadata={
@@ -208,6 +214,18 @@ class TrainingArguments:
                 "Overwrite or continue from checkpoint if enabled "
             )
         },
+    )
+    do_train: bool = field(
+        default=True,
+        metadata={
+            "help": "Whether to run training."
+        },
+    )
+    do_eval: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to run eval on the validation set."
+        }
     )
     per_device_train_batch_size: int = field(
         default=1,
@@ -318,33 +336,30 @@ class TrainingArguments:
             "help": "Learning rate scheduler's decay; none, linear, or exponential."
         },
     )
-    # CHECK LATER
-    lr_transition_steps: int = field(
-        default=None,
-        metadata={
-            "help": "Learning rate's transition steps when using exponential decay."
-        },
-    )
-    # CHECK LATER
-    lr_decay_rate: float = field(
-        default=None,
-        metadata={
-            "help": "Learning rate's decay rate (number of steps) when using exponential decay."
-        },
-    )
-    # CHECK LATER
-    lr_staircase: bool = field(
-        default=False,
-        metadata={
-            "help": "Staircase or continuous learning rate when using exponential decay."
-        },
-    )
     lr_offset: int = field(
         default=0,
         metadata={
             "help": "Number of steps to offset learning rate and keep it at 0."
         },
     )
+    # lr_transition_steps: int = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "Learning rate's transition steps when using exponential decay."
+    #     },
+    # )
+    # lr_decay_rate: float = field(
+    #     default=None,
+    #     metadata={
+    #         "help": "Learning rate's decay rate (number of steps) when using exponential decay."
+    #     },
+    # )
+    # lr_staircase: bool = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "Staircase or continuous learning rate when using exponential decay."
+    #     },
+    # )
     save_steps: int = field(
         default=3000,
         metadata={
@@ -505,8 +520,8 @@ def main():
     # Load dataset
     dataset = Dataset(
         **asdict(data_args),
-        do_train=True,
-        do_eval=False,
+        do_train=training_args.do_train,
+        do_eval=training_args.do_eval,
     )
 
     # Initialize wandb
