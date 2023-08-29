@@ -786,7 +786,7 @@ def main():
         """ Define training's state """
 
         step: int
-        params: core.FrozenDict[str, Any]
+        params: FrozenDict[str, Any]
         opt_state: optax.OptState
         apply_fn: Callable = struct.field(pytree_node=False)
         tx: optax.GradientTransformation = struct.field(pytree_node=False)
