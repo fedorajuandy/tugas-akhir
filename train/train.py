@@ -29,6 +29,7 @@ import numpy as np
 import optax
 import transformers
 import wandb
+from datasets import Dataset
 from flax import core, struct, traverse_util
 from flax.core.frozen_dict import freeze, unfreeze
 from flax.serialization import from_bytes, to_bytes
