@@ -1,4 +1,4 @@
-""" Make dataset containing a pair of a caption and an encoded image """
+""" Make dataset containing a pair of a caption and an encoded image adapted from DALL-E mini's encoding Notebook """
 # caption = string, encoded image = integers
 
 from pathlib import Path

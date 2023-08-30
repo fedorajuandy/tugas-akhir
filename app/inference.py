@@ -1,4 +1,4 @@
-""" Generate and return image """
+""" Generate and return image adapted from DALL-E mini's playground """
 
 import random
 from functools import partial
