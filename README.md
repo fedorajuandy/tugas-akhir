@@ -17,7 +17,7 @@ pinned: false
 
 A simple application to generate images with the limitation of the algorithm, dataset, hardware specification, chosen limited configuration, and other various variables.
 
-![UI](/img/interface.png)
+![UI](/additional/interface.png)
 
 1. "Text prompt" textbox to enter text description of desired image
 2. "Run" button (or keyboard ENTER button) to confirm input
