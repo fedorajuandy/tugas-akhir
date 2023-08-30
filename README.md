@@ -27,7 +27,9 @@ A simple application to generate images with the limitation of the algorithm, da
 
 - Optimisation only using Distributed Shampoo
 - The dataset is limited to CelebA-HQ
-- Very (extremely, exeedingly, incredibly-) limited computing resources
+- The training is only tracked by epoch
+- Only logs learning rate and loss
+- Encoding, training, and inference can be run in any free plan Colab, Kaggle, and Gradient
 
 ---
 
@@ -96,7 +98,7 @@ Users input either free-form text in the textbox or choose one or several attrib
 }
 ```
 
-### Codes, and Libraries
+### Codes and Libraries
 
 ```text
 @misc{Dayma_DALL·E_Mini_2021,
