@@ -134,9 +134,13 @@ Users input either free-form text in the textbox or choose one or several attrib
 
 - [Gradio documentation](https://gradio.app/docs)
 
-### Papers' explanation
+### Extra Explanation
 
-- 
+- [DALL-E Mini: Powerful image generation in a tiny model](https://blog.paperspace.com/dalle-mini/)
+- [How DALL-E Mini Works](https://towardsdatascience.com/understanding-how-dall-e-mini-works-114048912b3b)
+- [Fine-tuning DALL·E Mini (Craiyon) to Generate Blogpost Images](https://medium.com/@turc.raluca/fine-tuning-dall-e-mini-craiyon-to-generate-blogpost-images-32903cc7aa52)
+- [Talks S2E1: DALL·E mini - Generate images from a text prompt](https://www.youtube.com/watch?v=-tMnGA4x3kA)
+- [DALL-E mini explained | min(DALL-E) | Craiyon | ML Coding Series](https://www.youtube.com/watch?v=x_8uHX5KngE)
 
 ---
 
