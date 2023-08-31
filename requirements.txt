@@ -1,7 +1,6 @@
 # Python package requirements
 # Use "pip install -r requrements.txt"
 
-black[jupyter]
 braceexpand
 dalle-mini
 datasets[streaming]
