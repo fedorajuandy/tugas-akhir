@@ -181,12 +181,6 @@ class DataTrainingArguments:
             "help": "Whether to stream the dataset to prevent bottleneck."
         },
     )
-    blank_caption_prob: Optional[float] = field(
-        default=0.0,
-        metadata={
-            "help": "Probability of removing some captions for classifier-free guidance."
-        },
-    )
     seed_dataset: int = field(
         default=None,
         metadata={
@@ -343,24 +337,24 @@ class TrainingArguments:
             "help": "Number of steps to offset learning rate and keep it at 0."
         },
     )
-    # lr_transition_steps: int = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "Learning rate's transition steps when using exponential decay."
-    #     },
-    # )
-    # lr_decay_rate: float = field(
-    #     default=None,
-    #     metadata={
-    #         "help": "Learning rate's decay rate (number of steps) when using exponential decay."
-    #     },
-    # )
-    # lr_staircase: bool = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "Staircase or continuous learning rate when using exponential decay."
-    #     },
-    # )
+    lr_transition_steps: int = field(
+        default=None,
+        metadata={
+            "help": "Learning rate's transition steps when using exponential decay."
+        },
+    )
+    lr_decay_rate: float = field(
+        default=None,
+        metadata={
+            "help": "Learning rate's decay rate (number of steps) when using exponential decay."
+        },
+    )
+    lr_staircase: bool = field(
+        default=False,
+        metadata={
+            "help": "Staircase or continuous learning rate when using exponential decay."
+        },
+    )
     save_steps: int = field(
         default=3000,
         metadata={
