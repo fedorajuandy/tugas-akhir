@@ -173,7 +173,9 @@ class DataTrainingArguments:
     )
     dataset_repo_or_path: str = field(
         default=None,
-        metadata={"help": "Dataset's location."},
+        metadata={
+            "help": "Dataset's location."
+        },
     )
     streaming: Optional[bool] = field(
         default=True,
@@ -380,7 +382,7 @@ class TrainingArguments:
         },
     )
     wandb_project: str = field(
-        default="dalle-mini",
+        default="tugas-akhir",
         metadata={
             "help": "W&B project's name."
         },
@@ -906,7 +908,7 @@ def main():
                     **attr_state,
                 )
 
-            state = pjit( # KAEYA
+            state = pjit(
                 init_state,
                 in_axis_resources=(param_spec,)
                 if model_args.model_name_or_path
