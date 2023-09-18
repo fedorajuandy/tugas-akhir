@@ -38,7 +38,7 @@ from jax.sharding import PartitionSpec
 from jax.experimental import maps
 from jax.experimental.compilation_cache import compilation_cache as cc
 from jax.experimental.pjit import pjit, with_sharding_constraint
-from optax_shampoo.distributed_shampoo import GraftingType, distributed_shampoo
+from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo
 from tqdm import tqdm
 from transformers import HfArgumentParser
 
