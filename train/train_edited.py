@@ -107,7 +107,7 @@ from jax.experimental.compilation_cache import compilation_cache as cc
 # compilation_cache: JAX cache (yey to no cache) to reuse compiled functions [result: not used if < 1s]
 from jax.experimental.pjit import pjit, with_sharding_constraint
 # decorator (takes another function as input, returns modified one: like inheritance, but already made) for parallelism
-from optax_shampoo.distributed_shampoo import GraftingType, distributed_shampoo #pylint: disable=import-error
+from scalable_shampoo.distributed_shampoo import GraftingType, distributed_shampoo #pylint: disable=import-error
 # distributed training
 # GraftingType: enumeration (named constant values)
 from tqdm import tqdm
@@ -618,7 +618,7 @@ class TrainingArguments:
     # )
     # CHANGE LATER, DELETE LATER
     wandb_project: str = field(
-        default="tugas-akhir",
+        default="dalle-mini",
         metadata={"help": "The name of the wandb project."},
     )
     wandb_job_type: str = field(
